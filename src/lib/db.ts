@@ -54,34 +54,40 @@ async function getPool(): Promise<Pool | null> {
 }
 
 async function ensureSchema(pool: Pool): Promise<void> {
-  if (!mem.ready) {
-    mem.ready = (async () => {
-      await pool.query(`
-        create table if not exists app_state (
-          id int primary key,
-          data jsonb not null,
-          updated_at timestamptz not null default now()
-        );
-      `);
-      await pool.query(`
-        create table if not exists push_subs (
-          endpoint text primary key,
-          sub jsonb not null,
-          created_at timestamptz not null default now()
-        );
-      `);
-      await pool.query(`
-        create table if not exists notif_log (
-          key text primary key,
-          sent_at timestamptz not null default now()
-        );
-      `);
-    })().catch((err) => {
-      mem.ready = null;
-      throw err;
-    });
+  const pending = mem.ready;
+  if (pending) return pending;
+
+  const ready = (async () => {
+    await pool.query(`
+      create table if not exists app_state (
+        id int primary key,
+        data jsonb not null,
+        updated_at timestamptz not null default now()
+      );
+    `);
+    await pool.query(`
+      create table if not exists push_subs (
+        endpoint text primary key,
+        sub jsonb not null,
+        created_at timestamptz not null default now()
+      );
+    `);
+    await pool.query(`
+      create table if not exists notif_log (
+        key text primary key,
+        sent_at timestamptz not null default now()
+      );
+    `);
+  })();
+
+  mem.ready = ready;
+  try {
+    await ready;
+  } catch (err) {
+    // Let the next call retry instead of caching a failed migration.
+    mem.ready = null;
+    throw err;
   }
-  return mem.ready;
 }
 
 /* ---------- app data ---------- */
