@@ -1,4 +1,4 @@
-# Reda Rise
+# Reda
 
 Application Next.js (App Router) installable sur iPhone et Android, avec cache
 hors-ligne complet et notifications push réelles (VAPID) qui s'affichent même
@@ -157,11 +157,6 @@ GitHub Actions ou Uptime Robot font la même chose si tu préfères.
 
 En passant au plan Pro, remplace le `schedule` de `vercel.json` par
 `*/15 * * * *` et le planificateur externe devient inutile.
-
-La route accepte le secret en `Authorization: Bearer …`, en paramètre `?secret=`,
-ou l'en-tête `x-vercel-cron` que Vercel ajoute lui-même. Une fenêtre de rattrapage
-de 75 minutes absorbe l'imprécision du planificateur : un rappel prévu à 9 h 00
-part encore s'il est déclenché à 9 h 40, mais jamais deux fois.
 
 La route accepte le secret en `Authorization: Bearer …`, en paramètre `?secret=`,
 ou l'en-tête `x-vercel-cron` que Vercel ajoute lui-même. Une fenêtre de rattrapage
