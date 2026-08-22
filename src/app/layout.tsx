@@ -3,11 +3,11 @@ import './globals.css';
 import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Muscu',
-  applicationName: 'Muscu',
-  description: 'Suivi de musculation, checklist quotidienne et rappels.',
+  title: 'Reda Rise',
+  applicationName: 'Reda Rise',
+  description: 'Entraînement, discipline quotidienne et objectifs personnels.',
   manifest: '/manifest.webmanifest',
-  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Muscu' },
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Reda Rise' },
   icons: {
     icon: [{ url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }],
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#08090b',
+  themeColor: '#060709',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

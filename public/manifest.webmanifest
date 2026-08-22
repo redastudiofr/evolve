@@ -1,16 +1,16 @@
 {
   "id": "/",
-  "name": "Muscu — Suivi de musculation",
-  "short_name": "Muscu",
-  "description": "Séances, checklist quotidienne, progression et rappels.",
+  "name": "Reda Rise",
+  "short_name": "Reda Rise",
+  "description": "Entraînement, discipline quotidienne et objectifs personnels.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#08090b",
-  "theme_color": "#08090b",
+  "background_color": "#060709",
+  "theme_color": "#060709",
   "categories": ["health", "fitness", "lifestyle"],
   "icons": [
     {
@@ -33,7 +33,7 @@
     }
   ],
   "shortcuts": [
-    { "name": "Séance du jour", "url": "/seances" },
-    { "name": "Progression", "url": "/progression" }
+    { "name": "Semaine", "url": "/semaine" },
+    { "name": "Objectifs", "url": "/objectifs" }
   ]
 }

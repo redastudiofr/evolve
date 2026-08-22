@@ -1,10 +1,9 @@
-import type { AppData, DailyEntry, LoggedWorkout } from './types';
-import { findExercise, PROGRAM } from './program';
+import type { AppData, DailyEntry, DayPlan, LoggedWorkout } from './types';
+import { dayForWeekday, findExercise, WEEK } from './program';
 
 /* ---------- dates ---------- */
 
 export function todayKey(tz = 'Europe/Paris', d = new Date()): string {
-  // en-CA gives YYYY-MM-DD
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: tz,
     year: 'numeric',
@@ -18,6 +17,11 @@ export function shiftKey(key: string, days: number): string {
   const d = new Date(Date.UTC(y, m - 1, dd));
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
+}
+
+export function weekdayOf(key: string): number {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
 }
 
 export function formatDate(key: string): string {
@@ -34,6 +38,27 @@ export function formatShort(key: string): string {
   );
 }
 
+/** The seven date keys of the current week, Monday first. */
+export function weekDates(tz: string): string[] {
+  const today = todayKey(tz);
+  const wd = weekdayOf(today);
+  const monday = shiftKey(today, wd === 0 ? -6 : 1 - wd);
+  return Array.from({ length: 7 }, (_, i) => shiftKey(monday, i));
+}
+
+/* ---------- weekly plan ---------- */
+
+export function planForDate(key: string): DayPlan {
+  return dayForWeekday(weekdayOf(key));
+}
+
+export function todayPlan(tz: string): DayPlan {
+  return planForDate(todayKey(tz));
+}
+
+/** Week order used everywhere in the UI: Monday → Sunday. */
+export const WEEK_ORDERED: DayPlan[] = [...WEEK.slice(1), WEEK[0]];
+
 /* ---------- checklist / XP ---------- */
 
 export type Task = { id: string; label: string; hint: string; xp: number };
@@ -45,7 +70,7 @@ export const TASKS: Task[] = [
   { id: 'proteines', label: 'Apport protéines', hint: 'Environ 2 g par kg', xp: 15 },
   { id: 'hydratation', label: 'Hydratation', hint: '2,5 à 3 L sur la journée', xp: 10 },
   { id: 'fruits', label: 'Fruits et légumes', hint: 'À chaque repas', xp: 10 },
-  { id: 'activite', label: 'Activité physique', hint: 'Marche, mobilité, sport', xp: 10 },
+  { id: 'activite', label: 'Marche', hint: 'La marche du jour est faite', xp: 10 },
   { id: 'sommeil', label: 'Sommeil', hint: '8 heures minimum', xp: 15 },
   { id: 'alimentation', label: 'Alimentation respectée', hint: 'Pas d’écart majeur', xp: 10 },
   { id: 'journal', label: 'Journal rempli', hint: 'Séance et ressenti notés', xp: 5 },
@@ -84,8 +109,6 @@ export function levelInfo(xp: number) {
     current,
     next,
     progress,
-    xpIntoLevel: xp - current.min,
-    xpForLevel: next ? span : 0,
     remaining: next ? Math.max(0, next.min - xp) : 0,
   };
 }
@@ -98,8 +121,6 @@ export function isDaySuccessful(entry?: DailyEntry): boolean {
 export function currentStreak(daily: Record<string, DailyEntry>, tz: string): number {
   const today = todayKey(tz);
   let streak = 0;
-  // Today only breaks the streak once it is over, so start from today but
-  // tolerate an empty today by falling back to yesterday.
   let cursor = isDaySuccessful(daily[today]) ? today : shiftKey(today, -1);
   while (isDaySuccessful(daily[cursor])) {
     streak++;
@@ -117,19 +138,8 @@ export function last7Rate(daily: Record<string, DailyEntry>, tz: string): number
 
 /* ---------- workouts ---------- */
 
-export function nextSessionId(workouts: LoggedWorkout[]): string {
-  const last = [...workouts].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
-  if (!last) return PROGRAM[0].id;
-  const i = PROGRAM.findIndex((s) => s.id === last.sessionId);
-  return PROGRAM[(i + 1) % PROGRAM.length].id;
-}
-
-export function lastWorkoutFor(workouts: LoggedWorkout[], sessionId: string): LoggedWorkout | null {
-  return (
-    [...workouts]
-      .filter((w) => w.sessionId === sessionId)
-      .sort((a, b) => (a.date < b.date ? 1 : -1))[0] ?? null
-  );
+export function workoutOn(workouts: LoggedWorkout[], date: string): LoggedWorkout | null {
+  return workouts.find((w) => w.date === date) ?? null;
 }
 
 export type Suggestion = { weight: number; raise: boolean; reason: string };
@@ -144,8 +154,8 @@ export function suggestLoad(
   workouts: LoggedWorkout[],
 ): Suggestion {
   const ex = findExercise(exerciseId);
-  if (!ex || ex.unit === 'sec' || ex.increment === 0) {
-    return { weight: currentWeight, raise: false, reason: 'Progression au temps sous tension' };
+  if (!ex || ex.increment === 0 || ex.unit === 'sec' || ex.unit === 'min') {
+    return { weight: currentWeight, raise: false, reason: 'Progression sur la durée' };
   }
   const history = [...workouts].sort((a, b) => (a.date < b.date ? 1 : -1));
   const last = history.find((w) => w.exercises.some((e) => e.exerciseId === exerciseId));
@@ -159,7 +169,7 @@ export function suggestLoad(
     return {
       weight: Math.round((currentWeight + ex.increment) * 100) / 100,
       raise: true,
-      reason: `${ex.repMax} reps atteintes sur toutes les séries — +${ex.increment} kg`,
+      reason: `${ex.repMax} reps sur toutes les séries — passe à`,
     };
   }
   const belowMin = sets.some((s) => s.reps < ex.repMin);
@@ -174,16 +184,15 @@ export function suggestLoad(
 
 /* ---------- records ---------- */
 
-export type Record1 = {
+export type PersonalRecord = {
   exerciseId: string;
   name: string;
-  sessionName: string;
+  dayTitle: string;
   unit: string;
   weight: number;
   reps: number;
   date: string;
   previous: { weight: number; reps: number; date: string } | null;
-  count: number;
 };
 
 function score(weight: number, reps: number) {
@@ -191,7 +200,7 @@ function score(weight: number, reps: number) {
   return (weight + 1) * (1 + reps / 30);
 }
 
-export function computeRecords(workouts: LoggedWorkout[]): Record1[] {
+export function computeRecords(workouts: LoggedWorkout[]): PersonalRecord[] {
   const byExercise = new Map<string, { weight: number; reps: number; date: string }[]>();
   for (const w of [...workouts].sort((a, b) => (a.date < b.date ? -1 : 1))) {
     for (const e of w.exercises) {
@@ -205,31 +214,28 @@ export function computeRecords(workouts: LoggedWorkout[]): Record1[] {
     }
   }
 
-  const out: Record1[] = [];
+  const out: PersonalRecord[] = [];
   for (const [exerciseId, entries] of byExercise) {
     const ex = findExercise(exerciseId);
     if (!ex) continue;
     let best: { weight: number; reps: number; date: string } | null = null;
     let previous: { weight: number; reps: number; date: string } | null = null;
-    let count = 0;
     for (const e of entries) {
       if (!best || score(e.weight, e.reps) > score(best.weight, best.reps)) {
         if (best) previous = best;
         best = e;
-        count++;
       }
     }
     if (!best) continue;
     out.push({
       exerciseId,
       name: ex.name,
-      sessionName: ex.sessionName,
+      dayTitle: ex.dayTitle,
       unit: ex.unit,
       weight: best.weight,
       reps: best.reps,
       date: best.date,
       previous,
-      count,
     });
   }
   return out.sort((a, b) => (a.date < b.date ? 1 : -1));

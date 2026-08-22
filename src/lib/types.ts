@@ -1,4 +1,4 @@
-export type Unit = 'kg' | 'bw' | 'sec';
+export type Unit = 'kg' | 'bw' | 'sec' | 'min';
 
 export type Exercise = {
   id: string;
@@ -14,10 +14,14 @@ export type Exercise = {
   note?: string;
 };
 
-export type WorkoutTemplate = {
+/** One day of the fixed weekly schedule. */
+export type DayPlan = {
   id: string;
-  name: string;
+  weekday: number; // 0 = dimanche … 6 = samedi
+  label: string;
+  title: string;
   focus: string;
+  rest: boolean;
   exercises: Exercise[];
 };
 
@@ -25,7 +29,7 @@ export type SetEntry = { weight: number; reps: number };
 export type LoggedExercise = { exerciseId: string; sets: SetEntry[] };
 export type LoggedWorkout = {
   id: string;
-  date: string; // YYYY-MM-DD
+  date: string;
   sessionId: string;
   exercises: LoggedExercise[];
 };
@@ -40,6 +44,17 @@ export type Measurement = {
   chestCm?: number;
   waistCm?: number;
   thighCm?: number;
+};
+
+export type Goal = {
+  id: string;
+  title: string;
+  detail?: string;
+  target?: number;
+  current?: number;
+  unit?: string;
+  done: boolean;
+  createdAt: string;
 };
 
 export type Profile = {
@@ -72,6 +87,7 @@ export type AppData = {
   daily: Record<string, DailyEntry>;
   workouts: LoggedWorkout[];
   measurements: Measurement[];
+  goals: Goal[];
 };
 
 export type PushSub = {

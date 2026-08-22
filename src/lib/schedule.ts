@@ -130,7 +130,7 @@ export function dueNotifications(settings: Settings, now = new Date()): DueNotif
         title: 'Séance',
         body: 'Entraînement du jour. Ouvre l’app pour voir les charges prévues.',
         tag: 'workout',
-        url: '/seances',
+        url: '/semaine',
       });
     }
   }

@@ -10,11 +10,11 @@ import {
   dayXp,
   last7Rate,
   levelInfo,
-  nextSessionId,
   todayKey,
+  todayPlan,
   totalXp,
+  workoutOn,
 } from '@/lib/logic';
-import { findSession } from '@/lib/program';
 
 function Check() {
   return (
@@ -29,6 +29,8 @@ export default function TodayPage() {
   const tz = data.settings.timezone;
   const key = todayKey(tz);
   const entry = data.daily[key];
+  const plan = todayPlan(tz);
+  const logged = workoutOn(data.workouts, key);
 
   const stats = useMemo(() => {
     const total = totalXp(data.daily);
@@ -41,9 +43,8 @@ export default function TodayPage() {
     };
   }, [data.daily, entry, tz]);
 
-  const nextId = nextSessionId(data.workouts);
-  const nextSession = findSession(nextId);
   const donePercent = Math.round((stats.today / MAX_DAY_XP) * 100);
+  const openGoals = data.goals.filter((g) => !g.done).length;
 
   function toggle(taskId: string) {
     update((d) => {
@@ -67,6 +68,8 @@ export default function TodayPage() {
           <h1>Aujourd&apos;hui</h1>
           <p className="sub">{dateLabel}</p>
         </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="brand-mark" src="/icons/icon-192.png" alt="" width={34} height={34} />
       </header>
 
       <div className="level-card">
@@ -106,29 +109,51 @@ export default function TodayPage() {
 
       {status === 'local' && pending ? (
         <div className="banner warn">
-          Hors-ligne. Les modifications sont enregistrées sur l&apos;appareil et synchronisées au
-          retour du réseau.
+          Hors-ligne. Tout est enregistré sur l&apos;appareil et synchronisé au retour du réseau.
         </div>
       ) : null}
       {status === 'ready' && !durable ? (
         <div className="banner warn">
           Aucune base de données connectée : les données ne survivront pas à une réinstallation.
-          Connecte Postgres depuis le tableau de bord Vercel.
         </div>
       ) : null}
 
       <section className="section">
-        <h2 className="section-title">Prochaine séance</h2>
-        <Link href="/seances" className="card row">
+        <h2 className="section-title">Séance du jour</h2>
+        <Link href="/semaine" className="card row">
           <div>
-            <div className="ex-name">{nextSession?.name ?? 'Séance'}</div>
-            <div className="ex-meta">{nextSession?.focus}</div>
+            <div className="ex-name">
+              {plan.title}
+              {logged ? ' · terminée' : ''}
+            </div>
+            <div className="ex-meta">
+              {plan.rest
+                ? plan.focus
+                : `${plan.exercises.length} exercices · ${plan.focus}`}
+            </div>
           </div>
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--muted)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 5.5 15.5 12 9 18.5" />
           </svg>
         </Link>
       </section>
+
+      {openGoals > 0 ? (
+        <section className="section">
+          <h2 className="section-title">Objectifs</h2>
+          <Link href="/objectifs" className="card row">
+            <div>
+              <div className="ex-name">
+                {openGoals} objectif{openGoals > 1 ? 's' : ''} en cours
+              </div>
+              <div className="ex-meta">Voir et mettre à jour</div>
+            </div>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--muted)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 5.5 15.5 12 9 18.5" />
+            </svg>
+          </Link>
+        </section>
+      ) : null}
 
       <section className="section">
         <h2 className="section-title">

@@ -1,4 +1,4 @@
-# Muscu — suivi de musculation (PWA)
+# Reda Rise
 
 Application Next.js (App Router) installable sur iPhone et Android, avec cache
 hors-ligne complet et notifications push réelles (VAPID) qui s'affichent même
@@ -7,18 +7,22 @@ front, routes API et planification des rappels.
 
 ## Ce que fait l'app
 
+Cinq onglets, pensés pour le pouce sur mobile.
+
 - **Aujourd'hui** — XP total, niveau (Fondation, Régularité, Discipline,
   Performance, Elite) avec barre de progression, jours d'affilée, taux de
-  réussite du jour et sur 7 jours, checklist quotidienne de 10 tâches valant
-  130 XP au total.
-- **Séances** — les 5 séances en rotation avec séries, fourchette de reps,
-  repos, RPE et charge actuelle. Saisie série par série, suggestion automatique
-  de la charge suivante quand le haut de la fourchette est atteint sur toutes
-  les séries, historique des séances.
-- **Progression** — poids et mensurations (bras, poitrine, taille, cuisse) avec
-  courbe dans le temps.
-- **Records** — meilleure performance par exercice (1RM estimé, formule
-  d'Epley), date, et écart avec le record précédent.
+  réussite du jour et sur 7 jours, séance du jour, checklist quotidienne de
+  10 tâches valant 130 XP au total.
+- **Semaine** — le planning hebdomadaire fixe. Lundi jambes, mardi dos et
+  biceps, mercredi repos actif, jeudi pectoraux et triceps, vendredi épaules et
+  abdos, samedi jambes, dimanche repos. De la marche à chaque jour. Saisie série
+  par série, suggestion automatique de la charge suivante quand le haut de la
+  fourchette de reps est atteint sur toutes les séries, historique.
+- **Objectifs** — objectifs personnels, avec ou sans cible chiffrée et barre de
+  progression.
+- **Progrès** — mensurations (poids, bras, poitrine, taille, cuisse) avec courbe
+  dans le temps, et records par exercice (1RM estimé, formule d'Epley) avec
+  l'écart au record précédent.
 - **Réglages** — profil, fuseau horaire, heures de tous les rappels, activation
   des notifications push sur l'appareil, notification de test.
 
@@ -193,10 +197,10 @@ l'installation donne l'icône et le mode plein écran.
 ```
 src/
   app/
-    page.tsx               Aujourd'hui (checklist, XP, niveau)
-    seances/               Les 5 séances, saisie et historique
-    progression/           Poids et mensurations + courbe
-    records/               Records par exercice
+    page.tsx               Aujourd'hui (checklist, XP, niveau, séance du jour)
+    semaine/               Planning hebdomadaire, saisie et historique
+    objectifs/             Objectifs personnels
+    progres/               Mensurations, courbes et records
     reglages/              Profil, rappels, activation push
     login/                 Écran de connexion
     api/
@@ -207,7 +211,7 @@ src/
       push/test            Notification de test
       cron/notify          Envoi des rappels dus
   lib/
-    program.ts             Les 5 séances et leurs exercices
+    program.ts             Le planning de la semaine et ses exercices
     logic.ts               XP, niveaux, séries, records, suggestions de charge
     schedule.ts            Calcul des rappels dus
     push.ts                Envoi web-push (VAPID)

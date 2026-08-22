@@ -2,113 +2,126 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useData } from '@/components/DataProvider';
-import { PROGRAM, findExercise } from '@/lib/program';
-import { formatDate, nextSessionId, suggestLoad, todayKey, uid } from '@/lib/logic';
+import { findExercise } from '@/lib/program';
+import {
+  WEEK_ORDERED,
+  formatDate,
+  suggestLoad,
+  todayKey,
+  uid,
+  weekDates,
+  workoutOn,
+} from '@/lib/logic';
 import type { SetEntry } from '@/lib/types';
 
 type Draft = Record<string, SetEntry[]>;
 
-export default function SessionsPage() {
+export default function WeekPage() {
   const { data, update } = useData();
   const tz = data.settings.timezone;
-  const suggested = useMemo(() => nextSessionId(data.workouts), [data.workouts]);
-  const [sessionId, setSessionId] = useState(suggested);
+  const today = todayKey(tz);
+  const dates = useMemo(() => weekDates(tz), [tz]);
+  const todayIndex = dates.indexOf(today);
+
+  const [index, setIndex] = useState(todayIndex >= 0 ? todayIndex : 0);
   const [draft, setDraft] = useState<Draft>({});
   const [saved, setSaved] = useState(false);
 
-  const session = PROGRAM.find((s) => s.id === sessionId) ?? PROGRAM[0];
+  const plan = WEEK_ORDERED[index];
+  const date = dates[index];
+  const logged = workoutOn(data.workouts, date);
 
-  const advice = useMemo(() => {
-    const out: Record<string, ReturnType<typeof suggestLoad>> = {};
-    for (const ex of session.exercises) {
-      out[ex.id] = suggestLoad(ex.id, data.loads[ex.id] ?? ex.defaultWeight, data.workouts);
-    }
-    return out;
-  }, [session, data.loads, data.workouts]);
-
-  // Rebuild the draft when the selected session changes (not on every keystroke).
   useEffect(() => {
     const next: Draft = {};
-    for (const ex of session.exercises) {
+    for (const ex of plan.exercises) {
       const weight = suggestLoad(ex.id, data.loads[ex.id] ?? ex.defaultWeight, data.workouts).weight;
       next[ex.id] = Array.from({ length: ex.sets }, () => ({ weight, reps: 0 }));
     }
     setDraft(next);
     setSaved(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId]);
+  }, [index]);
 
-  function setCell(exId: string, index: number, field: keyof SetEntry, value: string) {
+  function setCell(exId: string, i: number, field: keyof SetEntry, value: string) {
     setDraft((prev) => {
       const sets = [...(prev[exId] ?? [])];
       const num = value === '' ? 0 : Number(value.replace(',', '.'));
-      sets[index] = { ...sets[index], [field]: Number.isFinite(num) ? num : 0 };
+      sets[i] = { ...sets[i], [field]: Number.isFinite(num) ? num : 0 };
       return { ...prev, [exId]: sets };
     });
   }
 
-  const filledCount = Object.values(draft).reduce(
-    (a, sets) => a + sets.filter((s) => s.reps > 0).length,
-    0,
-  );
+  const filled = Object.values(draft).reduce((a, s) => a + s.filter((x) => x.reps > 0).length, 0);
 
   function saveSession() {
-    const exercises = session.exercises
-      .map((ex) => ({
-        exerciseId: ex.id,
-        sets: (draft[ex.id] ?? []).filter((s) => s.reps > 0),
-      }))
+    const exercises = plan.exercises
+      .map((ex) => ({ exerciseId: ex.id, sets: (draft[ex.id] ?? []).filter((s) => s.reps > 0) }))
       .filter((e) => e.sets.length > 0);
     if (exercises.length === 0) return;
 
-    const date = todayKey(tz);
     update((d) => {
       const loads = { ...d.loads };
-      for (const e of exercises) {
-        const heaviest = Math.max(...e.sets.map((s) => s.weight));
-        loads[e.exerciseId] = heaviest;
-      }
+      for (const e of exercises) loads[e.exerciseId] = Math.max(...e.sets.map((s) => s.weight));
       const current = d.daily[date] ?? { tasks: {} };
+      const tasks = { ...current.tasks, activite: true };
+      if (!plan.rest) tasks.seance = true;
       return {
         ...d,
         loads,
-        workouts: [{ id: uid(), date, sessionId: session.id, exercises }, ...d.workouts],
-        daily: { ...d.daily, [date]: { ...current, tasks: { ...current.tasks, seance: true } } },
+        workouts: [
+          { id: uid(), date, sessionId: plan.id, exercises },
+          ...d.workouts.filter((w) => w.date !== date),
+        ],
+        daily: { ...d.daily, [date]: { ...current, tasks } },
       };
     });
     setSaved(true);
   }
 
-  const history = [...data.workouts].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 12);
+  const history = [...data.workouts].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 8);
 
   return (
     <>
       <header className="topbar">
         <div>
-          <h1>Séances</h1>
-          <p className="sub">Rotation sur 5 séances · suggérée : {PROGRAM.find((s) => s.id === suggested)?.name}</p>
+          <h1>Semaine</h1>
+          <p className="sub">Planning fixe, du lundi au dimanche</p>
         </div>
       </header>
 
-      <div className="session-pill">
-        {PROGRAM.map((s) => (
-          <button
-            key={s.id}
-            className="pill"
-            data-on={s.id === sessionId}
-            onClick={() => setSessionId(s.id)}
-          >
-            {s.name}
-          </button>
-        ))}
-      </div>
+      <section className="section">
+        {WEEK_ORDERED.map((d, i) => {
+          const dDate = dates[i];
+          const done = Boolean(workoutOn(data.workouts, dDate));
+          return (
+            <button
+              key={d.id}
+              className="day"
+              data-today={dDate === today}
+              onClick={() => setIndex(i)}
+              style={i === index ? { background: 'var(--surface-2)' } : undefined}
+            >
+              <span className="day-tag">{d.label.slice(0, 3)}</span>
+              <span className="day-main">
+                <span className="day-title">{d.title}</span>
+                <span className="day-focus">{d.focus}</span>
+              </span>
+              {done ? <span className="dot" /> : null}
+            </button>
+          );
+        })}
+      </section>
 
       <section className="section">
-        <h2 className="section-title">{session.focus}</h2>
-        {session.exercises.map((ex) => {
+        <h2 className="section-title">
+          {plan.label} {formatDate(date)}
+          {logged ? ' · déjà enregistrée' : ''}
+        </h2>
+
+        {plan.exercises.map((ex) => {
           const sets = draft[ex.id] ?? [];
-          const tip = advice[ex.id];
-          const unitLabel = ex.unit === 'sec' ? 's' : 'kg';
+          const tip = suggestLoad(ex.id, data.loads[ex.id] ?? ex.defaultWeight, data.workouts);
+          const isTime = ex.unit === 'sec' || ex.unit === 'min';
           return (
             <div key={ex.id} className="ex">
               <div className="ex-head">
@@ -116,19 +129,22 @@ export default function SessionsPage() {
                   <div className="ex-name">{ex.name}</div>
                   <div className="ex-meta">
                     {ex.sets} × {ex.repMin}–{ex.repMax}
-                    {ex.unit === 'sec' ? ' s' : ' reps'} · repos {ex.restSec}s · RPE {ex.rpe}
+                    {ex.unit === 'min' ? ' min' : ex.unit === 'sec' ? ' s' : ' reps'}
+                    {ex.restSec > 0 ? ` · repos ${ex.restSec}s` : ''} · RPE {ex.rpe}
                     {ex.note ? ` · ${ex.note}` : ''}
                   </div>
                 </div>
-                <div className="xp-chip mono">
-                  {ex.unit === 'sec' ? '—' : `${data.loads[ex.id] ?? ex.defaultWeight} kg`}
-                </div>
+                {!isTime ? (
+                  <div className="xp-chip mono">{data.loads[ex.id] ?? ex.defaultWeight} kg</div>
+                ) : null}
               </div>
 
               <div className="sets">
                 <div className="lbl" />
-                <div className="lbl">{ex.unit === 'sec' ? 'Lest (kg)' : 'Charge (kg)'}</div>
-                <div className="lbl">{ex.unit === 'sec' ? 'Durée (s)' : 'Reps'}</div>
+                <div className="lbl">{isTime ? 'Lest (kg)' : 'Charge (kg)'}</div>
+                <div className="lbl">
+                  {ex.unit === 'min' ? 'Minutes' : ex.unit === 'sec' ? 'Secondes' : 'Reps'}
+                </div>
                 {sets.map((s, i) => (
                   <Row
                     key={i}
@@ -140,22 +156,22 @@ export default function SessionsPage() {
                 ))}
               </div>
 
-              {tip ? (
+              {!isTime ? (
                 <div className="hint">
                   {tip.reason}
-                  {tip.raise ? ` · charge proposée ${tip.weight} ${unitLabel}` : ''}
+                  {tip.raise ? ` ${tip.weight} kg` : ''}
                 </div>
               ) : null}
             </div>
           );
         })}
-      </section>
 
-      <div className="section">
-        <button className="btn btn-accent" onClick={saveSession} disabled={filledCount === 0}>
-          {saved ? 'Séance enregistrée' : `Enregistrer la séance (${filledCount} séries)`}
-        </button>
-      </div>
+        <div style={{ marginTop: 14 }}>
+          <button className="btn btn-accent" onClick={saveSession} disabled={filled === 0}>
+            {saved ? 'Enregistré' : `Enregistrer (${filled} série${filled > 1 ? 's' : ''})`}
+          </button>
+        </div>
+      </section>
 
       <section className="section">
         <h2 className="section-title">Historique</h2>
@@ -164,23 +180,19 @@ export default function SessionsPage() {
         ) : (
           <div className="card">
             {history.map((w) => {
-              const name = PROGRAM.find((s) => s.id === w.sessionId)?.name ?? w.sessionId;
+              const day = WEEK_ORDERED.find((d) => d.id === w.sessionId);
               const volume = w.exercises.reduce(
                 (a, e) => a + e.sets.reduce((b, s) => b + s.weight * s.reps, 0),
                 0,
               );
-              const top = w.exercises
-                .map((e) => findExercise(e.exerciseId)?.name)
-                .filter(Boolean)
-                .slice(0, 2)
-                .join(', ');
+              const first = findExercise(w.exercises[0]?.exerciseId ?? '')?.name;
               return (
                 <div key={w.id} className="rec">
                   <div>
-                    <div className="ex-name">{name}</div>
+                    <div className="ex-name">{day?.title ?? w.sessionId}</div>
                     <div className="ex-meta">
                       {formatDate(w.date)} · {w.exercises.length} exercices
-                      {top ? ` · ${top}…` : ''}
+                      {first ? ` · ${first}…` : ''}
                     </div>
                   </div>
                   <div className="rec-val">

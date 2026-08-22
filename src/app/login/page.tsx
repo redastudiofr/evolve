@@ -32,9 +32,9 @@ export default function LoginPage() {
     <main className="login">
       <form className="login-box" onSubmit={submit}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="login-mark" src="/icons/icon-192.png" alt="" width={56} height={56} />
-        <h1 style={{ fontSize: 22, textAlign: 'center', margin: '0 0 6px', fontWeight: 620 }}>
-          Muscu
+        <img className="login-mark" src="/icons/icon-192.png" alt="" width={64} height={64} />
+        <h1 style={{ fontSize: 22, textAlign: 'center', margin: '0 0 6px', fontWeight: 640 }}>
+          Reda Rise
         </h1>
         <p className="sub" style={{ textAlign: 'center', margin: '0 0 22px' }}>
           Accès protégé

@@ -1,36 +1,62 @@
-import type { WorkoutTemplate, AppData, Settings } from './types';
+import type { AppData, DayPlan, Exercise, Settings } from './types';
 
-export const PROGRAM: WorkoutTemplate[] = [
+/** Walking is part of every session, and of the two rest days. */
+const MARCHE: Exercise = {
+  id: 'marche',
+  name: 'Marche',
+  sets: 1,
+  repMin: 20,
+  repMax: 40,
+  restSec: 0,
+  rpe: 4,
+  unit: 'min',
+  defaultWeight: 0,
+  increment: 0,
+  note: 'Après la séance ou dans la journée',
+};
+
+const MARCHE_LONGUE: Exercise = {
+  ...MARCHE,
+  repMin: 40,
+  repMax: 60,
+  note: 'Jour de repos — sortie plus longue',
+};
+
+/** Fixed weekly schedule, index 0 = dimanche. */
+export const WEEK: DayPlan[] = [
   {
-    id: 's1',
-    name: 'Jambes',
+    id: 'dim',
+    weekday: 0,
+    label: 'Dimanche',
+    title: 'Repos',
+    focus: 'Récupération complète',
+    rest: true,
+    exercises: [MARCHE_LONGUE],
+  },
+  {
+    id: 'lun',
+    weekday: 1,
+    label: 'Lundi',
+    title: 'Jambes',
     focus: 'Quadriceps, ischios, mollets',
+    rest: false,
     exercises: [
       { id: 'squat-barre', name: 'Squat barre', sets: 4, repMin: 6, repMax: 8, restSec: 180, rpe: 8, unit: 'kg', defaultWeight: 60, increment: 2.5 },
       { id: 'presse-cuisses', name: 'Presse à cuisses', sets: 4, repMin: 10, repMax: 12, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 110, increment: 5 },
       { id: 'leg-curl-allonge', name: 'Leg curl allongé', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 35, increment: 2.5 },
       { id: 'fentes-bulgares', name: 'Fentes bulgares haltères', sets: 3, repMin: 8, repMax: 10, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 16, increment: 2, note: 'Par jambe' },
       { id: 'mollets-debout', name: 'Mollets debout', sets: 4, repMin: 12, repMax: 15, restSec: 60, rpe: 9, unit: 'kg', defaultWeight: 60, increment: 5 },
-      { id: 'gainage-s1', name: 'Gainage', sets: 3, repMin: 45, repMax: 60, restSec: 45, rpe: 8, unit: 'sec', defaultWeight: 0, increment: 0 },
+      { id: 'gainage-lun', name: 'Gainage', sets: 3, repMin: 45, repMax: 60, restSec: 45, rpe: 8, unit: 'sec', defaultWeight: 0, increment: 0 },
+      MARCHE,
     ],
   },
   {
-    id: 's2',
-    name: 'Pectoraux + Triceps',
-    focus: 'Poussée horizontale et bras',
-    exercises: [
-      { id: 'developpe-couche', name: 'Développé couché barre', sets: 4, repMin: 6, repMax: 8, restSec: 180, rpe: 8, unit: 'kg', defaultWeight: 50, increment: 2.5 },
-      { id: 'developpe-incline-halteres', name: 'Développé incliné haltères', sets: 4, repMin: 8, repMax: 10, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 20, increment: 2 },
-      { id: 'dips', name: 'Dips', sets: 3, repMin: 8, repMax: 12, restSec: 120, rpe: 8, unit: 'bw', defaultWeight: 0, increment: 2.5, note: 'Lest additionnel' },
-      { id: 'ecarte-poulie', name: 'Écarté poulie', sets: 3, repMin: 12, repMax: 15, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 12, increment: 2.5 },
-      { id: 'extensions-triceps-poulie', name: 'Extensions triceps poulie', sets: 3, repMin: 12, repMax: 15, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 25, increment: 2.5 },
-      { id: 'barre-au-front', name: 'Extensions triceps barre au front', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 20, increment: 2.5 },
-    ],
-  },
-  {
-    id: 's3',
-    name: 'Dos + Biceps',
+    id: 'mar',
+    weekday: 2,
+    label: 'Mardi',
+    title: 'Dos + Biceps',
     focus: 'Tirage vertical et horizontal',
+    rest: false,
     exercises: [
       { id: 'tractions', name: 'Tractions', sets: 4, repMin: 6, repMax: 10, restSec: 150, rpe: 8, unit: 'bw', defaultWeight: 0, increment: 2.5, note: 'Lest additionnel' },
       { id: 'rowing-barre', name: 'Rowing barre', sets: 4, repMin: 8, repMax: 10, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 45, increment: 2.5 },
@@ -38,12 +64,42 @@ export const PROGRAM: WorkoutTemplate[] = [
       { id: 'rowing-unilateral', name: 'Rowing unilatéral haltère', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 24, increment: 2, note: 'Par bras' },
       { id: 'curl-barre', name: 'Curl biceps barre', sets: 3, repMin: 8, repMax: 12, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 25, increment: 2.5 },
       { id: 'curl-marteau', name: 'Curl marteau', sets: 3, repMin: 10, repMax: 12, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 12, increment: 2 },
+      MARCHE,
     ],
   },
   {
-    id: 's4',
-    name: 'Épaules + Abdos + Cou',
+    id: 'mer',
+    weekday: 3,
+    label: 'Mercredi',
+    title: 'Repos actif',
+    focus: 'Marche et mobilité',
+    rest: true,
+    exercises: [MARCHE_LONGUE],
+  },
+  {
+    id: 'jeu',
+    weekday: 4,
+    label: 'Jeudi',
+    title: 'Pectoraux + Triceps',
+    focus: 'Poussée horizontale et bras',
+    rest: false,
+    exercises: [
+      { id: 'developpe-couche', name: 'Développé couché barre', sets: 4, repMin: 6, repMax: 8, restSec: 180, rpe: 8, unit: 'kg', defaultWeight: 50, increment: 2.5 },
+      { id: 'developpe-incline-halteres', name: 'Développé incliné haltères', sets: 4, repMin: 8, repMax: 10, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 20, increment: 2 },
+      { id: 'dips', name: 'Dips', sets: 3, repMin: 8, repMax: 12, restSec: 120, rpe: 8, unit: 'bw', defaultWeight: 0, increment: 2.5, note: 'Lest additionnel' },
+      { id: 'ecarte-poulie', name: 'Écarté poulie', sets: 3, repMin: 12, repMax: 15, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 12, increment: 2.5 },
+      { id: 'extensions-triceps-poulie', name: 'Extensions triceps poulie', sets: 3, repMin: 12, repMax: 15, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 25, increment: 2.5 },
+      { id: 'barre-au-front', name: 'Barre au front', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 20, increment: 2.5 },
+      MARCHE,
+    ],
+  },
+  {
+    id: 'ven',
+    weekday: 5,
+    label: 'Vendredi',
+    title: 'Épaules + Abdos',
     focus: 'Deltoïdes, ceinture abdominale, cou',
+    rest: false,
     exercises: [
       { id: 'developpe-militaire-halteres', name: 'Développé militaire haltères', sets: 4, repMin: 8, repMax: 10, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 16, increment: 2 },
       { id: 'elevations-laterales', name: 'Élévations latérales', sets: 4, repMin: 12, repMax: 15, restSec: 60, rpe: 9, unit: 'kg', defaultWeight: 8, increment: 1 },
@@ -51,37 +107,56 @@ export const PROGRAM: WorkoutTemplate[] = [
       { id: 'elevations-frontales', name: 'Élévations frontales', sets: 3, repMin: 12, repMax: 15, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 8, increment: 1 },
       { id: 'gainage-complet', name: 'Gainage complet', sets: 3, repMin: 45, repMax: 60, restSec: 45, rpe: 8, unit: 'sec', defaultWeight: 0, increment: 0, note: 'Planche, latéral, hollow' },
       { id: 'cou-isometrique', name: 'Travail cou isométrique', sets: 3, repMin: 20, repMax: 30, restSec: 45, rpe: 6, unit: 'sec', defaultWeight: 0, increment: 0, note: 'Résistance légère, 4 directions' },
+      MARCHE,
     ],
   },
   {
-    id: 's5',
-    name: 'Jambes variante',
+    id: 'sam',
+    weekday: 6,
+    label: 'Samedi',
+    title: 'Jambes',
     focus: 'Chaîne postérieure',
+    rest: false,
     exercises: [
       { id: 'souleve-terre-roumain', name: 'Soulevé de terre roumain', sets: 4, repMin: 8, repMax: 10, restSec: 150, rpe: 8, unit: 'kg', defaultWeight: 60, increment: 2.5 },
       { id: 'squat-gobelet', name: 'Squat gobelet', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 24, increment: 2 },
       { id: 'presse-pieds-hauts', name: 'Presse à cuisses pieds hauts', sets: 3, repMin: 12, repMax: 15, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 90, increment: 5 },
       { id: 'hip-thrust', name: 'Hip thrust', sets: 4, repMin: 10, repMax: 12, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 60, increment: 5 },
       { id: 'mollets-assis', name: 'Mollets assis', sets: 4, repMin: 15, repMax: 20, restSec: 60, rpe: 9, unit: 'kg', defaultWeight: 40, increment: 2.5 },
+      MARCHE,
     ],
   },
 ];
 
-export const ALL_EXERCISES = PROGRAM.flatMap((s) =>
-  s.exercises.map((e) => ({ ...e, sessionId: s.id, sessionName: s.name })),
-);
+/** Training days only, in week order starting Monday. */
+export const TRAINING_DAYS = WEEK.filter((d) => !d.rest);
+
+/** Every distinct exercise, with the day it belongs to. Walking appears once. */
+export const ALL_EXERCISES = (() => {
+  const seen = new Map<string, Exercise & { dayId: string; dayTitle: string }>();
+  for (const day of [...WEEK.slice(1), WEEK[0]]) {
+    for (const ex of day.exercises) {
+      if (!seen.has(ex.id)) seen.set(ex.id, { ...ex, dayId: day.id, dayTitle: day.title });
+    }
+  }
+  return [...seen.values()];
+})();
 
 export function findExercise(id: string) {
   return ALL_EXERCISES.find((e) => e.id === id);
 }
 
-export function findSession(id: string) {
-  return PROGRAM.find((s) => s.id === id);
+export function findDay(id: string) {
+  return WEEK.find((d) => d.id === id);
+}
+
+export function dayForWeekday(weekday: number): DayPlan {
+  return WEEK[weekday] ?? WEEK[0];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   profile: {
-    name: 'Athlète',
+    name: 'Reda',
     age: 17,
     heightCm: 185,
     weightKg: 71,
@@ -105,13 +180,14 @@ export function defaultLoads(): Record<string, number> {
 
 export function defaultData(): AppData {
   return {
-    version: 1,
+    version: 2,
     updatedAt: Date.now(),
     settings: DEFAULT_SETTINGS,
     loads: defaultLoads(),
     daily: {},
     workouts: [],
     measurements: [],
+    goals: [],
   };
 }
 
@@ -123,7 +199,7 @@ export function normalizeData(raw: unknown): AppData {
   const s = (d.settings ?? {}) as Partial<Settings>;
   const n = (s.notifications ?? {}) as Partial<Settings['notifications']>;
   return {
-    version: 1,
+    version: 2,
     updatedAt: typeof d.updatedAt === 'number' ? d.updatedAt : Date.now(),
     settings: {
       profile: { ...base.settings.profile, ...(s.profile ?? {}) },
@@ -140,5 +216,6 @@ export function normalizeData(raw: unknown): AppData {
     daily: d.daily ?? {},
     workouts: Array.isArray(d.workouts) ? d.workouts : [],
     measurements: Array.isArray(d.measurements) ? d.measurements : [],
+    goals: Array.isArray(d.goals) ? d.goals : [],
   };
 }

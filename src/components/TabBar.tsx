@@ -5,9 +5,9 @@ import { usePathname } from 'next/navigation';
 
 const TABS = [
   { href: '/', label: "Aujourd'hui", icon: 'today' },
-  { href: '/seances', label: 'Séances', icon: 'session' },
-  { href: '/progression', label: 'Progression', icon: 'progress' },
-  { href: '/records', label: 'Records', icon: 'record' },
+  { href: '/semaine', label: 'Semaine', icon: 'week' },
+  { href: '/objectifs', label: 'Objectifs', icon: 'goal' },
+  { href: '/progres', label: 'Progrès', icon: 'progress' },
   { href: '/reglages', label: 'Réglages', icon: 'settings' },
 ] as const;
 
@@ -29,14 +29,20 @@ function Icon({ name }: { name: string }) {
           <path d="M8.8 14.2 11 16.4l4.2-4.4" />
         </svg>
       );
-    case 'session':
+    case 'week':
       return (
         <svg {...common}>
-          <rect x="1.5" y="9.5" width="2.8" height="5" rx="1" />
-          <rect x="5.2" y="7" width="3.4" height="10" rx="1.2" />
-          <rect x="15.4" y="7" width="3.4" height="10" rx="1.2" />
-          <rect x="19.7" y="9.5" width="2.8" height="5" rx="1" />
-          <path d="M8.6 12h6.8" />
+          <rect x="3" y="4.5" width="18" height="16" rx="3" />
+          <path d="M3 9.5h18M8 2.5v4M16 2.5v4" />
+          <path d="M7.5 13h3M7.5 16.8h3M13.5 13h3M13.5 16.8h3" />
+        </svg>
+      );
+    case 'goal':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="8.2" />
+          <circle cx="12" cy="12" r="4.2" />
+          <circle cx="12" cy="12" r="0.6" fill="currentColor" />
         </svg>
       );
     case 'progress':
@@ -44,14 +50,6 @@ function Icon({ name }: { name: string }) {
         <svg {...common}>
           <path d="M3 16.8 9 10.6l4 4L21 6.6" />
           <path d="M15 6.6h6v6" />
-        </svg>
-      );
-    case 'record':
-      return (
-        <svg {...common}>
-          <circle cx="12" cy="15" r="5.4" />
-          <path d="M8.6 9.9 6 2.8h12l-2.6 7.1" />
-          <path d="M12 12.8v4.4" />
         </svg>
       );
     default:

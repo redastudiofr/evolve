@@ -1,8 +1,8 @@
 /* Service worker: offline cache + web push. */
 
-const VERSION = 'v1';
-const STATIC_CACHE = `muscu-static-${VERSION}`;
-const PAGE_CACHE = `muscu-pages-${VERSION}`;
+const VERSION = 'v2';
+const STATIC_CACHE = `redarise-static-${VERSION}`;
+const PAGE_CACHE = `redarise-pages-${VERSION}`;
 
 // Only assets that never redirect are precached; pages are cached as they are
 // visited, so the login redirect never ends up stored as the app shell.
@@ -99,21 +99,21 @@ self.addEventListener('fetch', (event) => {
 /* ---------- push ---------- */
 
 self.addEventListener('push', (event) => {
-  let payload = { title: 'Muscu', body: '' };
+  let payload = { title: 'Reda Rise', body: '' };
   if (event.data) {
     try {
       payload = event.data.json();
     } catch (_) {
-      payload = { title: 'Muscu', body: event.data.text() };
+      payload = { title: 'Reda Rise', body: event.data.text() };
     }
   }
 
   event.waitUntil(
-    self.registration.showNotification(payload.title || 'Muscu', {
+    self.registration.showNotification(payload.title || 'Reda Rise', {
       body: payload.body || '',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
-      tag: payload.tag || 'muscu',
+      tag: payload.tag || 'reda-rise',
       renotify: true,
       data: { url: payload.url || '/' },
     }),
