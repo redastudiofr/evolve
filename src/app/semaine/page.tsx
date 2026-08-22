@@ -12,7 +12,7 @@ import {
   weekDates,
   workoutOn,
 } from '@/lib/logic';
-import type { SetEntry } from '@/lib/types';
+import type { DailyEntry, SetEntry } from '@/lib/types';
 
 type Draft = Record<string, SetEntry[]>;
 
@@ -62,8 +62,8 @@ export default function WeekPage() {
     update((d) => {
       const loads = { ...d.loads };
       for (const e of exercises) loads[e.exerciseId] = Math.max(...e.sets.map((s) => s.weight));
-      const current = d.daily[date] ?? { tasks: {} };
-      const tasks = { ...current.tasks, activite: true };
+      const current: DailyEntry = d.daily[date] ?? { tasks: {} };
+      const tasks: Record<string, boolean> = { ...current.tasks, activite: true };
       if (!plan.rest) tasks.seance = true;
       return {
         ...d,
