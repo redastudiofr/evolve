@@ -9,18 +9,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const { data, stored } = await readState();
-    // Diagnostic temporaire : noms des variables liées à la base, jamais leurs
-    // valeurs. À retirer une fois la connexion Neon confirmée.
-    const envKeys = Object.keys(process.env).filter((k) =>
-      /POSTGRES|DATABASE|NEON|^PG[A-Z]/.test(k),
-    );
-    return NextResponse.json({
-      data,
-      stored,
-      durable: hasDatabase(),
-      auth: authEnabled(),
-      envKeys,
-    });
+    return NextResponse.json({ data, stored, durable: hasDatabase(), auth: authEnabled() });
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
