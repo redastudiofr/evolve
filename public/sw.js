@@ -99,17 +99,17 @@ self.addEventListener('fetch', (event) => {
 /* ---------- push ---------- */
 
 self.addEventListener('push', (event) => {
-  let payload = { title: 'Reda', body: '' };
+  let payload = { title: 'Reda Rise', body: '' };
   if (event.data) {
     try {
       payload = event.data.json();
     } catch (_) {
-      payload = { title: 'Reda', body: event.data.text() };
+      payload = { title: 'Reda Rise', body: event.data.text() };
     }
   }
 
   event.waitUntil(
-    self.registration.showNotification(payload.title || 'Reda', {
+    self.registration.showNotification(payload.title || 'Reda Rise', {
       body: payload.body || '',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',

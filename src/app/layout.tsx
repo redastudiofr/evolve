@@ -3,11 +3,11 @@ import './globals.css';
 import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Reda',
-  applicationName: 'Reda',
+  title: 'Reda Rise',
+  applicationName: 'Reda Rise',
   description: 'Entraînement, discipline quotidienne et objectifs personnels.',
   manifest: '/manifest.webmanifest',
-  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Reda' },
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Reda Rise' },
   icons: {
     icon: [{ url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }],
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],

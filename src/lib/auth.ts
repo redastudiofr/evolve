@@ -1,14 +1,21 @@
 /**
- * Single-user auth: a password in an env var, an HMAC-signed cookie.
- * Uses Web Crypto only so it runs in the Edge middleware and in Node routes.
+ * Optional single-user auth.
+ *
+ * Auth is OFF unless the APP_PASSWORD env var is set. With it set, the app asks
+ * for that password once and keeps an HMAC-signed cookie. Uses Web Crypto only
+ * so it runs in the Edge middleware and in Node routes alike.
  */
 
 export const COOKIE_NAME = 'muscu_session';
-const DEFAULT_PASSWORD = 'Qn2JhVfS';
 const DEFAULT_SECRET = 'aTNau--fShcJ1whzRdM_IUJpZPQvTvUojY6nxhkATlk';
 
 export function appPassword(): string {
-  return process.env.APP_PASSWORD || DEFAULT_PASSWORD;
+  return process.env.APP_PASSWORD ?? '';
+}
+
+/** No password configured means the app is open — no login screen at all. */
+export function authEnabled(): boolean {
+  return appPassword().length > 0;
 }
 
 function authSecret(): string {

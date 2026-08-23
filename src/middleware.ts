@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { COOKIE_NAME, verifyToken } from '@/lib/auth';
+import { COOKIE_NAME, authEnabled, verifyToken } from '@/lib/auth';
 
 export async function middleware(req: NextRequest) {
+  // No APP_PASSWORD configured: the app is open, nothing to guard.
+  if (!authEnabled()) return NextResponse.next();
+
   const ok = await verifyToken(req.cookies.get(COOKIE_NAME)?.value);
   if (ok) return NextResponse.next();
 

@@ -1,4 +1,4 @@
-# Reda
+# Reda Rise
 
 Application Next.js (App Router) installable sur iPhone et Android, avec cache
 hors-ligne complet et notifications push réelles (VAPID) qui s'affichent même
@@ -33,9 +33,10 @@ npm install
 npm run dev
 ```
 
-L'app est protégée par un mot de passe unique. Sans variable d'environnement,
-le mot de passe par défaut est `Qn2JhVfS` — à changer avant tout usage réel
-(voir `APP_PASSWORD` plus bas).
+L'app est ouverte par défaut : aucun mot de passe n'est demandé. Pour la
+protéger, définir la variable d'environnement `APP_PASSWORD` — un écran de
+connexion apparaît alors et la garde toute l'application. La retirer rouvre
+l'accès.
 
 ## Variables d'environnement
 
@@ -44,22 +45,22 @@ sur Vercel (Project → Settings → Environment Variables).
 
 | Variable | Rôle |
 | --- | --- |
-| `APP_PASSWORD` | Mot de passe d'accès à l'app |
+| `APP_PASSWORD` | Mot de passe d’accès. **Non défini = app ouverte, sans login** |
 | `AUTH_SECRET` | Secret HMAC signant le cookie de session |
 | `CRON_SECRET` | Secret exigé par `/api/cron/notify` |
 | `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | Paire de clés Web Push |
 | `VAPID_SUBJECT` | `mailto:` de contact exigé par le protocole VAPID |
 | `POSTGRES_URL` | Chaîne de connexion Postgres (ajoutée automatiquement par l'intégration) |
 
-Toutes ont une valeur de repli codée dans le projet pour qu'un premier
-déploiement fonctionne immédiatement. **Remplace au minimum `APP_PASSWORD`,
-`AUTH_SECRET` et les clés VAPID** : les valeurs par défaut sont dans le dépôt.
+Toutes, sauf `APP_PASSWORD`, ont une valeur de repli codée dans le projet pour
+qu'un premier déploiement fonctionne immédiatement. Ces valeurs par défaut sont
+visibles dans le dépôt : remplace-les si l'app doit rester privée.
 
 Valeurs générées pour ce projet, à coller dans **Environment Variables** sur
 Vercel (une ligne = une variable) :
 
 ```
-APP_PASSWORD=Qn2JhVfS
+# APP_PASSWORD=  (laisser vide ou absent pour une app sans mot de passe)
 AUTH_SECRET=aTNau--fShcJ1whzRdM_IUJpZPQvTvUojY6nxhkATlk
 CRON_SECRET=vejhEjq1NCHLlcS1NOVTATLH
 VAPID_PUBLIC_KEY=BCXIXGZJ9R2h0-ici0R5MkNYi729igaLVqKWaZoWXiK6I4TR8gUpw3J8MdFfxD05-XHx22MbUJZdWyUNesMWvik
@@ -67,8 +68,8 @@ VAPID_PRIVATE_KEY=exgvMVSdv8nSnnsDI5HL-3QOdUL5K9j-Ei-NFXArd8A
 VAPID_SUBJECT=mailto:obsyde.fr@gmail.com
 ```
 
-Change `APP_PASSWORD` pour un mot de passe que tu retiens : c'est le seul rempart
-devant tes données, et celui-ci est écrit dans le dépôt.
+Laisse `APP_PASSWORD` non défini pour garder l'app ouverte, ou donne-lui une
+valeur pour réactiver l'écran de connexion.
 
 ### Générer des clés VAPID
 

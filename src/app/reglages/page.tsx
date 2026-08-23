@@ -24,7 +24,7 @@ function Switch({ on, onClick }: { on: boolean; onClick: () => void }) {
 }
 
 export default function SettingsPage() {
-  const { data, update, durable } = useData();
+  const { data, update, durable, authOn } = useData();
   const s = data.settings;
   const [permission, setPermission] = useState<string>('default');
   const [subscribed, setSubscribed] = useState(false);
@@ -436,11 +436,13 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
-          <div style={{ marginTop: 12 }}>
-            <button className="btn btn-ghost" onClick={logout}>
-              Se déconnecter
-            </button>
-          </div>
+          {authOn ? (
+            <div style={{ marginTop: 12 }}>
+              <button className="btn btn-ghost" onClick={logout}>
+                Se déconnecter
+              </button>
+            </div>
+          ) : null}
         </div>
       </section>
     </>

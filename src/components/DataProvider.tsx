@@ -14,6 +14,7 @@ type Ctx = {
   status: Status;
   durable: boolean;
   pending: boolean;
+  authOn: boolean;
 };
 
 const DataContext = createContext<Ctx | null>(null);
@@ -46,6 +47,7 @@ export default function DataProvider({ children }: { children: React.ReactNode }
   const [status, setStatus] = useState<Status>('loading');
   const [durable, setDurable] = useState(false);
   const [pending, setPending] = useState(false);
+  const [authOn, setAuthOn] = useState(false);
   const latest = useRef<AppData>(data);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -57,8 +59,9 @@ export default function DataProvider({ children }: { children: React.ReactNode }
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(String(res.status));
-      const json = (await res.json()) as { durable?: boolean };
+      const json = (await res.json()) as { durable?: boolean; auth?: boolean };
       setDurable(Boolean(json.durable));
+      setAuthOn(Boolean(json.auth));
       setPending(false);
       setStatus('ready');
     } catch {
@@ -80,10 +83,11 @@ export default function DataProvider({ children }: { children: React.ReactNode }
       try {
         const res = await fetch('/api/data', { cache: 'no-store' });
         if (!res.ok) throw new Error(String(res.status));
-        const json = (await res.json()) as { data: unknown; durable?: boolean };
+        const json = (await res.json()) as { data: unknown; durable?: boolean; auth?: boolean };
         if (cancelled) return;
         const server = normalizeData(json.data);
         setDurable(Boolean(json.durable));
+        setAuthOn(Boolean(json.auth));
         if (!local || server.updatedAt >= local.updatedAt) {
           latest.current = server;
           setData(server);
@@ -122,7 +126,7 @@ export default function DataProvider({ children }: { children: React.ReactNode }
   );
 
   return (
-    <DataContext.Provider value={{ data, update, status, durable, pending }}>
+    <DataContext.Provider value={{ data, update, status, durable, pending, authOn }}>
       {children}
     </DataContext.Provider>
   );
