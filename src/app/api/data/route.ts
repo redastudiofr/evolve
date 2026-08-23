@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { hasDatabase, readData, writeData } from '@/lib/db';
+import { hasDatabase, readState, writeData } from '@/lib/db';
 import { authEnabled } from '@/lib/auth';
 import { normalizeData } from '@/lib/program';
 
@@ -8,8 +8,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const data = await readData();
-    return NextResponse.json({ data, durable: hasDatabase(), auth: authEnabled() });
+    const { data, stored } = await readState();
+    return NextResponse.json({ data, stored, durable: hasDatabase(), auth: authEnabled() });
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }

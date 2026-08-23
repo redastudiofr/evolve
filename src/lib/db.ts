@@ -92,13 +92,25 @@ async function ensureSchema(pool: Pool): Promise<void> {
 
 /* ---------- app data ---------- */
 
-export async function readData(): Promise<AppData> {
+/**
+ * Reads the stored state, and reports whether anything was actually stored.
+ * `stored: false` means the server is starting from scratch — the client must
+ * then keep its own copy rather than adopt this empty one.
+ */
+export async function readState(): Promise<{ data: AppData; stored: boolean }> {
   const pool = await getPool();
-  if (!pool) return mem.data ?? (mem.data = defaultData());
+  if (!pool) {
+    if (mem.data) return { data: mem.data, stored: true };
+    return { data: defaultData(), stored: false };
+  }
   await ensureSchema(pool);
   const res = await pool.query('select data from app_state where id = 1');
-  if (res.rows.length === 0) return defaultData();
-  return normalizeData(res.rows[0].data);
+  if (res.rows.length === 0) return { data: defaultData(), stored: false };
+  return { data: normalizeData(res.rows[0].data), stored: true };
+}
+
+export async function readData(): Promise<AppData> {
+  return (await readState()).data;
 }
 
 export async function writeData(data: AppData): Promise<AppData> {

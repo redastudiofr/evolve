@@ -83,12 +83,21 @@ export default function DataProvider({ children }: { children: React.ReactNode }
       try {
         const res = await fetch('/api/data', { cache: 'no-store' });
         if (!res.ok) throw new Error(String(res.status));
-        const json = (await res.json()) as { data: unknown; durable?: boolean; auth?: boolean };
+        const json = (await res.json()) as {
+          data: unknown;
+          durable?: boolean;
+          auth?: boolean;
+          stored?: boolean;
+        };
         if (cancelled) return;
         const server = normalizeData(json.data);
         setDurable(Boolean(json.durable));
         setAuthOn(Boolean(json.auth));
-        if (!local || server.updatedAt >= local.updatedAt) {
+        if (local && json.stored === false) {
+          // The server has nothing stored yet — never let its empty defaults
+          // overwrite what this device already holds. Restore it upstream.
+          await pushToServer(local);
+        } else if (!local || server.updatedAt >= local.updatedAt) {
           latest.current = server;
           setData(server);
           writeLocal(server);
