@@ -142,7 +142,7 @@ export default function WeekPage() {
     <>
       <header className="topbar">
         <div>
-          <h1>Semaine</h1>
+          <h1>Musculation</h1>
           <p className="sub" style={{ textTransform: 'capitalize' }}>
             {monthLabel}
           </p>

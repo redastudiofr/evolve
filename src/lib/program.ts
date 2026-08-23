@@ -1,4 +1,4 @@
-import type { AppData, DayPlan, Exercise, Objective, Reward, Settings } from './types';
+import type { AppData, DayPlan, Exercise, Objective, Reward, Savings, Settings } from './types';
 
 /** Milestone rewards everyone starts with. The user can add their own. */
 export const DEFAULT_REWARDS: Reward[] = [
@@ -202,6 +202,9 @@ export function dayForWeekday(weekday: number): DayPlan {
 export const DEFAULT_SETTINGS: Settings = {
   profile: {
     name: 'Reda',
+    pseudo: 'Reda',
+    email: '',
+    avatar: '',
     age: 17,
     heightCm: 185,
     weightKg: 71,
@@ -227,7 +230,7 @@ export function defaultLoads(): Record<string, number> {
 
 export function defaultData(): AppData {
   return {
-    version: 3,
+    version: 4,
     updatedAt: Date.now(),
     settings: DEFAULT_SETTINGS,
     loads: defaultLoads(),
@@ -237,6 +240,8 @@ export function defaultData(): AppData {
     objectives: [],
     plan: {},
     customExercises: [],
+    projects: [],
+    savings: { target: 0, entries: [] },
     rewards: DEFAULT_REWARDS,
   };
 }
@@ -266,7 +271,7 @@ function migrateGoals(raw: unknown): Objective[] {
 export function normalizeData(raw: unknown): AppData {
   const base = defaultData();
   if (!raw || typeof raw !== 'object') return base;
-  const d = raw as Partial<AppData>;
+  const d = raw as Partial<AppData> & { savings?: Partial<Savings> };
   const s = (d.settings ?? {}) as Partial<Settings>;
   const n = (s.notifications ?? {}) as Partial<Settings['notifications']>;
   const legacy = (raw as { goals?: unknown }).goals;
@@ -274,7 +279,7 @@ export function normalizeData(raw: unknown): AppData {
   const rewards = Array.isArray(d.rewards) && d.rewards.length > 0 ? d.rewards : DEFAULT_REWARDS;
 
   return {
-    version: 3,
+    version: 4,
     updatedAt: typeof d.updatedAt === 'number' ? d.updatedAt : Date.now(),
     settings: {
       profile: { ...base.settings.profile, ...(s.profile ?? {}) },
@@ -296,6 +301,11 @@ export function normalizeData(raw: unknown): AppData {
     objectives,
     plan: (d.plan && typeof d.plan === 'object' ? d.plan : {}) as Record<string, string[]>,
     customExercises: Array.isArray(d.customExercises) ? d.customExercises : [],
+    projects: Array.isArray(d.projects) ? d.projects : [],
+    savings: {
+      target: typeof d.savings?.target === 'number' ? d.savings.target : 0,
+      entries: Array.isArray(d.savings?.entries) ? d.savings.entries : [],
+    },
     rewards,
   };
 }

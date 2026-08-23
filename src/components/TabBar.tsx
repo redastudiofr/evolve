@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Avatar from './Avatar';
+import { useData } from './DataProvider';
 
 const TABS = [
   { href: '/', label: "Aujourd'hui", icon: 'today' },
-  { href: '/semaine', label: 'Semaine', icon: 'week' },
-  { href: '/objectifs', label: 'Objectifs', icon: 'goal' },
-  { href: '/profil', label: 'Profil', icon: 'profile' },
-  { href: '/reglages', label: 'Réglages', icon: 'settings' },
+  { href: '/muscu', label: 'Musculation', icon: 'muscu' },
+  { href: '/calendrier', label: 'Calendrier', icon: 'calendar' },
+  { href: '/entrepreneuriat', label: 'Business', icon: 'growth' },
 ] as const;
 
 function Icon({ name }: { name: string }) {
@@ -29,7 +30,17 @@ function Icon({ name }: { name: string }) {
           <path d="M8.8 14.2 11 16.4l4.2-4.4" />
         </svg>
       );
-    case 'week':
+    case 'muscu':
+      return (
+        <svg {...common}>
+          <rect x="1.5" y="9.5" width="2.8" height="5" rx="1" />
+          <rect x="5.2" y="7" width="3.4" height="10" rx="1.2" />
+          <rect x="15.4" y="7" width="3.4" height="10" rx="1.2" />
+          <rect x="19.7" y="9.5" width="2.8" height="5" rx="1" />
+          <path d="M8.6 12h6.8" />
+        </svg>
+      );
+    case 'calendar':
       return (
         <svg {...common}>
           <rect x="3" y="4.5" width="18" height="16" rx="3" />
@@ -37,26 +48,11 @@ function Icon({ name }: { name: string }) {
           <path d="M7.5 13h3M7.5 16.8h3M13.5 13h3M13.5 16.8h3" />
         </svg>
       );
-    case 'goal':
-      return (
-        <svg {...common}>
-          <circle cx="12" cy="12" r="8.2" />
-          <circle cx="12" cy="12" r="4.2" />
-          <circle cx="12" cy="12" r="0.6" fill="currentColor" />
-        </svg>
-      );
-    case 'profile':
-      return (
-        <svg {...common}>
-          <path d="m12 3.2 2.6 5.4 5.9.85-4.25 4.15 1 5.9L12 16.7l-5.25 2.8 1-5.9L3.5 9.45l5.9-.85Z" />
-        </svg>
-      );
     default:
       return (
         <svg {...common}>
-          <path d="M3.5 7h9M17 7h3.5M3.5 17h5.5M13.5 17h7" />
-          <circle cx="14.8" cy="7" r="2.3" />
-          <circle cx="11.3" cy="17" r="2.3" />
+          <path d="M3 17.5 9 11l4 4 7.5-7.5" />
+          <path d="M14.5 7.5h6v6" />
         </svg>
       );
   }
@@ -64,6 +60,10 @@ function Icon({ name }: { name: string }) {
 
 export default function TabBar() {
   const pathname = usePathname();
+  const { data } = useData();
+  const profile = data.settings.profile;
+  const profileActive = pathname.startsWith('/profil');
+
   return (
     <nav className="tabbar">
       {TABS.map((tab) => {
@@ -75,6 +75,11 @@ export default function TabBar() {
           </Link>
         );
       })}
+
+      <Link href="/profil" className="tab tab-profile" data-on={profileActive}>
+        <Avatar src={profile.avatar} name={profile.pseudo || profile.name} size={24} />
+        <span>Profil</span>
+      </Link>
     </nav>
   );
 }

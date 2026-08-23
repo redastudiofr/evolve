@@ -92,10 +92,50 @@ export type Reward = {
 
 export type Profile = {
   name: string;
+  pseudo: string;
+  email: string;
+  /** Small square data URL, resized before storage. */
+  avatar: string;
   age: number;
   heightCm: number;
   weightKg: number;
   goal: string;
+};
+
+/* ---------- entrepreneuriat ---------- */
+
+export type ProjectStage = 'idee' | 'construction' | 'lancement' | 'croissance' | 'expansion';
+
+export type SubGoal = { id: string; label: string; done: boolean };
+
+export type FinanceEntry = {
+  id: string;
+  date: string;
+  kind: 'revenu' | 'depense';
+  category: string;
+  label?: string;
+  amount: number;
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  type: string;
+  description?: string;
+  mainGoal?: string;
+  subGoals: SubGoal[];
+  createdAt: string;
+  deadline?: string;
+  stage: ProjectStage;
+  archived?: boolean;
+  entries: FinanceEntry[];
+};
+
+export type SavingsEntry = { id: string; date: string; amount: number };
+
+export type Savings = {
+  target: number;
+  entries: SavingsEntry[];
 };
 
 export type NotificationSettings = {
@@ -128,6 +168,8 @@ export type AppData = {
   plan: Record<string, string[]>;
   /** Exercises the user created, merged into the catalogue. */
   customExercises: Exercise[];
+  projects: Project[];
+  savings: Savings;
 };
 
 export type PushSub = {

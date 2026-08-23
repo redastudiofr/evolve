@@ -130,7 +130,7 @@ export function dueNotifications(settings: Settings, now = new Date()): DueNotif
         title: 'Séance',
         body: 'Ta séance commence bientôt. Ouvre l’app pour voir les charges prévues.',
         tag: 'workout',
-        url: '/semaine',
+        url: '/muscu',
       });
     }
   }

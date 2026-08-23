@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Avatar from '@/components/Avatar';
 import { useData } from '@/components/DataProvider';
 import Curve from '@/components/Curve';
 import { computeRecords, dayXp, formatDate, todayKey, uid } from '@/lib/logic';
@@ -18,9 +19,48 @@ const METRICS = [
 type MetricId = (typeof METRICS)[number]['id'];
 type View = 'recompenses' | 'mesures' | 'records';
 
+/** Crops to a square and shrinks it, so the photo stays a few kilobytes. */
+async function resizeToDataUrl(file: File, size = 192): Promise<string> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = reject;
+      el.src = url;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return '';
+    const min = Math.min(img.width, img.height);
+    ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, size, size);
+    return canvas.toDataURL('image/jpeg', 0.82);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 export default function ProfilePage() {
   const { data, update } = useData();
   const tz = data.settings.timezone;
+  const profile = data.settings.profile;
+
+  function setProfile(patch: Partial<typeof profile>) {
+    update((d) => ({
+      ...d,
+      settings: { ...d.settings, profile: { ...d.settings.profile, ...patch } },
+    }));
+  }
+
+  async function onPickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const dataUrl = await resizeToDataUrl(file);
+    if (dataUrl) setProfile({ avatar: dataUrl });
+  }
   const [view, setView] = useState<View>('recompenses');
   const [metric, setMetric] = useState<MetricId>('weightKg');
   const [form, setForm] = useState<Record<string, string>>({ date: todayKey(tz) });
@@ -101,11 +141,50 @@ export default function ProfilePage() {
       <header className="topbar">
         <div>
           <h1>Profil</h1>
-          <p className="sub">{data.settings.profile.name}</p>
+          <p className="sub">{profile.pseudo || profile.name}</p>
         </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="brand-mark" src="/icons/icon-192.png" alt="" width={34} height={34} />
       </header>
+
+      <div className="identity">
+        <label className="identity-photo">
+          <Avatar src={profile.avatar} name={profile.pseudo || profile.name} size={78} />
+          <input type="file" accept="image/*" onChange={onPickPhoto} hidden />
+          <span className="identity-edit">Changer</span>
+        </label>
+        <div className="identity-fields">
+          <label className="field" style={{ marginTop: 0 }}>
+            <span>Pseudo</span>
+            <input
+              className="input"
+              value={profile.pseudo}
+              placeholder="Ton pseudo"
+              onChange={(e) => setProfile({ pseudo: e.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>Adresse e-mail</span>
+            <input
+              className="input"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={profile.email}
+              placeholder="toi@exemple.com"
+              onChange={(e) => setProfile({ email: e.target.value })}
+            />
+          </label>
+        </div>
+      </div>
+
+      {profile.avatar ? (
+        <button
+          className="btn btn-ghost btn-sm"
+          style={{ marginTop: 10 }}
+          onClick={() => setProfile({ avatar: '' })}
+        >
+          Retirer la photo
+        </button>
+      ) : null}
 
       <div className="level-card">
         <div className="row">

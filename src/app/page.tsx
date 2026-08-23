@@ -5,7 +5,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useData } from '@/components/DataProvider';
 import Curve from '@/components/Curve';
 import XpBurst from '@/components/XpBurst';
-import { MAX_DAY_XP, TASKS, dayXp, todayKey, todayPlan, workoutOn } from '@/lib/logic';
+import ObjectiveSheet, { type ObjectiveDraft } from '@/components/ObjectiveSheet';
+import { MAX_DAY_XP, TASKS, dayXp, shiftKey, todayKey, todayPlan, uid, workoutOn } from '@/lib/logic';
 import {
   METRICS,
   RANGES,
@@ -50,6 +51,54 @@ export default function TodayPage() {
   const [metric, setMetric] = useState<MetricId>('xpCumule');
   const [range, setRange] = useState<RangeId>('30j');
   const [burst, setBurst] = useState<{ id: number; amount: number; title: string } | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<Objective | null>(null);
+
+  function saveObjective(draft: ObjectiveDraft) {
+    update((d) => {
+      if (editing) {
+        return {
+          ...d,
+          objectives: d.objectives.map((o) =>
+            o.id === editing.id ? { ...o, ...draft, date: o.date } : o,
+          ),
+        };
+      }
+      const created: Objective = {
+        id: uid(),
+        createdAt: key,
+        archived: false,
+        date: draft.recurrence === 'once' ? key : undefined,
+        ...draft,
+      };
+      return { ...d, objectives: [created, ...d.objectives] };
+    });
+    setCreating(false);
+    setEditing(null);
+  }
+
+  function postpone(o: Objective) {
+    const tomorrow = shiftKey(key, 1);
+    update((d) => ({
+      ...d,
+      objectives: d.objectives.map((x) => (x.id === o.id ? { ...x, date: tomorrow } : x)),
+    }));
+    setOpenId(null);
+  }
+
+  function archive(o: Objective) {
+    update((d) => ({
+      ...d,
+      objectives: d.objectives.map((x) => (x.id === o.id ? { ...x, archived: true } : x)),
+    }));
+    setOpenId(null);
+  }
+
+  function remove(o: Objective) {
+    update((d) => ({ ...d, objectives: d.objectives.filter((x) => x.id !== o.id) }));
+    setOpenId(null);
+  }
 
   useEffect(() => {
     if (!burst) return;
@@ -126,6 +175,16 @@ export default function TodayPage() {
   return (
     <>
       {burst ? <XpBurst key={burst.id} amount={burst.amount} title={burst.title} /> : null}
+      {creating || editing ? (
+        <ObjectiveSheet
+          initial={editing}
+          onSave={saveObjective}
+          onClose={() => {
+            setCreating(false);
+            setEditing(null);
+          }}
+        />
+      ) : null}
 
       <header className="topbar">
         <div>
@@ -212,45 +271,69 @@ export default function TodayPage() {
       </section>
 
       <section className="section">
-        <div className="row" style={{ marginBottom: 10 }}>
-          <h2 className="section-title" style={{ margin: 0 }}>
-            Objectifs du jour
-          </h2>
-          <Link href="/objectifs" className="link-sm">
-            Gérer
-          </Link>
-        </div>
+        <h2 className="section-title">
+          Objectifs du jour · {doneCount}/{todays.length}
+        </h2>
 
         {todays.length === 0 ? (
           <div className="card empty">
-            Aucun objectif prévu aujourd&apos;hui.{' '}
-            <Link href="/objectifs" style={{ color: 'var(--accent-strong)' }}>
-              En créer un
-            </Link>
+            Rien de fixé pour aujourd&apos;hui. Les objectifs sont libres — tu en poses quand tu
+            veux, tu les retires quand ils n&apos;ont plus de sens.
           </div>
         ) : (
           todays.map((o) => {
             const on = isDone(entry, o.id);
+            const open = openId === o.id;
             return (
-              <button key={o.id} className="check" data-on={on} onClick={() => toggleObjective(o)}>
-                <span className="box">{on ? <Check /> : null}</span>
-                <span className="check-main">
-                  <span className="check-label">{o.title}</span>
-                  <span className="check-hint">
-                    {categoryLabel(o.category)}
-                    {o.time ? ` · ${o.time}` : ''}
-                  </span>
-                </span>
-                <span className="xp-chip">+{o.xp}</span>
-              </button>
+              <div key={o.id} className="obj">
+                <div className="obj-row">
+                  <button className="check" data-on={on} onClick={() => toggleObjective(o)}>
+                    <span className="box">{on ? <Check /> : null}</span>
+                    <span className="check-main">
+                      <span className="check-label">{o.title}</span>
+                      <span className="check-hint">
+                        {categoryLabel(o.category)}
+                        {o.time ? ` · ${o.time}` : ''}
+                      </span>
+                    </span>
+                    <span className="xp-chip">+{o.xp}</span>
+                  </button>
+                  <button
+                    className="obj-more"
+                    data-on={open}
+                    onClick={() => setOpenId(open ? null : o.id)}
+                    aria-label="Actions"
+                  >
+                    <span />
+                    <span />
+                    <span />
+                  </button>
+                </div>
+
+                {open ? (
+                  <div className="obj-actions">
+                    <button onClick={() => { setEditing(o); setOpenId(null); }}>Modifier</button>
+                    {o.recurrence === 'once' ? (
+                      <button onClick={() => postpone(o)}>Reporter à demain</button>
+                    ) : (
+                      <button onClick={() => archive(o)}>Archiver</button>
+                    )}
+                    <button onClick={() => remove(o)}>Supprimer</button>
+                  </div>
+                ) : null}
+              </div>
             );
           })
         )}
+
+        <button className="btn btn-accent add-objective" onClick={() => setCreating(true)}>
+          + Fixer un objectif
+        </button>
       </section>
 
       <section className="section">
         <h2 className="section-title">Séance du jour</h2>
-        <Link href="/semaine" className="card row">
+        <Link href="/muscu" className="card row">
           <div>
             <div className="ex-name">
               {plan.title}
