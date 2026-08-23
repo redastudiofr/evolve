@@ -124,6 +124,10 @@ export type AppData = {
   measurements: Measurement[];
   objectives: Objective[];
   rewards: Reward[];
+  /** dayId -> ordered exercise ids. Absent = the default day is used. */
+  plan: Record<string, string[]>;
+  /** Exercises the user created, merged into the catalogue. */
+  customExercises: Exercise[];
 };
 
 export type PushSub = {

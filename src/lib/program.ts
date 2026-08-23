@@ -50,12 +50,11 @@ export const WEEK: DayPlan[] = [
     focus: 'Quadriceps, ischios, mollets',
     rest: false,
     exercises: [
-      { id: 'squat-barre', name: 'Squat barre', sets: 4, repMin: 6, repMax: 8, restSec: 180, rpe: 8, unit: 'kg', defaultWeight: 60, increment: 2.5 },
+      { id: 'squat-barre', name: 'Squat', sets: 4, repMin: 6, repMax: 8, restSec: 180, rpe: 8, unit: 'kg', defaultWeight: 60, increment: 2.5 },
       { id: 'presse-cuisses', name: 'Presse à cuisses', sets: 4, repMin: 10, repMax: 12, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 110, increment: 5 },
-      { id: 'leg-curl-allonge', name: 'Leg curl allongé', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 35, increment: 2.5 },
-      { id: 'fentes-bulgares', name: 'Fentes bulgares haltères', sets: 3, repMin: 8, repMax: 10, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 16, increment: 2, note: 'Par jambe' },
-      { id: 'mollets-debout', name: 'Mollets debout', sets: 4, repMin: 12, repMax: 15, restSec: 60, rpe: 9, unit: 'kg', defaultWeight: 60, increment: 5 },
-      { id: 'gainage-lun', name: 'Gainage', sets: 3, repMin: 45, repMax: 60, restSec: 45, rpe: 8, unit: 'sec', defaultWeight: 0, increment: 0 },
+      { id: 'fentes-marchees', name: 'Fentes marchées', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 16, increment: 2, note: 'Par jambe' },
+      { id: 'leg-curl-allonge', name: 'Leg curl', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 35, increment: 2.5 },
+      { id: 'leg-extension', name: 'Leg extension', sets: 3, repMin: 12, repMax: 15, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 35, increment: 2.5 },
       MARCHE,
     ],
   },
@@ -68,11 +67,11 @@ export const WEEK: DayPlan[] = [
     rest: false,
     exercises: [
       { id: 'tractions', name: 'Tractions', sets: 4, repMin: 6, repMax: 10, restSec: 150, rpe: 8, unit: 'bw', defaultWeight: 0, increment: 2.5, note: 'Lest additionnel' },
+      { id: 'tirage-vertical', name: 'Tirage vertical', sets: 4, repMin: 8, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 45, increment: 2.5 },
       { id: 'rowing-barre', name: 'Rowing barre', sets: 4, repMin: 8, repMax: 10, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 45, increment: 2.5 },
-      { id: 'tirage-vertical-serre', name: 'Tirage vertical prise serrée', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 45, increment: 2.5 },
-      { id: 'rowing-unilateral', name: 'Rowing unilatéral haltère', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 24, increment: 2, note: 'Par bras' },
-      { id: 'curl-barre', name: 'Curl biceps barre', sets: 3, repMin: 8, repMax: 12, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 25, increment: 2.5 },
-      { id: 'curl-marteau', name: 'Curl marteau', sets: 3, repMin: 10, repMax: 12, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 12, increment: 2 },
+      { id: 'rowing-poulie-basse', name: 'Rowing poulie basse', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 45, increment: 2.5 },
+      { id: 'curl-barre', name: 'Curl barre', sets: 3, repMin: 8, repMax: 12, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 25, increment: 2.5 },
+      { id: 'curl-incline', name: 'Curl incliné haltères', sets: 3, repMin: 10, repMax: 12, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 10, increment: 2 },
       MARCHE,
     ],
   },
@@ -96,9 +95,9 @@ export const WEEK: DayPlan[] = [
       { id: 'developpe-couche', name: 'Développé couché barre', sets: 4, repMin: 6, repMax: 8, restSec: 180, rpe: 8, unit: 'kg', defaultWeight: 50, increment: 2.5 },
       { id: 'developpe-incline-halteres', name: 'Développé incliné haltères', sets: 4, repMin: 8, repMax: 10, restSec: 120, rpe: 8, unit: 'kg', defaultWeight: 20, increment: 2 },
       { id: 'dips', name: 'Dips', sets: 3, repMin: 8, repMax: 12, restSec: 120, rpe: 8, unit: 'bw', defaultWeight: 0, increment: 2.5, note: 'Lest additionnel' },
-      { id: 'ecarte-poulie', name: 'Écarté poulie', sets: 3, repMin: 12, repMax: 15, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 12, increment: 2.5 },
-      { id: 'extensions-triceps-poulie', name: 'Extensions triceps poulie', sets: 3, repMin: 12, repMax: 15, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 25, increment: 2.5 },
-      { id: 'barre-au-front', name: 'Barre au front', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 20, increment: 2.5 },
+      { id: 'ecarte-poulie', name: 'Écarté à la poulie', sets: 3, repMin: 12, repMax: 15, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 12, increment: 2.5 },
+      { id: 'extensions-triceps-poulie', name: 'Extension triceps à la poulie', sets: 3, repMin: 12, repMax: 15, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 25, increment: 2.5 },
+      { id: 'extension-triceps-tete', name: 'Extension triceps au-dessus de la tête', sets: 3, repMin: 10, repMax: 12, restSec: 75, rpe: 8, unit: 'kg', defaultWeight: 15, increment: 2.5 },
       MARCHE,
     ],
   },
@@ -114,8 +113,8 @@ export const WEEK: DayPlan[] = [
       { id: 'elevations-laterales', name: 'Élévations latérales', sets: 4, repMin: 12, repMax: 15, restSec: 60, rpe: 9, unit: 'kg', defaultWeight: 8, increment: 1 },
       { id: 'oiseau', name: 'Oiseau', sets: 3, repMin: 12, repMax: 15, restSec: 60, rpe: 9, unit: 'kg', defaultWeight: 8, increment: 1 },
       { id: 'elevations-frontales', name: 'Élévations frontales', sets: 3, repMin: 12, repMax: 15, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 8, increment: 1 },
-      { id: 'gainage-complet', name: 'Gainage complet', sets: 3, repMin: 45, repMax: 60, restSec: 45, rpe: 8, unit: 'sec', defaultWeight: 0, increment: 0, note: 'Planche, latéral, hollow' },
-      { id: 'cou-isometrique', name: 'Travail cou isométrique', sets: 3, repMin: 20, repMax: 30, restSec: 45, rpe: 6, unit: 'sec', defaultWeight: 0, increment: 0, note: 'Résistance légère, 4 directions' },
+      { id: 'crunch-poulie', name: 'Crunch à la poulie', sets: 4, repMin: 12, repMax: 15, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 20, increment: 2.5 },
+      { id: 'releves-jambes', name: 'Relevés de jambes', sets: 4, repMin: 10, repMax: 15, restSec: 60, rpe: 8, unit: 'bw', defaultWeight: 0, increment: 0 },
       MARCHE,
     ],
   },
@@ -140,6 +139,21 @@ export const WEEK: DayPlan[] = [
 /** Training days only, in week order starting Monday. */
 export const TRAINING_DAYS = WEEK.filter((d) => !d.rest);
 
+/**
+ * Exercises available in the picker but not scheduled by default. Keeps the
+ * catalogue rich without imposing them.
+ */
+export const EXTRA_EXERCISES: Exercise[] = [
+  { id: 'fentes-bulgares', name: 'Fentes bulgares haltères', sets: 3, repMin: 8, repMax: 10, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 16, increment: 2, note: 'Par jambe' },
+  { id: 'mollets-debout', name: 'Mollets debout', sets: 4, repMin: 12, repMax: 15, restSec: 60, rpe: 9, unit: 'kg', defaultWeight: 60, increment: 5 },
+  { id: 'tirage-vertical-serre', name: 'Tirage vertical prise serrée', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 45, increment: 2.5 },
+  { id: 'rowing-unilateral', name: 'Rowing unilatéral haltère', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 24, increment: 2, note: 'Par bras' },
+  { id: 'curl-marteau', name: 'Curl marteau', sets: 3, repMin: 10, repMax: 12, restSec: 60, rpe: 8, unit: 'kg', defaultWeight: 12, increment: 2 },
+  { id: 'barre-au-front', name: 'Barre au front', sets: 3, repMin: 10, repMax: 12, restSec: 90, rpe: 8, unit: 'kg', defaultWeight: 20, increment: 2.5 },
+  { id: 'gainage-complet', name: 'Gainage complet', sets: 3, repMin: 45, repMax: 60, restSec: 45, rpe: 8, unit: 'sec', defaultWeight: 0, increment: 0, note: 'Planche, latéral, hollow' },
+  { id: 'cou-isometrique', name: 'Travail cou isométrique', sets: 3, repMin: 20, repMax: 30, restSec: 45, rpe: 6, unit: 'sec', defaultWeight: 0, increment: 0, note: 'Résistance légère, 4 directions' },
+];
+
 /** Every distinct exercise, with the day it belongs to. Walking appears once. */
 export const ALL_EXERCISES = (() => {
   const seen = new Map<string, Exercise & { dayId: string; dayTitle: string }>();
@@ -148,11 +162,33 @@ export const ALL_EXERCISES = (() => {
       if (!seen.has(ex.id)) seen.set(ex.id, { ...ex, dayId: day.id, dayTitle: day.title });
     }
   }
+  for (const ex of EXTRA_EXERCISES) {
+    if (!seen.has(ex.id)) seen.set(ex.id, { ...ex, dayId: '', dayTitle: 'Catalogue' });
+  }
   return [...seen.values()];
 })();
 
 export function findExercise(id: string) {
   return ALL_EXERCISES.find((e) => e.id === id);
+}
+
+/** Default catalogue merged with the user's own exercises. */
+export function catalogue(custom: Exercise[] = []): Exercise[] {
+  const map = new Map<string, Exercise>();
+  for (const e of ALL_EXERCISES) map.set(e.id, e);
+  for (const e of custom) map.set(e.id, e);
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+}
+
+export function lookupExercise(id: string, custom: Exercise[] = []): Exercise | undefined {
+  return custom.find((e) => e.id === id) ?? findExercise(id);
+}
+
+/** The ordered exercise ids for a day: the user's layout, else the default. */
+export function planIdsForDay(plan: Record<string, string[]>, dayId: string): string[] {
+  const custom = plan[dayId];
+  if (Array.isArray(custom)) return custom;
+  return (findDay(dayId)?.exercises ?? []).map((e) => e.id);
 }
 
 export function findDay(id: string) {
@@ -199,6 +235,8 @@ export function defaultData(): AppData {
     workouts: [],
     measurements: [],
     objectives: [],
+    plan: {},
+    customExercises: [],
     rewards: DEFAULT_REWARDS,
   };
 }
@@ -256,6 +294,8 @@ export function normalizeData(raw: unknown): AppData {
     workouts: Array.isArray(d.workouts) ? d.workouts : [],
     measurements: Array.isArray(d.measurements) ? d.measurements : [],
     objectives,
+    plan: (d.plan && typeof d.plan === 'object' ? d.plan : {}) as Record<string, string[]>,
+    customExercises: Array.isArray(d.customExercises) ? d.customExercises : [],
     rewards,
   };
 }

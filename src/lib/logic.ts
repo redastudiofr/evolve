@@ -38,12 +38,16 @@ export function formatShort(key: string): string {
   );
 }
 
+/** The seven date keys of the week containing `dateKey`, Monday first. */
+export function weekDatesFrom(dateKey: string): string[] {
+  const wd = weekdayOf(dateKey);
+  const monday = shiftKey(dateKey, wd === 0 ? -6 : 1 - wd);
+  return Array.from({ length: 7 }, (_, i) => shiftKey(monday, i));
+}
+
 /** The seven date keys of the current week, Monday first. */
 export function weekDates(tz: string): string[] {
-  const today = todayKey(tz);
-  const wd = weekdayOf(today);
-  const monday = shiftKey(today, wd === 0 ? -6 : 1 - wd);
-  return Array.from({ length: 7 }, (_, i) => shiftKey(monday, i));
+  return weekDatesFrom(todayKey(tz));
 }
 
 /* ---------- weekly plan ---------- */
