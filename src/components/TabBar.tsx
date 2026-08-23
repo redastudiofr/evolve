@@ -7,7 +7,7 @@ const TABS = [
   { href: '/', label: "Aujourd'hui", icon: 'today' },
   { href: '/semaine', label: 'Semaine', icon: 'week' },
   { href: '/objectifs', label: 'Objectifs', icon: 'goal' },
-  { href: '/progres', label: 'Progrès', icon: 'progress' },
+  { href: '/profil', label: 'Profil', icon: 'profile' },
   { href: '/reglages', label: 'Réglages', icon: 'settings' },
 ] as const;
 
@@ -45,11 +45,10 @@ function Icon({ name }: { name: string }) {
           <circle cx="12" cy="12" r="0.6" fill="currentColor" />
         </svg>
       );
-    case 'progress':
+    case 'profile':
       return (
         <svg {...common}>
-          <path d="M3 16.8 9 10.6l4 4L21 6.6" />
-          <path d="M15 6.6h6v6" />
+          <path d="m12 3.2 2.6 5.4 5.9.85-4.25 4.15 1 5.9L12 16.7l-5.25 2.8 1-5.9L3.5 9.45l5.9-.85Z" />
         </svg>
       );
     default:

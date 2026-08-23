@@ -128,9 +128,35 @@ export function dueNotifications(settings: Settings, now = new Date()): DueNotif
       out.push({
         key: `workout:${dateKey}`,
         title: 'Séance',
-        body: 'Entraînement du jour. Ouvre l’app pour voir les charges prévues.',
+        body: 'Ta séance commence bientôt. Ouvre l’app pour voir les charges prévues.',
         tag: 'workout',
         url: '/semaine',
+      });
+    }
+  }
+
+  if (n.objectives.enabled) {
+    const t = parseTime(n.objectives.time);
+    if (t !== null && isDue(minutes, t)) {
+      out.push({
+        key: `objectives:${dateKey}`,
+        title: 'Objectifs du jour',
+        body: 'N’oublie pas tes objectifs du jour.',
+        tag: 'objectives',
+        url: '/',
+      });
+    }
+  }
+
+  if (n.review.enabled) {
+    const t = parseTime(n.review.time);
+    if (t !== null && isDue(minutes, t)) {
+      out.push({
+        key: `review:${dateKey}`,
+        title: 'Bilan du jour',
+        body: 'Fais ton bilan quotidien et termine ta journée.',
+        tag: 'review',
+        url: '/',
       });
     }
   }

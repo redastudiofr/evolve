@@ -34,7 +34,44 @@ export type LoggedWorkout = {
   exercises: LoggedExercise[];
 };
 
-export type DailyEntry = { tasks: Record<string, boolean>; note?: string };
+/* ---------- objectifs ---------- */
+
+export type Category =
+  | 'sport'
+  | 'entrepreneuriat'
+  | 'travail'
+  | 'etudes'
+  | 'discipline'
+  | 'habitudes'
+  | 'personnel'
+  | 'autre';
+
+export type Difficulty = 'facile' | 'moyen' | 'difficile';
+
+/** How often an objective comes back on the day list. */
+export type Recurrence = 'once' | 'daily' | 'weekdays';
+
+export type Objective = {
+  id: string;
+  title: string;
+  category: Category;
+  difficulty: Difficulty;
+  xp: number;
+  time?: string; // HH:MM
+  recurrence: Recurrence;
+  days?: number[]; // recurrence === 'weekdays'
+  date?: string; // recurrence === 'once'
+  createdAt: string;
+  archived?: boolean;
+};
+
+/** A day: checklist ticks, objectives completed, and whether it was closed. */
+export type DailyEntry = {
+  tasks: Record<string, boolean>;
+  objectives?: string[];
+  note?: string;
+  closed?: boolean;
+};
 
 export type Measurement = {
   id: string;
@@ -46,15 +83,11 @@ export type Measurement = {
   thighCm?: number;
 };
 
-export type Goal = {
+export type Reward = {
   id: string;
-  title: string;
-  detail?: string;
-  target?: number;
-  current?: number;
-  unit?: string;
-  done: boolean;
-  createdAt: string;
+  level: number;
+  label: string;
+  custom: boolean;
 };
 
 export type Profile = {
@@ -71,6 +104,8 @@ export type NotificationSettings = {
   meals: { enabled: boolean; times: string[] };
   sleep: { enabled: boolean; time: string };
   workout: { enabled: boolean; time: string; days: number[] };
+  objectives: { enabled: boolean; time: string };
+  review: { enabled: boolean; time: string };
 };
 
 export type Settings = {
@@ -87,7 +122,8 @@ export type AppData = {
   daily: Record<string, DailyEntry>;
   workouts: LoggedWorkout[];
   measurements: Measurement[];
-  goals: Goal[];
+  objectives: Objective[];
+  rewards: Reward[];
 };
 
 export type PushSub = {

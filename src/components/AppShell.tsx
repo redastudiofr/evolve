@@ -2,8 +2,9 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import DataProvider from './DataProvider';
+import DataProvider, { useData } from './DataProvider';
 import TabBar from './TabBar';
+import Loader from './Loader';
 
 function useServiceWorker() {
   useEffect(() => {
@@ -18,6 +19,18 @@ function useServiceWorker() {
   }, []);
 }
 
+/** Holds the boot screen until the first sync settles, then reveals the app. */
+function Booted({ children }: { children: React.ReactNode }) {
+  const { status } = useData();
+  if (status === 'loading') return <Loader />;
+  return (
+    <>
+      <div className="shell">{children}</div>
+      <TabBar />
+    </>
+  );
+}
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   useServiceWorker();
@@ -26,8 +39,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <DataProvider>
-      <div className="shell">{children}</div>
-      <TabBar />
+      <Booted>{children}</Booted>
     </DataProvider>
   );
 }

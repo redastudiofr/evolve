@@ -421,6 +421,52 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
+
+        <div className="card">
+          <div className="row">
+            <div>
+              <div className="ex-name">Objectifs du jour</div>
+              <div className="ex-meta">Rappel de ce qu&apos;il reste à accomplir</div>
+            </div>
+            <Switch
+              on={s.notifications.objectives.enabled}
+              onClick={() =>
+                setNotif('objectives', { enabled: !s.notifications.objectives.enabled })
+              }
+            />
+          </div>
+          <label className="field">
+            <span>Heure</span>
+            <input
+              className="input"
+              type="time"
+              value={s.notifications.objectives.time}
+              onChange={(e) => setNotif('objectives', { time: e.target.value })}
+            />
+          </label>
+        </div>
+
+        <div className="card">
+          <div className="row">
+            <div>
+              <div className="ex-name">Bilan du jour</div>
+              <div className="ex-meta">Invitation à clôturer ta journée</div>
+            </div>
+            <Switch
+              on={s.notifications.review.enabled}
+              onClick={() => setNotif('review', { enabled: !s.notifications.review.enabled })}
+            />
+          </div>
+          <label className="field">
+            <span>Heure</span>
+            <input
+              className="input"
+              type="time"
+              value={s.notifications.review.time}
+              onChange={(e) => setNotif('review', { time: e.target.value })}
+            />
+          </label>
+        </div>
       </section>
 
       <section className="section">

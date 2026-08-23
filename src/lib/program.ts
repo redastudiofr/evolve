@@ -1,4 +1,13 @@
-import type { AppData, DayPlan, Exercise, Settings } from './types';
+import type { AppData, DayPlan, Exercise, Objective, Reward, Settings } from './types';
+
+/** Milestone rewards everyone starts with. The user can add their own. */
+export const DEFAULT_REWARDS: Reward[] = [
+  { id: 'r-5', level: 5, label: 'Premier pas', custom: false },
+  { id: 'r-10', level: 10, label: 'Discipline', custom: false },
+  { id: 'r-20', level: 20, label: 'Régularité', custom: false },
+  { id: 'r-50', level: 50, label: 'Machine', custom: false },
+  { id: 'r-100', level: 100, label: 'Elite', custom: false },
+];
 
 /** Walking is part of every session, and of the two rest days. */
 const MARCHE: Exercise = {
@@ -169,6 +178,8 @@ export const DEFAULT_SETTINGS: Settings = {
     meals: { enabled: true, times: ['08:00', '12:30', '19:30'] },
     sleep: { enabled: true, time: '22:30' },
     workout: { enabled: true, time: '17:30', days: [1, 2, 4, 5, 6] },
+    objectives: { enabled: true, time: '18:00' },
+    review: { enabled: true, time: '21:30' },
   },
 };
 
@@ -180,15 +191,37 @@ export function defaultLoads(): Record<string, number> {
 
 export function defaultData(): AppData {
   return {
-    version: 2,
+    version: 3,
     updatedAt: Date.now(),
     settings: DEFAULT_SETTINGS,
     loads: defaultLoads(),
     daily: {},
     workouts: [],
     measurements: [],
-    goals: [],
+    objectives: [],
+    rewards: DEFAULT_REWARDS,
   };
+}
+
+/** Objectives used to be simple "goals". Carry them over rather than lose them. */
+type LegacyGoal = { id?: string; title?: string; createdAt?: string; done?: boolean };
+
+function migrateGoals(raw: unknown): Objective[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((g): g is LegacyGoal => Boolean(g) && typeof g === 'object')
+    .filter((g) => typeof g.title === 'string' && g.title.length > 0)
+    .map((g) => ({
+      id: g.id ?? Math.random().toString(36).slice(2, 10),
+      title: g.title as string,
+      category: 'personnel' as const,
+      difficulty: 'moyen' as const,
+      xp: 25,
+      recurrence: 'once' as const,
+      date: g.createdAt,
+      createdAt: g.createdAt ?? new Date().toISOString().slice(0, 10),
+      archived: g.done === true,
+    }));
 }
 
 /** Merge stored data with defaults so a new field never breaks an old payload. */
@@ -198,8 +231,12 @@ export function normalizeData(raw: unknown): AppData {
   const d = raw as Partial<AppData>;
   const s = (d.settings ?? {}) as Partial<Settings>;
   const n = (s.notifications ?? {}) as Partial<Settings['notifications']>;
+  const legacy = (raw as { goals?: unknown }).goals;
+  const objectives = Array.isArray(d.objectives) ? d.objectives : migrateGoals(legacy);
+  const rewards = Array.isArray(d.rewards) && d.rewards.length > 0 ? d.rewards : DEFAULT_REWARDS;
+
   return {
-    version: 2,
+    version: 3,
     updatedAt: typeof d.updatedAt === 'number' ? d.updatedAt : Date.now(),
     settings: {
       profile: { ...base.settings.profile, ...(s.profile ?? {}) },
@@ -210,12 +247,15 @@ export function normalizeData(raw: unknown): AppData {
         meals: { ...base.settings.notifications.meals, ...(n.meals ?? {}) },
         sleep: { ...base.settings.notifications.sleep, ...(n.sleep ?? {}) },
         workout: { ...base.settings.notifications.workout, ...(n.workout ?? {}) },
+        objectives: { ...base.settings.notifications.objectives, ...(n.objectives ?? {}) },
+        review: { ...base.settings.notifications.review, ...(n.review ?? {}) },
       },
     },
     loads: { ...base.loads, ...(d.loads ?? {}) },
     daily: d.daily ?? {},
     workouts: Array.isArray(d.workouts) ? d.workouts : [],
     measurements: Array.isArray(d.measurements) ? d.measurements : [],
-    goals: Array.isArray(d.goals) ? d.goals : [],
+    objectives,
+    rewards,
   };
 }
