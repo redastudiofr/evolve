@@ -1994,3 +1994,140 @@ a {
   text-align: center;
   margin-bottom: 10px;
 }
+
+/* ---------- patrimoine ---------- */
+
+.patrimoine-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 13px;
+}
+
+.patrimoine-total span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.patrimoine-total b {
+  font-size: 19px;
+  font-weight: 640;
+  letter-spacing: -0.015em;
+}
+
+/* ---------- tap rapide sur montant ---------- */
+
+.money-tap {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.money-tap span {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+
+.money-tap b {
+  display: block;
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+}
+
+.money-tap-block {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.quick-sheet {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+}
+
+.quick-input {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  padding: 16px 12px;
+}
+
+/* ---------- simulateur ---------- */
+
+.sim-legend {
+  display: flex;
+  gap: 16px;
+  margin: 14px 0 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sim-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sim-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+  display: inline-block;
+}
+
+.sim-dot-sp {
+  background: #4d86ea;
+}
+
+.sim-dot-cac {
+  background: #e0a06f;
+}
+
+.sim-table {
+  margin-top: 14px;
+}
+
+.sim-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 13px;
+  align-items: center;
+}
+
+.sim-row:last-child {
+  border-bottom: 0;
+}
+
+.sim-row span:first-child {
+  color: var(--muted);
+}
+
+.sim-head {
+  font-size: 11px;
+  color: var(--muted-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+
+.sim-head span:first-child {
+  color: var(--muted-2);
+}

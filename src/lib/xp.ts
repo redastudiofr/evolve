@@ -1,5 +1,6 @@
 import type { AppData, Category, DailyEntry, Difficulty, Objective, Reward } from './types';
 import { shiftKey, todayKey, weekdayOf } from './logic';
+import { financeActivityDates, financeXpOnDate } from './business';
 
 /* ---------- niveaux ---------- */
 
@@ -86,20 +87,29 @@ export function isDone(entry: DailyEntry | undefined, id: string): boolean {
 
 /* ---------- XP par jour ---------- */
 
-/** XP earned on a date: checklist ticks plus every objective completed. */
+/**
+ * XP earned on a date: checklist ticks, every objective completed, and finance
+ * activity (savings/investment contributions, goals reached, regularity). A
+ * date needs no checklist entry to carry finance XP.
+ */
 export function xpOnDate(data: AppData, date: string, taskXp: (e?: DailyEntry) => number): number {
   const entry = data.daily[date];
-  if (!entry) return 0;
-  const done = entry.objectives ?? [];
+  const done = entry?.objectives ?? [];
   const fromObjectives = done.reduce((sum, id) => {
     const o = data.objectives.find((x) => x.id === id);
     return sum + (o?.xp ?? 0);
   }, 0);
-  return taskXp(entry) + fromObjectives;
+  const fromTasks = entry ? taskXp(entry) : 0;
+  return fromTasks + fromObjectives + financeXpOnDate(data, date);
+}
+
+/** Every date checklist ticks, objectives, or finance activity could contribute XP on. */
+function activityDates(data: AppData): string[] {
+  return [...new Set([...Object.keys(data.daily), ...financeActivityDates(data)])];
 }
 
 export function totalXpOf(data: AppData, taskXp: (e?: DailyEntry) => number): number {
-  return Object.keys(data.daily).reduce((sum, date) => sum + xpOnDate(data, date, taskXp), 0);
+  return activityDates(data).reduce((sum, date) => sum + xpOnDate(data, date, taskXp), 0);
 }
 
 /* ---------- streak ---------- */
@@ -151,7 +161,7 @@ export function series(
   taskXp: (e?: DailyEntry) => number,
 ): Point[] {
   const today = todayKey(tz);
-  const dates = Object.keys(data.daily).sort();
+  const dates = activityDates(data).sort();
   const first = dates[0] ?? today;
 
   const cfg = RANGES.find((r) => r.id === range) ?? RANGES[0];

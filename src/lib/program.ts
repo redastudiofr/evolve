@@ -3,6 +3,7 @@ import type {
   DayPlan,
   Equipment,
   Exercise,
+  Investments,
   MuscleGroup,
   Objective,
   Reward,
@@ -240,7 +241,7 @@ export function defaultLoads(): Record<string, number> {
 
 export function defaultData(): AppData {
   return {
-    version: 4,
+    version: 5,
     updatedAt: Date.now(),
     settings: DEFAULT_SETTINGS,
     loads: defaultLoads(),
@@ -253,6 +254,8 @@ export function defaultData(): AppData {
     projects: [],
     finances: [],
     savings: { target: 0, entries: [] },
+    investments: { entries: [] },
+    financialGoals: [],
     rewards: DEFAULT_REWARDS,
   };
 }
@@ -282,7 +285,10 @@ function migrateGoals(raw: unknown): Objective[] {
 export function normalizeData(raw: unknown): AppData {
   const base = defaultData();
   if (!raw || typeof raw !== 'object') return base;
-  const d = raw as Partial<AppData> & { savings?: Partial<Savings> };
+  const d = raw as Partial<AppData> & {
+    savings?: Partial<Savings>;
+    investments?: Partial<Investments>;
+  };
   const s = (d.settings ?? {}) as Partial<Settings>;
   const n = (s.notifications ?? {}) as Partial<Settings['notifications']>;
   const legacy = (raw as { goals?: unknown }).goals;
@@ -290,7 +296,7 @@ export function normalizeData(raw: unknown): AppData {
   const rewards = Array.isArray(d.rewards) && d.rewards.length > 0 ? d.rewards : DEFAULT_REWARDS;
 
   return {
-    version: 4,
+    version: 5,
     updatedAt: typeof d.updatedAt === 'number' ? d.updatedAt : Date.now(),
     settings: {
       profile: { ...base.settings.profile, ...(s.profile ?? {}) },
@@ -318,6 +324,10 @@ export function normalizeData(raw: unknown): AppData {
       target: typeof d.savings?.target === 'number' ? d.savings.target : 0,
       entries: Array.isArray(d.savings?.entries) ? d.savings.entries : [],
     },
+    investments: {
+      entries: Array.isArray(d.investments?.entries) ? d.investments.entries : [],
+    },
+    financialGoals: Array.isArray(d.financialGoals) ? d.financialGoals : [],
     rewards,
   };
 }

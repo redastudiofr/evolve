@@ -145,11 +145,27 @@ export type Project = {
   entries: FinanceEntry[];
 };
 
+/** Amount can be negative to represent a withdrawal. */
 export type SavingsEntry = { id: string; date: string; amount: number };
 
 export type Savings = {
   target: number;
   entries: SavingsEntry[];
+};
+
+/** Same shape as savings — a running tracked amount, add or withdraw. */
+export type Investments = {
+  entries: SavingsEntry[];
+};
+
+export type FinancialGoal = {
+  id: string;
+  label: string;
+  target: number;
+  xp: number;
+  createdAt: string;
+  /** Set once, the day the target was first reached — grants XP exactly once. */
+  achievedAt?: string;
 };
 
 export type NotificationSettings = {
@@ -186,6 +202,8 @@ export type AppData = {
   /** Personal ledger, outside any project. */
   finances: FinanceEntry[];
   savings: Savings;
+  investments: Investments;
+  financialGoals: FinancialGoal[];
 };
 
 export type PushSub = {

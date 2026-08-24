@@ -1,4 +1,12 @@
-import type { FinanceEntry, Project, ProjectStage, Savings } from './types';
+import type {
+  AppData,
+  FinanceEntry,
+  FinancialGoal,
+  Investments,
+  Project,
+  ProjectStage,
+  Savings,
+} from './types';
 
 /* ---------- étapes du projet ---------- */
 
@@ -241,4 +249,151 @@ export function analyse(entries: FinanceEntry[], month: string, savings: Savings
   }
 
   return out;
+}
+
+/* ---------- investissements ---------- */
+
+export function investedTotal(investments: Investments): number {
+  return investments.entries.reduce((a, e) => a + e.amount, 0);
+}
+
+/* ---------- objectifs financiers et XP ---------- */
+
+/** Flat reward for a savings or investment contribution — never proportional
+ * to the amount, so the system rewards the habit, not the wealth. */
+const CONTRIBUTION_XP = 8;
+
+/** Bonus for contributing in two consecutive months — rewards regularity. */
+const REGULARITY_BONUS_XP = 15;
+
+/** Suggested XP for a financial goal, scaled gently with its size and capped. */
+export function suggestGoalXp(target: number): number {
+  return Math.max(20, Math.min(600, Math.round(target / 10)));
+}
+
+function contributionMonths(savings: Savings, investments: Investments): Set<string> {
+  const months = new Set<string>();
+  for (const e of savings.entries) if (e.amount > 0) months.add(monthKey(e.date));
+  for (const e of investments.entries) if (e.amount > 0) months.add(monthKey(e.date));
+  return months;
+}
+
+function earliestContributionInMonth(
+  savings: Savings,
+  investments: Investments,
+  month: string,
+): string | null {
+  const dates = [
+    ...savings.entries.filter((e) => e.amount > 0 && monthKey(e.date) === month).map((e) => e.date),
+    ...investments.entries
+      .filter((e) => e.amount > 0 && monthKey(e.date) === month)
+      .map((e) => e.date),
+  ].sort();
+  return dates[0] ?? null;
+}
+
+/**
+ * Every date that can carry finance-driven XP: contributions and the day a
+ * financial goal was first reached. Used to fold finance activity into the
+ * global XP total and curve without requiring a checklist entry that day.
+ */
+export function financeActivityDates(data: AppData): string[] {
+  const dates = new Set<string>();
+  for (const e of data.savings.entries) if (e.amount > 0) dates.add(e.date);
+  for (const e of data.investments.entries) if (e.amount > 0) dates.add(e.date);
+  for (const g of data.financialGoals) if (g.achievedAt) dates.add(g.achievedAt);
+  return [...dates];
+}
+
+/**
+ * XP earned from finance activity on one date: a flat reward per contribution
+ * (never per euro), a one-time goal-completion bonus, and a small regularity
+ * bonus the first time a month follows a month that also had a contribution.
+ */
+export function financeXpOnDate(data: AppData, date: string): number {
+  let xp = 0;
+  for (const e of data.savings.entries) if (e.date === date && e.amount > 0) xp += CONTRIBUTION_XP;
+  for (const e of data.investments.entries)
+    if (e.date === date && e.amount > 0) xp += CONTRIBUTION_XP;
+  for (const g of data.financialGoals) if (g.achievedAt === date) xp += g.xp;
+
+  const months = contributionMonths(data.savings, data.investments);
+  const thisMonth = monthKey(date);
+  if (months.has(thisMonth) && months.has(previousMonth(thisMonth))) {
+    if (earliestContributionInMonth(data.savings, data.investments, thisMonth) === date) {
+      xp += REGULARITY_BONUS_XP;
+    }
+  }
+  return xp;
+}
+
+/**
+ * Marks any financial goal that has newly been reached (target <= current
+ * savings) as achieved today. Idempotent: a goal already carrying achievedAt
+ * is left untouched, so XP is granted exactly once.
+ */
+export function checkGoalAchievements(
+  goals: FinancialGoal[],
+  savingsTotal: number,
+  today: string,
+): FinancialGoal[] {
+  return goals.map((g) =>
+    !g.achievedAt && savingsTotal >= g.target ? { ...g, achievedAt: today } : g,
+  );
+}
+
+/* ---------- simulateur d'investissement ---------- */
+
+export type SimFrequency = 'mensuel' | 'annuel';
+
+export type SimPoint = { year: number; value: number };
+
+export type SimResult = {
+  points: SimPoint[];
+  versed: number;
+  finalValue: number;
+  gain: number;
+};
+
+/**
+ * Hypothetical default annual return rates (%), for the user to adjust.
+ * Editable placeholders, not fetched or certified data — see the disclaimer
+ * shown next to the simulator.
+ */
+export const DEFAULT_SP500_RATE = 8;
+export const DEFAULT_CAC40_RATE = 6;
+
+/** Month-by-month compounding with periodic contributions. Illustrative only. */
+export function simulate(
+  initial: number,
+  contribution: number,
+  years: number,
+  frequency: SimFrequency,
+  annualRatePercent: number,
+): SimResult {
+  const months = Math.max(1, Math.round(years * 12));
+  const monthlyRate = Math.pow(1 + annualRatePercent / 100, 1 / 12) - 1;
+
+  let capital = Math.max(0, initial);
+  let versed = Math.max(0, initial);
+  const points: SimPoint[] = [{ year: 0, value: Math.round(capital) }];
+
+  for (let m = 1; m <= months; m++) {
+    capital *= 1 + monthlyRate;
+    if (frequency === 'mensuel') {
+      capital += contribution;
+      versed += contribution;
+    } else if (m % 12 === 0) {
+      capital += contribution;
+      versed += contribution;
+    }
+    if (m % 12 === 0) points.push({ year: m / 12, value: Math.round(capital) });
+  }
+
+  return {
+    points,
+    versed: Math.round(versed),
+    finalValue: Math.round(capital),
+    gain: Math.round(capital - versed),
+  };
 }
