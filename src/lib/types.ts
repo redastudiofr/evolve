@@ -169,6 +169,8 @@ export type AppData = {
   /** Exercises the user created, merged into the catalogue. */
   customExercises: Exercise[];
   projects: Project[];
+  /** Personal ledger, outside any project. */
+  finances: FinanceEntry[];
   savings: Savings;
 };
 

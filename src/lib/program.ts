@@ -241,6 +241,7 @@ export function defaultData(): AppData {
     plan: {},
     customExercises: [],
     projects: [],
+    finances: [],
     savings: { target: 0, entries: [] },
     rewards: DEFAULT_REWARDS,
   };
@@ -302,6 +303,7 @@ export function normalizeData(raw: unknown): AppData {
     plan: (d.plan && typeof d.plan === 'object' ? d.plan : {}) as Record<string, string[]>,
     customExercises: Array.isArray(d.customExercises) ? d.customExercises : [],
     projects: Array.isArray(d.projects) ? d.projects : [],
+    finances: Array.isArray(d.finances) ? d.finances : [],
     savings: {
       target: typeof d.savings?.target === 'number' ? d.savings.target : 0,
       entries: Array.isArray(d.savings?.entries) ? d.savings.entries : [],

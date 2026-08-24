@@ -118,3 +118,127 @@ export function savingsDueThisMonth(savings: Savings, today: string): boolean {
   const month = monthKey(today);
   return !savings.entries.some((e) => monthKey(e.date) === month);
 }
+
+/* ---------- finances personnelles ---------- */
+
+export const PERSONAL_INCOME_CATEGORIES = ['Salaire', 'Ventes', 'Aide', 'Autres revenus'];
+
+export const PERSONAL_EXPENSE_CATEGORIES = [
+  'Nourriture',
+  'Vêtements',
+  'Sorties',
+  'Abonnements',
+  'Transport',
+  'Matériel',
+  'Autres dépenses',
+];
+
+export function previousMonth(month: string): string {
+  const [y, m] = month.split('-').map(Number);
+  const d = new Date(Date.UTC(y, m - 2, 1));
+  return d.toISOString().slice(0, 7);
+}
+
+export type CategoryTotal = { category: string; amount: number; count: number };
+
+/** Expense totals for a month, biggest first. */
+export function expensesByCategory(entries: FinanceEntry[], month: string): CategoryTotal[] {
+  const map = new Map<string, CategoryTotal>();
+  for (const e of entries) {
+    if (e.kind !== 'depense' || monthKey(e.date) !== month) continue;
+    const row = map.get(e.category) ?? { category: e.category, amount: 0, count: 0 };
+    row.amount += e.amount;
+    row.count += 1;
+    map.set(e.category, row);
+  }
+  return [...map.values()].sort((a, b) => b.amount - a.amount);
+}
+
+export type Insight = { tone: 'good' | 'watch' | 'info'; text: string };
+
+/**
+ * Plain observations computed from the numbers the user typed in. No model, no
+ * network, nothing leaves the device. Descriptive only — never advice.
+ */
+export function analyse(entries: FinanceEntry[], month: string, savings: Savings): Insight[] {
+  const out: Insight[] = [];
+  const now = totalsForMonth(entries, month);
+  const prevKey = previousMonth(month);
+
+  if (now.revenus === 0 && now.depenses === 0) {
+    return [
+      {
+        tone: 'info',
+        text: 'Rien d’enregistré ce mois-ci. Ajoute tes revenus et tes dépenses pour voir apparaître une analyse.',
+      },
+    ];
+  }
+
+  // Solde du mois
+  if (now.benefice > 0) {
+    const suggestion = Math.round(now.benefice * 0.2);
+    out.push({
+      tone: 'good',
+      text: `Tu es à +${formatMoney(now.benefice)} ce mois. Mettre 20 % de côté représenterait ${formatMoney(suggestion)}.`,
+    });
+  } else if (now.benefice < 0) {
+    out.push({
+      tone: 'watch',
+      text: `Tu as dépensé ${formatMoney(Math.abs(now.benefice))} de plus que ce que tu as gagné ce mois.`,
+    });
+  }
+
+  const byCat = expensesByCategory(entries, month);
+  const prevByCat = expensesByCategory(entries, prevKey);
+
+  // Poste le plus lourd
+  if (byCat.length > 0 && now.depenses > 0) {
+    const top = byCat[0];
+    const share = Math.round((top.amount / now.depenses) * 100);
+    out.push({
+      tone: 'info',
+      text: `Ton plus gros poste : ${top.category}, ${formatMoney(top.amount)} — ${share} % de tes dépenses.`,
+    });
+  }
+
+  // Hausses nettes d'un mois sur l'autre
+  for (const cat of byCat.slice(0, 4)) {
+    const before = prevByCat.find((c) => c.category === cat.category)?.amount ?? 0;
+    if (before <= 0) continue;
+    const delta = Math.round(((cat.amount - before) / before) * 100);
+    if (delta >= 25) {
+      out.push({
+        tone: 'watch',
+        text: `${cat.category} : ${formatMoney(cat.amount)}, soit ${delta} % de plus que le mois dernier.`,
+      });
+    } else if (delta <= -25) {
+      out.push({
+        tone: 'good',
+        text: `${cat.category} : ${formatMoney(cat.amount)}, ${Math.abs(delta)} % de moins que le mois dernier.`,
+      });
+    }
+  }
+
+  // Dépenses fragmentées : beaucoup de petits achats
+  const fragmented = byCat.find((c) => c.count >= 4);
+  if (fragmented) {
+    const avg = fragmented.amount / fragmented.count;
+    out.push({
+      tone: 'watch',
+      text: `${fragmented.count} achats en ${fragmented.category} ce mois, ${formatMoney(fragmented.amount)} au total, soit ${formatMoney(Math.round(avg))} en moyenne. C’est ton poste le plus fragmenté.`,
+    });
+  }
+
+  // Rappel de mise de côté
+  if (savings.target > 0) {
+    const missing = Math.max(0, savings.target - savedTotal(savings));
+    if (savingsDueThisMonth(savings, `${month}-15`) && now.benefice > 0) {
+      out.push({
+        tone: 'info',
+        text: `Rien mis de côté ce mois-ci. Il te reste ${formatMoney(missing)} pour atteindre ton objectif.`,
+      });
+    }
+  }
+
+  return out;
+}

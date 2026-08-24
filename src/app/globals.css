@@ -1591,3 +1591,104 @@ a {
 .inline-add .btn {
   flex: 0 0 auto;
 }
+
+/* ---------- gestion de finance ---------- */
+
+.money-card {
+  background: linear-gradient(158deg, #121826 0%, var(--surface) 62%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.money-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.money-split span {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+
+.money-split b {
+  display: block;
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+}
+
+.money-in {
+  color: #4ec38a;
+}
+
+.money-out {
+  color: #e0806f;
+}
+
+.money-balance {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.money-balance span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.money-balance b {
+  font-size: 20px;
+  font-weight: 640;
+  letter-spacing: -0.015em;
+}
+
+.money-balance b[data-negative='true'] {
+  color: #e0806f;
+}
+
+/* ---------- analyse ---------- */
+
+.insight {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13.5px;
+  line-height: 1.5;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.insight:last-of-type {
+  border-bottom: 0;
+}
+
+.insight-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  flex: 0 0 6px;
+  margin-top: 7px;
+  background: var(--muted-2);
+}
+
+.insight[data-tone='good'] .insight-dot {
+  background: #4ec38a;
+}
+
+.insight[data-tone='watch'] .insight-dot {
+  background: #e0a06f;
+}
+
+.insight[data-tone='info'] .insight-dot {
+  background: var(--accent-strong);
+}

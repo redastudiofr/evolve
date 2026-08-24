@@ -2,9 +2,12 @@
 
 import { useMemo, useState } from 'react';
 import { useData } from '@/components/DataProvider';
-import { todayKey, uid } from '@/lib/logic';
+import { formatDate, todayKey, uid } from '@/lib/logic';
 import {
   EXPENSE_CATEGORIES,
+  PERSONAL_EXPENSE_CATEGORIES,
+  PERSONAL_INCOME_CATEGORIES,
+  analyse,
   PROJECT_TYPES,
   REVENUE_CATEGORIES,
   STAGES,
@@ -43,8 +46,45 @@ export default function BusinessPage() {
   const [savingTarget, setSavingTarget] = useState('');
   const [savingAmount, setSavingAmount] = useState('');
 
+  const [pKind, setPKind] = useState<'revenu' | 'depense'>('depense');
+  const [pCat, setPCat] = useState(PERSONAL_EXPENSE_CATEGORIES[0]);
+  const [pAmount, setPAmount] = useState('');
+  const [pLabel, setPLabel] = useState('');
+
+  const personalMonth = totalsForMonth(data.finances, month);
+  const monthEntries = useMemo(
+    () =>
+      data.finances
+        .filter((e) => monthKey(e.date) === month)
+        .sort((a, b) => (a.date < b.date ? 1 : -1)),
+    [data.finances, month],
+  );
+  const insights = useMemo(
+    () => analyse(data.finances, month, data.savings),
+    [data.finances, month, data.savings],
+  );
+
+  function addPersonal() {
+    const amount = Number(pAmount.replace(',', '.'));
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    const entry: FinanceEntry = {
+      id: uid(),
+      date: today,
+      kind: pKind,
+      category: pCat,
+      label: pLabel.trim() || undefined,
+      amount: Math.round(amount * 100) / 100,
+    };
+    update((d) => ({ ...d, finances: [entry, ...d.finances] }));
+    setPAmount('');
+    setPLabel('');
+  }
+
+  function removePersonal(id: string) {
+    update((d) => ({ ...d, finances: d.finances.filter((e) => e.id !== id) }));
+  }
+
   const projects = data.projects.filter((p) => !p.archived);
-  const open = projects.find((p) => p.id === openId) ?? null;
 
   const allEntries = useMemo(() => projects.flatMap((p) => p.entries), [projects]);
   const global = totals(allEntries);
@@ -397,6 +437,129 @@ export default function BusinessPage() {
             + Nouveau projet
           </button>
         )}
+      </section>
+
+      {/* ---------- gestion de finance ---------- */}
+
+      <section className="section">
+        <h2 className="section-title">Gestion de finance · {formatMonth(month)}</h2>
+
+        <div className="money-card">
+          <div className="money-split">
+            <div>
+              <span>Gagné ce mois</span>
+              <b className="mono money-in">{formatMoney(personalMonth.revenus)}</b>
+            </div>
+            <div>
+              <span>Dépensé ce mois</span>
+              <b className="mono money-out">{formatMoney(personalMonth.depenses)}</b>
+            </div>
+          </div>
+          <div className="money-balance">
+            <span>Il te reste</span>
+            <b className="mono" data-negative={personalMonth.benefice < 0}>
+              {formatMoney(personalMonth.benefice)}
+            </b>
+          </div>
+        </div>
+
+        <div className="card" style={{ marginTop: 10 }}>
+          <div className="segmented">
+            <button
+              data-on={pKind === 'revenu'}
+              onClick={() => {
+                setPKind('revenu');
+                setPCat(PERSONAL_INCOME_CATEGORIES[0]);
+              }}
+            >
+              J&apos;ai gagné
+            </button>
+            <button
+              data-on={pKind === 'depense'}
+              onClick={() => {
+                setPKind('depense');
+                setPCat(PERSONAL_EXPENSE_CATEGORIES[0]);
+              }}
+            >
+              J&apos;ai dépensé
+            </button>
+          </div>
+
+          <div className="chip-grid" style={{ marginTop: 10 }}>
+            {(pKind === 'revenu' ? PERSONAL_INCOME_CATEGORIES : PERSONAL_EXPENSE_CATEGORIES).map(
+              (c) => (
+                <button key={c} className="chip" data-on={pCat === c} onClick={() => setPCat(c)}>
+                  {c}
+                </button>
+              ),
+            )}
+          </div>
+
+          <div className="inline-add">
+            <input
+              className="input"
+              placeholder="Libellé (facultatif)"
+              value={pLabel}
+              onChange={(e) => setPLabel(e.target.value)}
+            />
+          </div>
+          <div className="inline-add">
+            <input
+              className="input"
+              type="number"
+              inputMode="decimal"
+              placeholder="Montant"
+              value={pAmount}
+              onChange={(e) => setPAmount(e.target.value)}
+            />
+            <button className="btn btn-sm btn-accent" onClick={addPersonal}>
+              Ajouter
+            </button>
+          </div>
+        </div>
+
+        {monthEntries.length > 0 ? (
+          <div className="card" style={{ marginTop: 10 }}>
+            {monthEntries.map((e) => (
+              <div key={e.id} className="rec">
+                <div style={{ minWidth: 0 }}>
+                  <div className="ex-name">{e.label || e.category}</div>
+                  <div className="ex-meta">
+                    {e.label ? `${e.category} · ` : ''}
+                    {formatDate(e.date)}
+                  </div>
+                </div>
+                <div className="rec-val">
+                  <b className="mono" style={{ color: e.kind === 'revenu' ? '#4ec38a' : undefined }}>
+                    {e.kind === 'revenu' ? '+' : '−'}
+                    {formatMoney(e.amount)}
+                  </b>
+                  <button className="btn btn-ghost btn-sm" onClick={() => removePersonal(e.id)}>
+                    Retirer
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </section>
+
+      {/* ---------- analyse ---------- */}
+
+      <section className="section">
+        <h2 className="section-title">Analyse du mois</h2>
+        <div className="card">
+          {insights.map((i, n) => (
+            <div key={n} className="insight" data-tone={i.tone}>
+              <span className="insight-dot" />
+              <span>{i.text}</span>
+            </div>
+          ))}
+          <div className="ex-meta" style={{ marginTop: 12 }}>
+            Observations calculées sur tes propres chiffres, sur ton appareil. Ce ne sont pas des
+            conseils financiers.
+          </div>
+        </div>
       </section>
 
       {/* ---------- épargne ---------- */}
