@@ -1,4 +1,14 @@
-import type { AppData, DayPlan, Exercise, Objective, Reward, Savings, Settings } from './types';
+import type {
+  AppData,
+  DayPlan,
+  Equipment,
+  Exercise,
+  MuscleGroup,
+  Objective,
+  Reward,
+  Savings,
+  Settings,
+} from './types';
 
 /** Milestone rewards everyone starts with. The user can add their own. */
 export const DEFAULT_REWARDS: Reward[] = [
@@ -310,4 +320,109 @@ export function normalizeData(raw: unknown): AppData {
     },
     rewards,
   };
+}
+
+/* ---------- groupes musculaires et matériel ---------- */
+
+const GROUP_BY_ID: Record<string, MuscleGroup> = {
+  'squat-barre': 'jambes',
+  'presse-cuisses': 'jambes',
+  'fentes-marchees': 'jambes',
+  'leg-curl-allonge': 'jambes',
+  'leg-extension': 'jambes',
+  'souleve-terre-roumain': 'jambes',
+  'squat-gobelet': 'jambes',
+  'presse-pieds-hauts': 'jambes',
+  'hip-thrust': 'jambes',
+  'mollets-assis': 'jambes',
+  'mollets-debout': 'jambes',
+  'fentes-bulgares': 'jambes',
+  tractions: 'dos',
+  'tirage-vertical': 'dos',
+  'tirage-vertical-serre': 'dos',
+  'rowing-barre': 'dos',
+  'rowing-poulie-basse': 'dos',
+  'rowing-unilateral': 'dos',
+  'developpe-couche': 'pectoraux',
+  'developpe-incline-halteres': 'pectoraux',
+  'ecarte-poulie': 'pectoraux',
+  dips: 'pectoraux',
+  'developpe-militaire-halteres': 'epaules',
+  'elevations-laterales': 'epaules',
+  oiseau: 'epaules',
+  'elevations-frontales': 'epaules',
+  'curl-barre': 'bras',
+  'curl-incline': 'bras',
+  'curl-marteau': 'bras',
+  'extensions-triceps-poulie': 'bras',
+  'extension-triceps-tete': 'bras',
+  'barre-au-front': 'bras',
+  'crunch-poulie': 'abdos',
+  'releves-jambes': 'abdos',
+  'gainage-complet': 'abdos',
+  'cou-isometrique': 'autre',
+  marche: 'cardio',
+};
+
+const EQUIPMENT_BY_ID: Record<string, Equipment> = {
+  'squat-barre': 'barre',
+  'rowing-barre': 'barre',
+  'curl-barre': 'barre',
+  'barre-au-front': 'barre',
+  'developpe-couche': 'barre',
+  'souleve-terre-roumain': 'barre',
+  'hip-thrust': 'barre',
+  'developpe-incline-halteres': 'halteres',
+  'developpe-militaire-halteres': 'halteres',
+  'elevations-laterales': 'halteres',
+  oiseau: 'halteres',
+  'elevations-frontales': 'halteres',
+  'curl-incline': 'halteres',
+  'curl-marteau': 'halteres',
+  'extension-triceps-tete': 'halteres',
+  'rowing-unilateral': 'halteres',
+  'squat-gobelet': 'halteres',
+  'fentes-marchees': 'halteres',
+  'fentes-bulgares': 'halteres',
+  'tirage-vertical': 'poulie',
+  'tirage-vertical-serre': 'poulie',
+  'rowing-poulie-basse': 'poulie',
+  'ecarte-poulie': 'poulie',
+  'extensions-triceps-poulie': 'poulie',
+  'crunch-poulie': 'poulie',
+  'presse-cuisses': 'machine',
+  'presse-pieds-hauts': 'machine',
+  'leg-curl-allonge': 'machine',
+  'leg-extension': 'machine',
+  'mollets-assis': 'machine',
+  'mollets-debout': 'machine',
+  tractions: 'poids-du-corps',
+  dips: 'poids-du-corps',
+  'releves-jambes': 'poids-du-corps',
+  'gainage-complet': 'poids-du-corps',
+  'cou-isometrique': 'aucun',
+  marche: 'aucun',
+};
+
+export const MUSCLE_GROUPS: { id: MuscleGroup; label: string }[] = [
+  { id: 'jambes', label: 'Jambes' },
+  { id: 'dos', label: 'Dos' },
+  { id: 'pectoraux', label: 'Pectoraux' },
+  { id: 'epaules', label: 'Épaules' },
+  { id: 'bras', label: 'Bras' },
+  { id: 'abdos', label: 'Abdos' },
+  { id: 'cardio', label: 'Cardio' },
+  { id: 'autre', label: 'Autre' },
+];
+
+export function groupOf(ex: Exercise): MuscleGroup {
+  return ex.group ?? GROUP_BY_ID[ex.id] ?? 'autre';
+}
+
+export function equipmentOf(ex: Exercise): Equipment {
+  return ex.equipment ?? EQUIPMENT_BY_ID[ex.id] ?? 'aucun';
+}
+
+export function groupLabel(id: MuscleGroup): string {
+  return MUSCLE_GROUPS.find((g) => g.id === id)?.label ?? 'Autre';
 }

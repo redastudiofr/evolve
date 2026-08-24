@@ -1,5 +1,17 @@
 export type Unit = 'kg' | 'bw' | 'sec' | 'min';
 
+export type MuscleGroup =
+  | 'jambes'
+  | 'dos'
+  | 'pectoraux'
+  | 'epaules'
+  | 'bras'
+  | 'abdos'
+  | 'cardio'
+  | 'autre';
+
+export type Equipment = 'barre' | 'halteres' | 'poulie' | 'machine' | 'poids-du-corps' | 'aucun';
+
 export type Exercise = {
   id: string;
   name: string;
@@ -11,6 +23,8 @@ export type Exercise = {
   unit: Unit;
   defaultWeight: number;
   increment: number;
+  group?: MuscleGroup;
+  equipment?: Equipment;
   note?: string;
 };
 
