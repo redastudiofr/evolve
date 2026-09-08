@@ -254,3 +254,11 @@ export function latestMeasurement(data: AppData) {
 export function uid(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
+
+/** Short axis-friendly number: 940, 12k, 1,4M. Keeps chart gutters narrow. */
+export function compactNumber(value: number): string {
+  const abs = Math.abs(value);
+  if (abs >= 1_000_000) return `${(Math.round(value / 100_000) / 10).toLocaleString('fr-FR')}M`;
+  if (abs >= 10_000) return `${Math.round(value / 1000)}k`;
+  return Math.round(value).toLocaleString('fr-FR');
+}

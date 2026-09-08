@@ -67,7 +67,11 @@ export default function TabBar() {
   return (
     <nav className="tabbar">
       {TABS.map((tab) => {
-        const active = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href);
+        // Quests belong to the day view, so the first tab stays lit there too.
+        const active =
+          tab.href === '/'
+            ? pathname === '/' || pathname.startsWith('/quetes')
+            : pathname.startsWith(tab.href);
         return (
           <Link key={tab.href} href={tab.href} className="tab" data-on={active}>
             <Icon name={tab.icon} />

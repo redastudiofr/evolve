@@ -229,3 +229,53 @@ public/
   suffit largement pour un utilisateur unique et simplifie la synchronisation.
 - Les records sont recalculés à partir de l'historique des séances, il n'y a
   donc rien à corriger à la main si une séance est modifiée.
+
+## Ce qui demande une configuration externe
+
+Deux fonctionnalités dépendent d'un service tiers. Tant qu'il n'est pas
+configuré, l'application le dit clairement à l'écran et ne fabrique **aucune**
+donnée de remplacement.
+
+### Connexion bancaire
+
+`Business → Comptes bancaires`
+
+Se connecter à une banque impose de passer par un agrégateur agréé DSP2
+(Powens, Bridge, GoCardless, Tink, Plaid). L'utilisateur s'authentifie sur le
+site de sa banque ; l'application ne voit jamais ses identifiants et ne stocke
+que les jetons opaques rendus par l'agrégateur.
+
+L'architecture est en place :
+
+```
+src/lib/bank.ts             Catégorisation, périodes, agrégats (client)
+src/lib/bankServer.ts       Lecture des variables d'env, choix du fournisseur
+src/app/api/bank/status     Indique si un agrégateur est configuré
+src/app/api/bank/connect    Ouvrira le parcours de connexion — 501 sinon
+src/app/api/bank/sync       Rafraîchira soldes et opérations — 501 sinon
+```
+
+Pour l'activer : renseigner les variables d'un fournisseur dans `.env`, puis
+écrire le connecteur dans `connect/route.ts` et `sync/route.ts`.
+
+**En attendant**, la section accepte l'export CSV que propose chaque banque
+(`src/lib/bankImport.ts`) : dates, libellés et montants réels, avec le même
+classement automatique par catégorie.
+
+### Cotations de marché
+
+`Business → Investissements`
+
+Sans fournisseur de cotations, la valeur actuelle de chaque position est celle
+que l'utilisateur saisit lui-même, et une position sans valeur saisie est
+comptée à son prix d'achat — la plus-value affichée est alors nulle, jamais
+estimée. Voir `src/lib/market.ts` et `src/app/api/market/quote`.
+
+## Classement
+
+L'application est prévue pour **un compte par installation** : `app_state` ne
+contient qu'une ligne et l'authentification est un mot de passe unique. Le
+classement (`table leaderboard`) se remplit donc lorsque plusieurs personnes
+pointent leur application vers la même base de données. Rien n'est publié tant
+que l'utilisateur ne l'a pas activé, et seuls le pseudo, l'XP, le niveau et la
+série sont partagés.

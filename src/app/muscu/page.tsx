@@ -21,6 +21,7 @@ import {
   weekDates,
   workoutOn,
 } from '@/lib/logic';
+import { tipsFor, usedTipCategories, type TipCategoryId } from '@/lib/tips';
 import type { DailyEntry, Exercise, LoggedExercise, MuscleGroup } from '@/lib/types';
 
 type Quick = { id: string; label: string; pick: (all: Exercise[]) => Exercise[] };
@@ -74,6 +75,10 @@ export default function MuscuPage() {
   const [editingDay, setEditingDay] = useState<string | null>(null);
   const [quickOpen, setQuickOpen] = useState(false);
   const [progressId, setProgressId] = useState<string | null>(null);
+
+  const tipCategories = usedTipCategories();
+  const [tipCategory, setTipCategory] = useState<TipCategoryId>(tipCategories[0].id);
+  const tips = tipsFor(tipCategory);
 
   const cat = useMemo(() => catalogue(data.customExercises), [data.customExercises]);
 
@@ -301,7 +306,16 @@ export default function MuscuPage() {
                   <b className="mono">{progressPoints[progressPoints.length - 1]?.value ?? 0} kg</b>
                 </div>
               </div>
-              <Curve points={progressPoints} suffix=" kg" />
+              <Curve
+                points={progressPoints}
+                suffix=" kg"
+                periodLabel={
+                  progressPoints.length > 1
+                    ? `${formatDate(progressPoints[0].date)} → ${formatDate(progressPoints[progressPoints.length - 1].date)}`
+                    : undefined
+                }
+                emptyLabel="Deux séances suffisent pour voir la courbe apparaître."
+              />
             </div>
           ) : (
             <div className="card empty">Choisis un exercice pour voir l&apos;évolution des charges.</div>
@@ -339,6 +353,33 @@ export default function MuscuPage() {
             })}
           </div>
         )}
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">Conseils</h2>
+        <div className="pill-row">
+          {tipCategories.map((c) => (
+            <button
+              key={c.id}
+              className="pill"
+              data-on={tipCategory === c.id}
+              onClick={() => setTipCategory(c.id)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+        <div className="tips">
+          {tips.map((t) => (
+            <article key={t.id} className="tip">
+              <div className="tip-cat">
+                {tipCategories.find((c) => c.id === t.category)?.label}
+              </div>
+              <div className="tip-title">{t.title}</div>
+              <p className="tip-text">{t.text}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       {quickOpen ? (

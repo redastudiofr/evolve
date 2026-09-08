@@ -6,7 +6,20 @@ import { useData } from '@/components/DataProvider';
 import Curve from '@/components/Curve';
 import XpBurst from '@/components/XpBurst';
 import ObjectiveSheet, { type ObjectiveDraft } from '@/components/ObjectiveSheet';
-import { MAX_DAY_XP, TASKS, dayXp, shiftKey, todayKey, todayPlan, uid, workoutOn } from '@/lib/logic';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import PhotoProof from '@/components/PhotoProof';
+import RandomGoalSheet, { type GeneratedGoal } from '@/components/RandomGoalSheet';
+import {
+  MAX_DAY_XP,
+  TASKS,
+  dayXp,
+  formatDate,
+  shiftKey,
+  todayKey,
+  todayPlan,
+  uid,
+  workoutOn,
+} from '@/lib/logic';
 import {
   METRICS,
   RANGES,
@@ -21,12 +34,22 @@ import {
   type MetricId,
   type RangeId,
 } from '@/lib/xp';
-import type { DailyEntry, Objective } from '@/lib/types';
+import { deleteQuest } from '@/lib/quests';
+import { proofKey, type DailyEntry, type Objective, type ObjectiveProof } from '@/lib/types';
 
 function Check() {
   return (
     <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4.5 12.5 9.5 17.5 19.5 6.5" />
+    </svg>
+  );
+}
+
+function Trash() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4.5 7h15M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7" />
+      <path d="M6.6 7l.8 11.1A1.9 1.9 0 0 0 9.3 20h5.4a1.9 1.9 0 0 0 1.9-1.9L17.4 7" />
     </svg>
   );
 }
@@ -54,6 +77,10 @@ export default function TodayPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Objective | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Objective | null>(null);
+  const [drawing, setDrawing] = useState(false);
+  /** Objective waiting for its photo before it counts as done. */
+  const [provingId, setProvingId] = useState<string | null>(null);
 
   function saveObjective(draft: ObjectiveDraft) {
     update((d) => {
@@ -78,6 +105,25 @@ export default function TodayPage() {
     setEditing(null);
   }
 
+  /** Adds a drawn objective as a one-off quest for today. */
+  function addGenerated(goal: GeneratedGoal) {
+    const created: Objective = {
+      id: uid(),
+      title: goal.title,
+      category: goal.category,
+      difficulty: goal.difficulty,
+      xp: goal.xp,
+      recurrence: 'once',
+      date: key,
+      createdAt: key,
+      archived: false,
+      generated: true,
+      requiresProof: goal.requiresProof || undefined,
+    };
+    update((d) => ({ ...d, objectives: [created, ...d.objectives] }));
+    setDrawing(false);
+  }
+
   function postpone(o: Objective) {
     const tomorrow = shiftKey(key, 1);
     update((d) => ({
@@ -95,9 +141,11 @@ export default function TodayPage() {
     setOpenId(null);
   }
 
+  /** Drops the objective, every tick that referenced it and its photo proofs. */
   function remove(o: Objective) {
-    update((d) => ({ ...d, objectives: d.objectives.filter((x) => x.id !== o.id) }));
+    update((d) => deleteQuest(d, o.id));
     setOpenId(null);
+    setConfirmDelete(null);
   }
 
   useEffect(() => {
@@ -125,25 +173,53 @@ export default function TodayPage() {
 
   const suffix = metric === 'niveau' ? '' : metric === 'objectifs' ? '' : ' XP';
 
-  function toggleObjective(o: Objective) {
-    const current: DailyEntry = data.daily[key] ?? { tasks: {} };
-    const done = current.objectives ?? [];
-    const has = done.includes(o.id);
+  const periodLabel =
+    points.length > 1
+      ? `${formatDate(points[0].date)} → ${formatDate(points[points.length - 1].date)}`
+      : undefined;
+
+  /** Flips completion for today, and drops the photo when it is un-validated. */
+  function setObjectiveDone(o: Objective, done: boolean, photo?: string) {
     update((d) => {
       const e: DailyEntry = d.daily[key] ?? { tasks: {} };
       const list = e.objectives ?? [];
+      const proofs = { ...d.proofs };
+      const pk = proofKey(key, o.id);
+
+      if (done && photo) {
+        const proof: ObjectiveProof = {
+          objectiveId: o.id,
+          date: key,
+          photo,
+          takenAt: new Date().toISOString(),
+        };
+        proofs[pk] = proof;
+      }
+      if (!done) delete proofs[pk];
+
       return {
         ...d,
+        proofs,
         daily: {
           ...d.daily,
           [key]: {
             ...e,
-            objectives: has ? list.filter((x) => x !== o.id) : [...list, o.id],
+            objectives: done ? [...list.filter((x) => x !== o.id), o.id] : list.filter((x) => x !== o.id),
           },
         },
       };
     });
-    if (!has) setBurst({ id: Date.now(), amount: o.xp, title: o.title });
+    if (done) setBurst({ id: Date.now(), amount: o.xp, title: o.title });
+  }
+
+  function toggleObjective(o: Objective) {
+    const done = isDone(entry, o.id);
+    // A quest that asks for a photo only counts once the photo is there.
+    if (!done && o.requiresProof && !data.proofs[proofKey(key, o.id)]) {
+      setProvingId(o.id);
+      return;
+    }
+    setObjectiveDone(o, !done);
   }
 
   function toggleTask(taskId: string) {
@@ -168,6 +244,8 @@ export default function TodayPage() {
     timeZone: tz,
   }).format(new Date());
 
+  const proving = provingId ? (todays.find((o) => o.id === provingId) ?? null) : null;
+
   const checklistXp = dayXp(entry);
   const dayRatio = Math.round((stats.today / (MAX_DAY_XP + todays.reduce((a, o) => a + o.xp, 0) || 1)) * 100);
   const unfinished = todays.filter((o) => !isDone(entry, o.id));
@@ -183,6 +261,31 @@ export default function TodayPage() {
             setCreating(false);
             setEditing(null);
           }}
+        />
+      ) : null}
+      {confirmDelete ? (
+        <ConfirmDialog
+          title="Supprimer cet objectif ?"
+          detail={confirmDelete.title}
+          onConfirm={() => remove(confirmDelete)}
+          onClose={() => setConfirmDelete(null)}
+        />
+      ) : null}
+      {drawing ? (
+        <RandomGoalSheet
+          takenTitles={data.objectives.filter((o) => !o.archived).map((o) => o.title)}
+          onAdd={addGenerated}
+          onClose={() => setDrawing(false)}
+        />
+      ) : null}
+      {proving ? (
+        <PhotoProof
+          title={proving.title}
+          onConfirm={(photo) => {
+            setObjectiveDone(proving, true, photo);
+            setProvingId(null);
+          }}
+          onClose={() => setProvingId(null)}
         />
       ) : null}
 
@@ -254,8 +357,7 @@ export default function TodayPage() {
               </button>
             ))}
           </div>
-          <Curve points={points} suffix={suffix} />
-          <div className="pill-row" style={{ marginTop: 10 }}>
+          <div className="pill-row" style={{ marginTop: 12 }}>
             {RANGES.map((r) => (
               <button
                 key={r.id}
@@ -267,13 +369,19 @@ export default function TodayPage() {
               </button>
             ))}
           </div>
+          <Curve points={points} suffix={suffix} periodLabel={periodLabel} />
         </div>
       </section>
 
       <section className="section">
-        <h2 className="section-title">
-          Objectifs du jour · {doneCount}/{todays.length}
-        </h2>
+        <div className="row" style={{ marginBottom: 10 }}>
+          <h2 className="section-title" style={{ margin: 0 }}>
+            Objectifs du jour · {doneCount}/{todays.length}
+          </h2>
+          <Link href="/quetes" className="link-sm">
+            Mes quêtes
+          </Link>
+        </div>
 
         {todays.length === 0 ? (
           <div className="card empty">
@@ -294,6 +402,7 @@ export default function TodayPage() {
                       <span className="check-hint">
                         {categoryLabel(o.category)}
                         {o.time ? ` · ${o.time}` : ''}
+                        {o.requiresProof ? (on ? ' · photo fournie' : ' · photo requise') : ''}
                       </span>
                     </span>
                     <span className="xp-chip">+{o.xp}</span>
@@ -308,6 +417,14 @@ export default function TodayPage() {
                     <span />
                     <span />
                   </button>
+                  <button
+                    className="obj-del"
+                    onClick={() => setConfirmDelete(o)}
+                    aria-label={`Supprimer ${o.title}`}
+                    title="Supprimer"
+                  >
+                    <Trash />
+                  </button>
                 </div>
 
                 {open ? (
@@ -318,7 +435,6 @@ export default function TodayPage() {
                     ) : (
                       <button onClick={() => archive(o)}>Archiver</button>
                     )}
-                    <button onClick={() => remove(o)}>Supprimer</button>
                   </div>
                 ) : null}
               </div>
@@ -326,9 +442,14 @@ export default function TodayPage() {
           })
         )}
 
-        <button className="btn btn-accent add-objective" onClick={() => setCreating(true)}>
-          + Fixer un objectif
-        </button>
+        <div className="money-actions">
+          <button className="btn btn-accent" onClick={() => setCreating(true)}>
+            + Fixer un objectif
+          </button>
+          <button className="btn btn-ghost" onClick={() => setDrawing(true)}>
+            Objectif surprise
+          </button>
+        </div>
       </section>
 
       <section className="section">

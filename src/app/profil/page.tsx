@@ -1,12 +1,14 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import Avatar from '@/components/Avatar';
 import { useData } from '@/components/DataProvider';
 import Curve from '@/components/Curve';
 import { computeRecords, dayXp, formatDate, todayKey, uid } from '@/lib/logic';
-import { levelFromXp, series, sortedRewards, streakOf, totalXpOf } from '@/lib/xp';
-import type { Measurement, Reward } from '@/lib/types';
+import { resizeToDataUrl } from '@/lib/image';
+import { levelFromXp, rewardStates, series, streakOf, totalXpOf } from '@/lib/xp';
+import type { Measurement } from '@/lib/types';
 
 const METRICS = [
   { id: 'weightKg', label: 'Poids', unit: 'kg' },
@@ -18,29 +20,6 @@ const METRICS = [
 
 type MetricId = (typeof METRICS)[number]['id'];
 type View = 'recompenses' | 'mesures' | 'records';
-
-/** Crops to a square and shrinks it, so the photo stays a few kilobytes. */
-async function resizeToDataUrl(file: File, size = 192): Promise<string> {
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const el = new Image();
-      el.onload = () => resolve(el);
-      el.onerror = reject;
-      el.src = url;
-    });
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return '';
-    const min = Math.min(img.width, img.height);
-    ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, size, size);
-    return canvas.toDataURL('image/jpeg', 0.82);
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
 
 export default function ProfilePage() {
   const { data, update } = useData();
@@ -58,20 +37,20 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
-    const dataUrl = await resizeToDataUrl(file);
+    const dataUrl = await resizeToDataUrl(file, { max: 192, square: true });
     if (dataUrl) setProfile({ avatar: dataUrl });
   }
   const [view, setView] = useState<View>('recompenses');
   const [metric, setMetric] = useState<MetricId>('weightKg');
   const [form, setForm] = useState<Record<string, string>>({ date: todayKey(tz) });
-  const [rewardLevel, setRewardLevel] = useState('');
-  const [rewardLabel, setRewardLabel] = useState('');
 
   const totalXp = useMemo(() => totalXpOf(data, dayXp), [data]);
   const level = levelFromXp(totalXp);
   const streak = useMemo(() => streakOf(data, tz, dayXp), [data, tz]);
   const records = useMemo(() => computeRecords(data.workouts), [data.workouts]);
-  const rewards = useMemo(() => sortedRewards(data.rewards), [data.rewards]);
+  const rewards = useMemo(() => rewardStates(data, dayXp), [data]);
+  const unlockedCount = rewards.filter((r) => r.unlocked).length;
+  const nextReward = rewards.find((r) => !r.unlocked) ?? null;
 
   const levelPoints = useMemo(() => series(data, tz, 'niveau', 'tout', dayXp), [data, tz]);
 
@@ -116,24 +95,6 @@ export default function ProfilePage() {
         : d.settings,
     }));
     setForm({ date: todayKey(tz) });
-  }
-
-  function addReward() {
-    const lvl = Number(rewardLevel);
-    if (!Number.isFinite(lvl) || lvl < 1 || rewardLabel.trim() === '') return;
-    const reward: Reward = {
-      id: uid(),
-      level: Math.round(lvl),
-      label: rewardLabel.trim(),
-      custom: true,
-    };
-    update((d) => ({ ...d, rewards: [...d.rewards, reward] }));
-    setRewardLevel('');
-    setRewardLabel('');
-  }
-
-  function removeReward(id: string) {
-    update((d) => ({ ...d, rewards: d.rewards.filter((r) => r.id !== id) }));
   }
 
   return (
@@ -239,64 +200,36 @@ export default function ProfilePage() {
       {view === 'recompenses' ? (
         <>
           <section className="section">
-            {rewards.map((r) => {
-              const unlocked = level.level >= r.level;
-              return (
-                <div key={r.id} className="reward" data-on={unlocked}>
-                  <span className="reward-level mono">{r.level}</span>
-                  <span className="reward-main">
-                    <span className="reward-label">{r.label}</span>
-                    <span className="reward-state">
-                      {unlocked
-                        ? 'Débloquée'
-                        : `Encore ${r.level - level.level} niveau${r.level - level.level > 1 ? 'x' : ''}`}
-                    </span>
+            {rewards.slice(0, 4).map((s) => (
+              <div key={s.reward.id} className="reward" data-on={s.unlocked}>
+                <span className="reward-level mono">{s.reward.level}</span>
+                <span className="reward-main">
+                  <span className="reward-label">{s.reward.label}</span>
+                  <span className="reward-state">
+                    {s.unlocked
+                      ? s.unlockedAt
+                        ? `Débloquée le ${formatDate(s.unlockedAt)}`
+                        : 'Débloquée'
+                      : `Encore ${s.levelsLeft} niveau${s.levelsLeft > 1 ? 'x' : ''}`}
                   </span>
-                  {r.custom ? (
-                    <button className="btn btn-ghost btn-sm" onClick={() => removeReward(r.id)}>
-                      Retirer
-                    </button>
-                  ) : null}
-                </div>
-              );
-            })}
+                </span>
+              </div>
+            ))}
           </section>
 
           <section className="section">
-            <h2 className="section-title">Ta propre récompense</h2>
-            <div className="card">
-              <div className="grid-2">
-                <label className="field">
-                  <span>Niveau</span>
-                  <input
-                    className="input"
-                    type="number"
-                    inputMode="numeric"
-                    placeholder="20"
-                    value={rewardLevel}
-                    onChange={(e) => setRewardLevel(e.target.value)}
-                  />
-                </label>
-                <label className="field">
-                  <span>Récompense</span>
-                  <input
-                    className="input"
-                    placeholder="Restaurant"
-                    value={rewardLabel}
-                    onChange={(e) => setRewardLabel(e.target.value)}
-                  />
-                </label>
+            <Link href="/profil/recompenses" className="card row">
+              <div>
+                <div className="ex-name">Récompenses et classement</div>
+                <div className="ex-meta">
+                  {unlockedCount} sur {rewards.length} débloquée{unlockedCount > 1 ? 's' : ''}
+                  {nextReward ? ` · prochaine : ${nextReward.reward.label}` : ''}
+                </div>
               </div>
-              <div style={{ marginTop: 14 }}>
-                <button
-                  className="btn btn-accent"
-                  onClick={addReward}
-                  disabled={rewardLabel.trim() === '' || rewardLevel === ''}
-                >
-                  Ajouter
-                </button>
-              </div>
-            </div>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--muted)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 5.5 15.5 12 9 18.5" />
+              </svg>
+            </Link>
           </section>
         </>
       ) : null}

@@ -25,10 +25,21 @@ export function hasDatabase(): boolean {
   return connectionString().length > 0;
 }
 
+/** One row of the shared leaderboard. Nothing personal beyond the pseudo. */
+export type LeaderboardRow = {
+  playerId: string;
+  pseudo: string;
+  xp: number;
+  level: number;
+  streak: number;
+  updatedAt: string;
+};
+
 type MemoryStore = {
   data: AppData | null;
   subs: Map<string, PushSub>;
   sent: Set<string>;
+  board: Map<string, LeaderboardRow>;
   pool: Pool | null;
   ready: Promise<void> | null;
 };
@@ -36,7 +47,14 @@ type MemoryStore = {
 const globalRef = globalThis as unknown as { __muscu?: MemoryStore };
 const mem: MemoryStore =
   globalRef.__muscu ??
-  (globalRef.__muscu = { data: null, subs: new Map(), sent: new Set(), pool: null, ready: null });
+  (globalRef.__muscu = {
+    data: null,
+    subs: new Map(),
+    sent: new Set(),
+    board: new Map(),
+    pool: null,
+    ready: null,
+  });
 
 async function getPool(): Promise<Pool | null> {
   const cs = connectionString();
@@ -76,6 +94,16 @@ async function ensureSchema(pool: Pool): Promise<void> {
       create table if not exists notif_log (
         key text primary key,
         sent_at timestamptz not null default now()
+      );
+    `);
+    await pool.query(`
+      create table if not exists leaderboard (
+        player_id text primary key,
+        pseudo text not null,
+        xp integer not null default 0,
+        level integer not null default 1,
+        streak integer not null default 0,
+        updated_at timestamptz not null default now()
       );
     `);
   })();
@@ -182,4 +210,61 @@ export async function markSent(key: string): Promise<void> {
   await ensureSchema(pool);
   await pool.query('insert into notif_log (key) values ($1) on conflict do nothing', [key]);
   await pool.query(`delete from notif_log where sent_at < now() - interval '10 days'`);
+}
+
+/* ---------- classement partagé ---------- */
+
+/**
+ * Every player who chose to publish, best first. Without a database this lives
+ * in the process memory only, so the board is empty again after a restart —
+ * the UI says so rather than showing stale rows.
+ */
+export async function listLeaderboard(): Promise<LeaderboardRow[]> {
+  const pool = await getPool();
+  if (!pool) {
+    return [...mem.board.values()].sort((a, b) => b.xp - a.xp);
+  }
+  await ensureSchema(pool);
+  const res = await pool.query(
+    'select player_id, pseudo, xp, level, streak, updated_at from leaderboard order by xp desc limit 100',
+  );
+  return res.rows.map((r) => ({
+    playerId: r.player_id as string,
+    pseudo: r.pseudo as string,
+    xp: Number(r.xp),
+    level: Number(r.level),
+    streak: Number(r.streak),
+    updatedAt: new Date(r.updated_at).toISOString(),
+  }));
+}
+
+export async function publishToLeaderboard(row: Omit<LeaderboardRow, 'updatedAt'>): Promise<void> {
+  const pool = await getPool();
+  if (!pool) {
+    mem.board.set(row.playerId, { ...row, updatedAt: new Date().toISOString() });
+    return;
+  }
+  await ensureSchema(pool);
+  await pool.query(
+    `insert into leaderboard (player_id, pseudo, xp, level, streak, updated_at)
+     values ($1, $2, $3, $4, $5, now())
+     on conflict (player_id) do update set
+       pseudo = excluded.pseudo,
+       xp = excluded.xp,
+       level = excluded.level,
+       streak = excluded.streak,
+       updated_at = now()`,
+    [row.playerId, row.pseudo, row.xp, row.level, row.streak],
+  );
+}
+
+/** Called when the user turns sharing off — the row goes away for good. */
+export async function removeFromLeaderboard(playerId: string): Promise<void> {
+  const pool = await getPool();
+  if (!pool) {
+    mem.board.delete(playerId);
+    return;
+  }
+  await ensureSchema(pool);
+  await pool.query('delete from leaderboard where player_id = $1', [playerId]);
 }

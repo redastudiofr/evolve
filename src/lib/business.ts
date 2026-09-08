@@ -6,7 +6,9 @@ import type {
   Project,
   ProjectStage,
   Savings,
+  Subscription,
 } from './types';
+import { shiftKey, todayKey } from './logic';
 
 /* ---------- étapes du projet ---------- */
 
@@ -102,6 +104,21 @@ export function formatMoney(value: number): string {
   }).format(value);
 }
 
+/**
+ * Same currency, but keeps the cents when there are any — 15,99 € stays
+ * 15,99 € instead of being rounded to 16 €. Used wherever an exact amount
+ * matters: subscriptions, single entries, running totals.
+ */
+export function formatMoneyExact(value: number): string {
+  const cents = Math.abs(Math.round(value * 100) % 100) > 0;
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: cents ? 2 : 0,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
 export function formatMonth(month: string): string {
   const [y, m] = month.split('-').map(Number);
   return new Intl.DateTimeFormat('fr-FR', { month: 'short', year: '2-digit' }).format(
@@ -162,18 +179,52 @@ export function expensesByCategory(entries: FinanceEntry[], month: string): Cate
   return [...map.values()].sort((a, b) => b.amount - a.amount);
 }
 
+/* ---------- abonnements mensuels ---------- */
+
+export const SUBSCRIPTION_CATEGORIES = [
+  'Streaming',
+  'Musique',
+  'Sport',
+  'Téléphone',
+  'Logiciels',
+  'Transport',
+  'Autre',
+];
+
+/** What the subscriptions cost every month, cents included. */
+export function subscriptionsMonthly(subs: Subscription[]): number {
+  return Math.round(subs.reduce((a, s) => a + s.amount, 0) * 100) / 100;
+}
+
+/** Straight monthly × 12 — the estimated yearly cost. */
+export function subscriptionsYearly(subs: Subscription[]): number {
+  return Math.round(subscriptionsMonthly(subs) * 12 * 100) / 100;
+}
+
+/** "le 5 de chaque mois", or null when no day was recorded. */
+export function billingLabel(sub: Subscription): string | null {
+  if (!sub.dayOfMonth) return null;
+  return sub.dayOfMonth === 1 ? 'le 1ᵉʳ de chaque mois' : `le ${sub.dayOfMonth} de chaque mois`;
+}
+
 export type Insight = { tone: 'good' | 'watch' | 'info'; text: string };
 
 /**
  * Plain observations computed from the numbers the user typed in. No model, no
  * network, nothing leaves the device. Descriptive only — never advice.
  */
-export function analyse(entries: FinanceEntry[], month: string, savings: Savings): Insight[] {
+export function analyse(
+  entries: FinanceEntry[],
+  month: string,
+  savings: Savings,
+  subs: Subscription[] = [],
+): Insight[] {
   const out: Insight[] = [];
   const now = totalsForMonth(entries, month);
   const prevKey = previousMonth(month);
+  const recurring = subscriptionsMonthly(subs);
 
-  if (now.revenus === 0 && now.depenses === 0) {
+  if (now.revenus === 0 && now.depenses === 0 && recurring === 0) {
     return [
       {
         tone: 'info',
@@ -234,6 +285,18 @@ export function analyse(entries: FinanceEntry[], month: string, savings: Savings
     out.push({
       tone: 'watch',
       text: `${fragmented.count} achats en ${fragmented.category} ce mois, ${formatMoney(fragmented.amount)} au total, soit ${formatMoney(Math.round(avg))} en moyenne. C’est ton poste le plus fragmenté.`,
+    });
+  }
+
+  // Charges récurrentes, comptées à part des dépenses ponctuelles
+  if (recurring > 0) {
+    const share = now.revenus > 0 ? Math.round((recurring / now.revenus) * 100) : null;
+    out.push({
+      tone: share !== null && share >= 30 ? 'watch' : 'info',
+      text:
+        share !== null
+          ? `Tes abonnements te coûtent ${formatMoneyExact(recurring)} par mois, soit ${share} % de ce que tu as gagné ce mois — ${formatMoneyExact(subscriptionsYearly(subs))} sur l’année.`
+          : `Tes abonnements te coûtent ${formatMoneyExact(recurring)} par mois, soit ${formatMoneyExact(subscriptionsYearly(subs))} sur l’année.`,
     });
   }
 
@@ -396,4 +459,91 @@ export function simulate(
     finalValue: Math.round(capital),
     gain: Math.round(capital - versed),
   };
+}
+
+/* ---------- courbe financière ---------- */
+
+export type MoneyMetricId = 'disponible' | 'epargne' | 'patrimoine';
+
+export const MONEY_METRICS: { id: MoneyMetricId; label: string }[] = [
+  { id: 'disponible', label: 'Disponible' },
+  { id: 'epargne', label: 'Épargne' },
+  { id: 'patrimoine', label: 'Patrimoine' },
+];
+
+export type MoneyRangeId = '7j' | '30j' | '3m' | '6m' | '1an';
+
+export const MONEY_RANGES: { id: MoneyRangeId; label: string; days: number }[] = [
+  { id: '7j', label: '7 j', days: 7 },
+  { id: '30j', label: '30 j', days: 30 },
+  { id: '3m', label: '3 mois', days: 90 },
+  { id: '6m', label: '6 mois', days: 180 },
+  { id: '1an', label: '1 an', days: 365 },
+];
+
+export type MoneyPoint = { date: string; value: number };
+
+/** date -> signed movement, for one stream of entries. */
+function deltasByDate(entries: { date: string; amount: number }[]): Map<string, number> {
+  const map = new Map<string, number>();
+  for (const e of entries) {
+    if (typeof e.date !== 'string' || !Number.isFinite(e.amount)) continue;
+    map.set(e.date, (map.get(e.date) ?? 0) + e.amount);
+  }
+  return map;
+}
+
+function mergeDeltas(...maps: Map<string, number>[]): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const m of maps) {
+    for (const [date, value] of m) out.set(date, (out.get(date) ?? 0) + value);
+  }
+  return out;
+}
+
+/**
+ * Day-by-day evolution of one money metric over a window. The running total is
+ * seeded with everything recorded before the window so the line starts at the
+ * height the user actually had, not at zero.
+ */
+export function moneySeries(
+  data: AppData,
+  tz: string,
+  metric: MoneyMetricId,
+  range: MoneyRangeId,
+): MoneyPoint[] {
+  const cash = deltasByDate(
+    data.finances.map((e) => ({ date: e.date, amount: e.kind === 'revenu' ? e.amount : -e.amount })),
+  );
+  const saved = deltasByDate(data.savings.entries);
+  const invested = deltasByDate(data.investments.entries);
+
+  const deltas =
+    metric === 'disponible' ? cash : metric === 'epargne' ? saved : mergeDeltas(cash, saved, invested);
+
+  const today = todayKey(tz);
+  const days = (MONEY_RANGES.find((r) => r.id === range) ?? MONEY_RANGES[1]).days;
+  const start = shiftKey(today, -(days - 1));
+
+  let running = 0;
+  for (const [date, value] of deltas) if (date < start) running += value;
+
+  // Cap the plotted points so a year of data stays readable.
+  const step = Math.max(1, Math.ceil(days / 90));
+
+  const points: MoneyPoint[] = [];
+  for (let i = 0; i < days; i++) {
+    const date = shiftKey(start, i);
+    running += deltas.get(date) ?? 0;
+    if (i % step !== 0 && i !== days - 1) continue;
+    points.push({ date, value: Math.round(running * 100) / 100 });
+  }
+  return points;
+}
+
+/** True once at least one movement was ever recorded — otherwise the curve is a flat zero. */
+export function hasMoneyHistory(data: AppData): boolean {
+  return (
+    data.finances.length > 0 || data.savings.entries.length > 0 || data.investments.entries.length > 0
+  );
 }

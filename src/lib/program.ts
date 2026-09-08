@@ -1,11 +1,13 @@
 import type {
   AppData,
+  Bank,
   DayPlan,
   Equipment,
   Exercise,
   Investments,
   MuscleGroup,
   Objective,
+  Player,
   Reward,
   Savings,
   Settings,
@@ -254,10 +256,19 @@ export function defaultData(): AppData {
     projects: [],
     finances: [],
     savings: { target: 0, entries: [] },
-    investments: { entries: [] },
+    investments: { entries: [], holdings: [] },
     financialGoals: [],
+    subscriptions: [],
+    bank: { connections: [], accounts: [], transactions: [] },
+    proofs: {},
+    player: { id: newPlayerId(), shareToLeaderboard: false },
     rewards: DEFAULT_REWARDS,
   };
+}
+
+/** Random, opaque, and generated on the device — it identifies a board entry, not a person. */
+function newPlayerId(): string {
+  return `p_${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
 }
 
 /** Objectives used to be simple "goals". Carry them over rather than lose them. */
@@ -288,6 +299,8 @@ export function normalizeData(raw: unknown): AppData {
   const d = raw as Partial<AppData> & {
     savings?: Partial<Savings>;
     investments?: Partial<Investments>;
+    bank?: Partial<Bank>;
+    player?: Partial<Player>;
   };
   const s = (d.settings ?? {}) as Partial<Settings>;
   const n = (s.notifications ?? {}) as Partial<Settings['notifications']>;
@@ -326,8 +339,21 @@ export function normalizeData(raw: unknown): AppData {
     },
     investments: {
       entries: Array.isArray(d.investments?.entries) ? d.investments.entries : [],
+      holdings: Array.isArray(d.investments?.holdings) ? d.investments.holdings : [],
     },
     financialGoals: Array.isArray(d.financialGoals) ? d.financialGoals : [],
+    subscriptions: Array.isArray(d.subscriptions) ? d.subscriptions : [],
+    bank: {
+      connections: Array.isArray(d.bank?.connections) ? d.bank.connections : [],
+      accounts: Array.isArray(d.bank?.accounts) ? d.bank.accounts : [],
+      transactions: Array.isArray(d.bank?.transactions) ? d.bank.transactions : [],
+      lastSyncAt: typeof d.bank?.lastSyncAt === 'string' ? d.bank.lastSyncAt : undefined,
+    },
+    proofs: d.proofs && typeof d.proofs === 'object' ? d.proofs : {},
+    player: {
+      id: typeof d.player?.id === 'string' && d.player.id ? d.player.id : newPlayerId(),
+      shareToLeaderboard: d.player?.shareToLeaderboard === true,
+    },
     rewards,
   };
 }

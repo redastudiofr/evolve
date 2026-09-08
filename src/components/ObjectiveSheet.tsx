@@ -14,6 +14,8 @@ export type ObjectiveDraft = {
   time?: string;
   recurrence: Recurrence;
   days?: number[];
+  /** The objective only counts once a photo has been attached. */
+  requiresProof?: boolean;
 };
 
 /** Bottom sheet used to fix a new objective or edit an existing one. */
@@ -33,6 +35,7 @@ export default function ObjectiveSheet({
   const [time, setTime] = useState(initial?.time ?? '');
   const [recurrence, setRecurrence] = useState<Recurrence>(initial?.recurrence ?? 'once');
   const [days, setDays] = useState<number[]>(initial?.days ?? [1, 2, 3, 4, 5]);
+  const [requiresProof, setRequiresProof] = useState(Boolean(initial?.requiresProof));
   const [more, setMore] = useState(false);
 
   function submit() {
@@ -46,6 +49,7 @@ export default function ObjectiveSheet({
       time: time || undefined,
       recurrence,
       days: recurrence === 'weekdays' ? days : undefined,
+      requiresProof: requiresProof || undefined,
     });
   }
 
@@ -135,6 +139,25 @@ export default function ObjectiveSheet({
             </div>
           </div>
         ) : null}
+
+        <button
+          className="check"
+          data-on={requiresProof}
+          style={{ marginTop: 12 }}
+          onClick={() => setRequiresProof(!requiresProof)}
+        >
+          <span className="box">
+            {requiresProof ? (
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4.5 12.5 9.5 17.5 19.5 6.5" />
+              </svg>
+            ) : null}
+          </span>
+          <span className="check-main">
+            <span className="check-label">Valider avec une photo</span>
+            <span className="check-hint">L’objectif ne compte qu’une fois la photo ajoutée</span>
+          </span>
+        </button>
 
         {more ? (
           <div className="grid-2">

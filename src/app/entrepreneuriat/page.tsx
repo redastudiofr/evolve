@@ -1,24 +1,31 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useData } from '@/components/DataProvider';
 import QuickAmount from '@/components/QuickAmount';
-import DualCurve from '@/components/DualCurve';
-import { formatDate, todayKey, uid } from '@/lib/logic';
+import Curve from '@/components/Curve';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import EntrySheet, { type EntryDraft } from '@/components/EntrySheet';
+import InlineMoney from '@/components/InlineMoney';
+import SubscriptionSheet, { type SubscriptionDraft } from '@/components/SubscriptionSheet';
+import { compactNumber, formatDate, todayKey, uid } from '@/lib/logic';
 import {
   EXPENSE_CATEGORIES,
-  PERSONAL_EXPENSE_CATEGORIES,
-  PERSONAL_INCOME_CATEGORIES,
+  MONEY_METRICS,
+  MONEY_RANGES,
   analyse,
   PROJECT_TYPES,
   REVENUE_CATEGORIES,
   STAGES,
-  DEFAULT_CAC40_RATE,
-  DEFAULT_SP500_RATE,
+  billingLabel,
   checkGoalAchievements,
   formatMoney,
+  formatMoneyExact,
   formatMonth,
+  hasMoneyHistory,
   investedTotal,
+  moneySeries,
   monthKey,
   monthlySeries,
   projectProgress,
@@ -26,14 +33,26 @@ import {
   savedTotal,
   savingsDueThisMonth,
   savingsProgress,
-  simulate,
   stageOf,
+  subscriptionsMonthly,
+  subscriptionsYearly,
   suggestGoalXp,
   totals,
   totalsForMonth,
-  type SimFrequency,
+  type MoneyMetricId,
+  type MoneyRangeId,
 } from '@/lib/business';
-import type { FinanceEntry, FinancialGoal, Project, ProjectStage } from '@/lib/types';
+import { portfolioTotals } from '@/lib/invest';
+import type {
+  FinanceEntry,
+  FinancialGoal,
+  Project,
+  ProjectStage,
+  Subscription,
+} from '@/lib/types';
+
+/** Short euro labels for the chart gutter, so the axis never runs into the curve. */
+const moneyAxis = (value: number) => `${compactNumber(value)} €`;
 
 export default function BusinessPage() {
   const { data, update } = useData();
@@ -54,26 +73,22 @@ export default function BusinessPage() {
 
   const [savingTarget, setSavingTarget] = useState('');
 
-  const [pKind, setPKind] = useState<'revenu' | 'depense'>('depense');
-  const [pCat, setPCat] = useState(PERSONAL_EXPENSE_CATEGORIES[0]);
-  const [pAmount, setPAmount] = useState('');
-  const [pLabel, setPLabel] = useState('');
+  /** Which personal-entry sheet is open — the one-screen amount + category capture. */
+  const [entrySheet, setEntrySheet] = useState<'revenu' | 'depense' | null>(null);
 
-  // Which quick-tap sheet is open, if any.
-  const [quick, setQuick] = useState<'gagne' | 'depense' | 'epargne' | 'investissement' | null>(
-    null,
-  );
+  // Which quick add/withdraw sheet is open, if any.
+  const [quick, setQuick] = useState<'epargne' | 'investissement' | null>(null);
+
+  const [moneyMetric, setMoneyMetric] = useState<MoneyMetricId>('disponible');
+  const [moneyRange, setMoneyRange] = useState<MoneyRangeId>('30j');
+
+  const [subSheet, setSubSheet] = useState(false);
+  const [subToDelete, setSubToDelete] = useState<Subscription | null>(null);
+  const [goalToDelete, setGoalToDelete] = useState<FinancialGoal | null>(null);
 
   const [goalLabel, setGoalLabel] = useState('');
   const [goalTarget, setGoalTarget] = useState('');
   const [goalXp, setGoalXp] = useState('');
-
-  const [simInitial, setSimInitial] = useState('1000');
-  const [simMonthly, setSimMonthly] = useState('200');
-  const [simYears, setSimYears] = useState('10');
-  const [simFreq, setSimFreq] = useState<SimFrequency>('mensuel');
-  const [spRate, setSpRate] = useState(String(DEFAULT_SP500_RATE));
-  const [cacRate, setCacRate] = useState(String(DEFAULT_CAC40_RATE));
 
   const personalMonth = totalsForMonth(data.finances, month);
   const monthEntries = useMemo(
@@ -84,53 +99,71 @@ export default function BusinessPage() {
     [data.finances, month],
   );
   const insights = useMemo(
-    () => analyse(data.finances, month, data.savings),
-    [data.finances, month, data.savings],
+    () => analyse(data.finances, month, data.savings, data.subscriptions),
+    [data.finances, month, data.savings, data.subscriptions],
   );
 
-  function addPersonal() {
-    const amount = Number(pAmount.replace(',', '.'));
-    if (!Number.isFinite(amount) || amount <= 0) return;
+  const subsMonthly = subscriptionsMonthly(data.subscriptions);
+  const subsYearly = subscriptionsYearly(data.subscriptions);
+  /** One-off balance of the month minus the recurring charges. */
+  const available = Math.round((personalMonth.benefice - subsMonthly) * 100) / 100;
+
+  const moneyPoints = useMemo(
+    () => moneySeries(data, tz, moneyMetric, moneyRange),
+    [data, tz, moneyMetric, moneyRange],
+  );
+  const moneyPeriod =
+    moneyPoints.length > 1
+      ? `${formatDate(moneyPoints[0].date)} → ${formatDate(moneyPoints[moneyPoints.length - 1].date)}`
+      : undefined;
+
+  /** Records a personal entry from the capture sheet — it shows up in the list at once. */
+  function addPersonal(kind: 'revenu' | 'depense', draft: EntryDraft) {
     const entry: FinanceEntry = {
       id: uid(),
       date: today,
-      kind: pKind,
-      category: pCat,
-      label: pLabel.trim() || undefined,
-      amount: Math.round(amount * 100) / 100,
+      kind,
+      category: draft.category,
+      label: draft.label,
+      amount: draft.amount,
     };
     update((d) => ({ ...d, finances: [entry, ...d.finances] }));
-    setPAmount('');
-    setPLabel('');
+    setEntrySheet(null);
   }
 
   function removePersonal(id: string) {
     update((d) => ({ ...d, finances: d.finances.filter((e) => e.id !== id) }));
   }
 
-  /** One tap on "Gagné" / "Dépensé" — no category, no friction. */
-  function quickAddPersonal(kind: 'revenu' | 'depense', amount: number) {
-    const entry: FinanceEntry = {
+  function addSubscription(draft: SubscriptionDraft) {
+    const sub: Subscription = {
       id: uid(),
-      date: today,
-      kind,
-      category: kind === 'revenu' ? 'Autres revenus' : 'Autres dépenses',
-      amount,
+      name: draft.name,
+      amount: draft.amount,
+      category: draft.category,
+      dayOfMonth: draft.dayOfMonth,
+      createdAt: today,
     };
-    update((d) => ({ ...d, finances: [entry, ...d.finances] }));
-    setQuick(null);
+    update((d) => ({ ...d, subscriptions: [sub, ...d.subscriptions] }));
+    setSubSheet(false);
+  }
+
+  function removeSubscription(id: string) {
+    update((d) => ({ ...d, subscriptions: d.subscriptions.filter((s) => s.id !== id) }));
+    setSubToDelete(null);
   }
 
   const projects = data.projects.filter((p) => !p.archived);
 
   const allEntries = useMemo(() => projects.flatMap((p) => p.entries), [projects]);
   const global = totals(allEntries);
-  const globalMonth = totalsForMonth(allEntries, month);
 
   const saved = savedTotal(data.savings);
   const invested = investedTotal(data.investments);
   const cash = totals(data.finances).benefice;
-  const patrimoine = cash + saved + invested;
+  /** The detailed portfolio is counted apart from the simple ledger — never both. */
+  const portfolio = portfolioTotals(data.investments.holdings).value;
+  const patrimoine = cash + saved + invested + portfolio;
 
   const savingsRatio = savingsProgress(data.savings);
   const savingsDue = savingsDueThisMonth(data.savings, today);
@@ -210,9 +243,37 @@ export default function BusinessPage() {
   function addToInvestments(amount: number) {
     update((d) => ({
       ...d,
-      investments: { entries: [{ id: uid(), date: today, amount }, ...d.investments.entries] },
+      investments: { ...d.investments, entries: [{ id: uid(), date: today, amount }, ...d.investments.entries] },
     }));
     setQuick(null);
+  }
+
+  /**
+   * Sets the savings to an exact figure. The ledger is kept intact: the
+   * difference is recorded as one adjustment entry, so history and XP stay
+   * consistent with the new total.
+   */
+  function setSavingsTotal(next: number) {
+    const delta = Math.round((next - saved) * 100) / 100;
+    if (delta === 0) return;
+    update((d) => {
+      const entries = [{ id: uid(), date: today, amount: delta }, ...d.savings.entries];
+      const newTotal = entries.reduce((a, e) => a + e.amount, 0);
+      return {
+        ...d,
+        savings: { ...d.savings, entries },
+        financialGoals: checkGoalAchievements(d.financialGoals, newTotal, today),
+      };
+    });
+  }
+
+  function setInvestmentsTotal(next: number) {
+    const delta = Math.round((next - invested) * 100) / 100;
+    if (delta === 0) return;
+    update((d) => ({
+      ...d,
+      investments: { ...d.investments, entries: [{ id: uid(), date: today, amount: delta }, ...d.investments.entries] },
+    }));
   }
 
   function removeSavingsEntry(id: string) {
@@ -225,7 +286,7 @@ export default function BusinessPage() {
   function removeInvestmentEntry(id: string) {
     update((d) => ({
       ...d,
-      investments: { entries: d.investments.entries.filter((e) => e.id !== id) },
+      investments: { ...d.investments, entries: d.investments.entries.filter((e) => e.id !== id) },
     }));
   }
 
@@ -263,17 +324,8 @@ export default function BusinessPage() {
 
   function removeGoal(id: string) {
     update((d) => ({ ...d, financialGoals: d.financialGoals.filter((g) => g.id !== id) }));
+    setGoalToDelete(null);
   }
-
-  const simYearsNum = Number(simYears.replace(',', '.')) || 0;
-  const simResult = useMemo(() => {
-    if (simYearsNum <= 0) return null;
-    const initial = Number(simInitial.replace(',', '.')) || 0;
-    const monthly = Number(simMonthly.replace(',', '.')) || 0;
-    const sp = simulate(initial, monthly, simYearsNum, simFreq, Number(spRate) || 0);
-    const cac = simulate(initial, monthly, simYearsNum, simFreq, Number(cacRate) || 0);
-    return { sp, cac };
-  }, [simInitial, simMonthly, simYearsNum, simFreq, spRate, cacRate]);
 
   return (
     <>
@@ -305,9 +357,34 @@ export default function BusinessPage() {
             <span>Investi</span>
           </div>
         </div>
+        {portfolio > 0 ? (
+          <div className="patrimoine-total" style={{ borderBottom: '1px solid var(--border-soft)' }}>
+            <span>Portefeuille</span>
+            <b className="mono">{formatMoney(portfolio)}</b>
+          </div>
+        ) : null}
         <div className="patrimoine-total">
           <span>Total</span>
           <b className="mono">{formatMoney(patrimoine)}</b>
+        </div>
+
+        <div className="nav-cards">
+          <Link href="/entrepreneuriat/banque" className="nav-card">
+            <span className="nav-card-title">Comptes bancaires</span>
+            <span className="nav-card-meta">
+              {data.bank.accounts.length > 0
+                ? `${data.bank.accounts.length} compte${data.bank.accounts.length > 1 ? 's' : ''} · ${data.bank.transactions.length} opérations`
+                : 'Suivre automatiquement les dépenses'}
+            </span>
+          </Link>
+          <Link href="/entrepreneuriat/investir" className="nav-card">
+            <span className="nav-card-title">Investissements</span>
+            <span className="nav-card-meta">
+              {data.investments.holdings.length > 0
+                ? `${data.investments.holdings.length} position${data.investments.holdings.length > 1 ? 's' : ''} · projection`
+                : 'Portefeuille et projection long terme'}
+            </span>
+          </Link>
         </div>
       </section>
 
@@ -566,85 +643,40 @@ export default function BusinessPage() {
 
         <div className="money-card">
           <div className="money-split">
-            <button className="money-tap" onClick={() => setQuick('gagne')}>
+            <button className="money-tap" onClick={() => setEntrySheet('revenu')}>
               <span>Gagné ce mois</span>
-              <b className="mono money-in">+{formatMoney(personalMonth.revenus)}</b>
+              <b className="mono money-in">+{formatMoneyExact(personalMonth.revenus)}</b>
             </button>
-            <button className="money-tap" onClick={() => setQuick('depense')}>
+            <button className="money-tap" onClick={() => setEntrySheet('depense')}>
               <span>Dépensé ce mois</span>
-              <b className="mono money-out">−{formatMoney(personalMonth.depenses)}</b>
+              <b className="mono money-out">−{formatMoneyExact(personalMonth.depenses)}</b>
             </button>
           </div>
+          {subsMonthly > 0 ? (
+            <div className="money-balance" style={{ borderBottom: '1px solid var(--border-soft)' }}>
+              <span>Abonnements</span>
+              <b className="mono money-out">−{formatMoneyExact(subsMonthly)}</b>
+            </div>
+          ) : null}
           <div className="money-balance">
             <span>Il te reste</span>
-            <b className="mono" data-negative={personalMonth.benefice < 0}>
-              {formatMoney(personalMonth.benefice)}
+            <b className="mono" data-negative={available < 0}>
+              {formatMoneyExact(available)}
             </b>
           </div>
         </div>
 
-        <div className="ex-meta" style={{ margin: '10px 2px' }}>
-          Tape directement sur un montant ci-dessus pour l&apos;ajouter en un geste, ou détaille avec
-          une catégorie ci-dessous.
-        </div>
-
-        <div className="card">
-          <div className="segmented">
-            <button
-              data-on={pKind === 'revenu'}
-              onClick={() => {
-                setPKind('revenu');
-                setPCat(PERSONAL_INCOME_CATEGORIES[0]);
-              }}
-            >
-              J&apos;ai gagné
-            </button>
-            <button
-              data-on={pKind === 'depense'}
-              onClick={() => {
-                setPKind('depense');
-                setPCat(PERSONAL_EXPENSE_CATEGORIES[0]);
-              }}
-            >
-              J&apos;ai dépensé
-            </button>
-          </div>
-
-          <div className="chip-grid" style={{ marginTop: 10 }}>
-            {(pKind === 'revenu' ? PERSONAL_INCOME_CATEGORIES : PERSONAL_EXPENSE_CATEGORIES).map(
-              (c) => (
-                <button key={c} className="chip" data-on={pCat === c} onClick={() => setPCat(c)}>
-                  {c}
-                </button>
-              ),
-            )}
-          </div>
-
-          <div className="inline-add">
-            <input
-              className="input"
-              placeholder="Libellé (facultatif)"
-              value={pLabel}
-              onChange={(e) => setPLabel(e.target.value)}
-            />
-          </div>
-          <div className="inline-add">
-            <input
-              className="input"
-              type="number"
-              inputMode="decimal"
-              placeholder="Montant"
-              value={pAmount}
-              onChange={(e) => setPAmount(e.target.value)}
-            />
-            <button className="btn btn-sm btn-accent" onClick={addPersonal}>
-              Ajouter
-            </button>
-          </div>
+        <div className="money-actions">
+          <button className="btn btn-accent" onClick={() => setEntrySheet('depense')}>
+            + Ajouter une dépense
+          </button>
+          <button className="btn btn-ghost" onClick={() => setEntrySheet('revenu')}>
+            + Revenu
+          </button>
         </div>
 
         {monthEntries.length > 0 ? (
-          <div className="card" style={{ marginTop: 10 }}>
+          <div className="card" style={{ marginTop: 12 }}>
             {monthEntries.map((e) => (
               <div key={e.id} className="rec">
                 <div style={{ minWidth: 0 }}>
@@ -657,7 +689,7 @@ export default function BusinessPage() {
                 <div className="rec-val">
                   <b className="mono" style={{ color: e.kind === 'revenu' ? '#4ec38a' : undefined }}>
                     {e.kind === 'revenu' ? '+' : '−'}
-                    {formatMoney(e.amount)}
+                    {formatMoneyExact(e.amount)}
                   </b>
                   <button className="btn btn-ghost btn-sm" onClick={() => removePersonal(e.id)}>
                     Retirer
@@ -666,7 +698,133 @@ export default function BusinessPage() {
               </div>
             ))}
           </div>
-        ) : null}
+        ) : (
+          <div className="card empty" style={{ marginTop: 12 }}>
+            Rien enregistré ce mois-ci. Ajoute ta première dépense — montant, catégorie, c&apos;est
+            tout.
+          </div>
+        )}
+      </section>
+
+      {/* ---------- courbe financière ---------- */}
+
+      <section className="section">
+        <h2 className="section-title">Évolution</h2>
+        <div className="card">
+          <div className="segmented">
+            {MONEY_METRICS.map((m) => (
+              <button
+                key={m.id}
+                data-on={m.id === moneyMetric}
+                onClick={() => setMoneyMetric(m.id)}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="pill-row" style={{ marginTop: 12 }}>
+            {MONEY_RANGES.map((r) => (
+              <button
+                key={r.id}
+                className="pill"
+                data-on={r.id === moneyRange}
+                onClick={() => setMoneyRange(r.id)}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+
+          {hasMoneyHistory(data) ? (
+            <>
+              <div className="chart-legend" style={{ marginTop: 14 }}>
+                <b className="mono">
+                  {formatMoneyExact(moneyPoints[moneyPoints.length - 1]?.value ?? 0)}
+                </b>
+                <span>
+                  {moneyMetric === 'disponible'
+                    ? 'Disponible aujourd’hui'
+                    : moneyMetric === 'epargne'
+                      ? 'Épargne aujourd’hui'
+                      : 'Patrimoine aujourd’hui'}
+                </span>
+              </div>
+              <Curve
+                points={moneyPoints}
+                periodLabel={moneyPeriod}
+                format={moneyAxis}
+                formatTooltip={formatMoneyExact}
+                emptyLabel="Pas encore assez de mouvements sur cette période."
+              />
+            </>
+          ) : (
+            <div className="empty">
+              Enregistre une dépense, un revenu ou une mise de côté : la courbe se construit toute
+              seule.
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ---------- abonnements ---------- */}
+
+      <section className="section">
+        <h2 className="section-title">Abonnements mensuels</h2>
+
+        {data.subscriptions.length === 0 ? (
+          <div className="card empty">
+            Aucun abonnement enregistré. Ajoute ceux que tu paies chaque mois pour voir ce qu&apos;ils
+            te coûtent réellement.
+          </div>
+        ) : (
+          <>
+            <div className="card">
+              {data.subscriptions.map((s) => {
+                const billing = billingLabel(s);
+                const meta = [s.category, billing].filter(Boolean).join(' · ');
+                return (
+                  <div key={s.id} className="subline">
+                    <div className="subline-main">
+                      <div className="subline-name">{s.name}</div>
+                      {meta ? <div className="subline-meta">{meta}</div> : null}
+                    </div>
+                    <div className="subline-val">
+                      <b className="mono">{formatMoneyExact(s.amount)}</b>
+                      <i>/ mois</i>
+                      <button
+                        className="icon-btn-ghost"
+                        onClick={() => setSubToDelete(s)}
+                        aria-label={`Supprimer ${s.name}`}
+                        title="Supprimer"
+                      >
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M4.5 7h15M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7" />
+                          <path d="M6.6 7l.8 11.1A1.9 1.9 0 0 0 9.3 20h5.4a1.9 1.9 0 0 0 1.9-1.9L17.4 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="sub-totals">
+              <div className="sub-total">
+                <span>Par mois</span>
+                <b>{formatMoneyExact(subsMonthly)}</b>
+              </div>
+              <div className="sub-total">
+                <span>Coût annuel estimé</span>
+                <b>{formatMoneyExact(subsYearly)}</b>
+              </div>
+            </div>
+          </>
+        )}
+
+        <button className="btn btn-accent add-objective" onClick={() => setSubSheet(true)}>
+          + Ajouter un abonnement
+        </button>
       </section>
 
       {/* ---------- analyse ---------- */}
@@ -692,16 +850,21 @@ export default function BusinessPage() {
       <section className="section">
         <h2 className="section-title">Épargne</h2>
         <div className="card">
-          <button className="money-tap-block" onClick={() => setQuick('epargne')}>
-            <div className="level-number mono" style={{ fontSize: 28 }}>
-              {formatMoney(saved)}
-            </div>
-            {data.savings.target > 0 ? (
-              <div className="ex-meta">sur {formatMoney(data.savings.target)}</div>
-            ) : (
-              <div className="ex-meta">Tape pour ajouter ou retirer</div>
-            )}
-          </button>
+          <InlineMoney
+            value={saved}
+            hint={
+              data.savings.target > 0
+                ? `sur ${formatMoney(data.savings.target)} · tape pour modifier`
+                : 'Tape le montant pour le modifier'
+            }
+            onSet={setSavingsTotal}
+          />
+
+          <div className="money-actions">
+            <button className="btn btn-ghost btn-sm" onClick={() => setQuick('epargne')}>
+              Ajouter ou retirer
+            </button>
+          </div>
 
           {data.savings.target > 0 ? (
             <>
@@ -736,7 +899,7 @@ export default function BusinessPage() {
                   <div className="rec-val">
                     <b className="mono" style={{ color: e.amount >= 0 ? '#4ec38a' : '#e0806f' }}>
                       {e.amount >= 0 ? '+' : ''}
-                      {formatMoney(e.amount)}
+                      {formatMoneyExact(e.amount)}
                     </b>
                     <button className="btn btn-ghost btn-sm" onClick={() => removeSavingsEntry(e.id)}>
                       Retirer
@@ -754,12 +917,17 @@ export default function BusinessPage() {
       <section className="section">
         <h2 className="section-title">Investissements</h2>
         <div className="card">
-          <button className="money-tap-block" onClick={() => setQuick('investissement')}>
-            <div className="level-number mono" style={{ fontSize: 28 }}>
-              {formatMoney(invested)}
-            </div>
-            <div className="ex-meta">Tape pour ajouter ou retirer</div>
-          </button>
+          <InlineMoney
+            value={invested}
+            hint="Tape le montant pour le modifier"
+            onSet={setInvestmentsTotal}
+          />
+
+          <div className="money-actions">
+            <button className="btn btn-ghost btn-sm" onClick={() => setQuick('investissement')}>
+              Ajouter ou retirer
+            </button>
+          </div>
 
           {investmentsHistory.length > 0 ? (
             <div style={{ marginTop: 12 }}>
@@ -769,7 +937,7 @@ export default function BusinessPage() {
                   <div className="rec-val">
                     <b className="mono" style={{ color: e.amount >= 0 ? '#4ec38a' : '#e0806f' }}>
                       {e.amount >= 0 ? '+' : ''}
-                      {formatMoney(e.amount)}
+                      {formatMoneyExact(e.amount)}
                     </b>
                     <button
                       className="btn btn-ghost btn-sm"
@@ -816,7 +984,7 @@ export default function BusinessPage() {
                   </div>
                 ) : null}
                 <div style={{ marginTop: 10 }}>
-                  <button className="btn btn-ghost btn-sm" onClick={() => removeGoal(g.id)}>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setGoalToDelete(g)}>
                     Supprimer
                   </button>
                 </div>
@@ -873,149 +1041,30 @@ export default function BusinessPage() {
         </div>
       </section>
 
-      {/* ---------- simulateur d'investissement ---------- */}
-
-      <section className="section">
-        <h2 className="section-title">Simulateur d&apos;investissement</h2>
-        <div className="card">
-          <div className="grid-2">
-            <label className="field" style={{ marginTop: 0 }}>
-              <span>Montant initial</span>
-              <input
-                className="input"
-                type="number"
-                inputMode="decimal"
-                value={simInitial}
-                onChange={(e) => setSimInitial(e.target.value)}
-              />
-            </label>
-            <label className="field" style={{ marginTop: 0 }}>
-              <span>Ajout par versement</span>
-              <input
-                className="input"
-                type="number"
-                inputMode="decimal"
-                value={simMonthly}
-                onChange={(e) => setSimMonthly(e.target.value)}
-              />
-            </label>
-          </div>
-
-          <div className="field">
-            <span>Fréquence des versements</span>
-            <div className="segmented">
-              <button data-on={simFreq === 'mensuel'} onClick={() => setSimFreq('mensuel')}>
-                Mensuel
-              </button>
-              <button data-on={simFreq === 'annuel'} onClick={() => setSimFreq('annuel')}>
-                Annuel
-              </button>
-            </div>
-          </div>
-
-          <label className="field">
-            <span>Durée (années)</span>
-            <input
-              className="input"
-              type="number"
-              inputMode="numeric"
-              value={simYears}
-              onChange={(e) => setSimYears(e.target.value)}
-            />
-          </label>
-
-          <div className="grid-2">
-            <label className="field">
-              <span>Rendement S&amp;P 500 (%/an)</span>
-              <input
-                className="input"
-                type="number"
-                inputMode="decimal"
-                value={spRate}
-                onChange={(e) => setSpRate(e.target.value)}
-              />
-            </label>
-            <label className="field">
-              <span>Rendement CAC 40 (%/an)</span>
-              <input
-                className="input"
-                type="number"
-                inputMode="decimal"
-                value={cacRate}
-                onChange={(e) => setCacRate(e.target.value)}
-              />
-            </label>
-          </div>
-
-          {simResult ? (
-            <>
-              <div className="sim-legend">
-                <span>
-                  <i className="sim-dot sim-dot-sp" /> S&amp;P 500
-                </span>
-                <span>
-                  <i className="sim-dot sim-dot-cac" /> CAC 40
-                </span>
-              </div>
-              <DualCurve
-                suffix=" €"
-                series={[
-                  { label: 'S&P 500', color: '#4d86ea', points: simResult.sp.points },
-                  { label: 'CAC 40', color: '#e0a06f', points: simResult.cac.points },
-                ]}
-              />
-
-              <div className="sim-table">
-                <div className="sim-row sim-head">
-                  <span />
-                  <span>S&amp;P 500</span>
-                  <span>CAC 40</span>
-                </div>
-                <div className="sim-row">
-                  <span>Argent versé</span>
-                  <span className="mono">{formatMoney(simResult.sp.versed)}</span>
-                  <span className="mono">{formatMoney(simResult.cac.versed)}</span>
-                </div>
-                <div className="sim-row">
-                  <span>Valeur simulée</span>
-                  <span className="mono">{formatMoney(simResult.sp.finalValue)}</span>
-                  <span className="mono">{formatMoney(simResult.cac.finalValue)}</span>
-                </div>
-                <div className="sim-row">
-                  <span>Gain simulé</span>
-                  <span className="mono">{formatMoney(simResult.sp.gain)}</span>
-                  <span className="mono">{formatMoney(simResult.cac.gain)}</span>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="empty">Indique une durée pour lancer la simulation.</div>
-          )}
-
-          <div className="hint" style={{ marginTop: 14 }}>
-            Simulation basée sur des hypothèses de rendement que tu peux modifier toi-même — ce ne
-            sont pas des données historiques certifiées ni une prévision. Les performances passées
-            ne garantissent pas les performances futures : les marchés peuvent aussi bien monter que
-            baisser, et le résultat réel peut être très différent de cette estimation. Frais, taxes
-            et autres coûts ne sont pas pris en compte. Ceci n&apos;est pas un conseil financier.
-          </div>
-        </div>
-      </section>
-
-      {quick === 'gagne' ? (
-        <QuickAmount
-          title="Argent gagné"
-          confirmLabel="Ajouter"
-          onConfirm={(amount) => quickAddPersonal('revenu', amount)}
-          onClose={() => setQuick(null)}
+      {entrySheet ? (
+        <EntrySheet
+          kind={entrySheet}
+          onSave={(draft) => addPersonal(entrySheet, draft)}
+          onClose={() => setEntrySheet(null)}
         />
       ) : null}
-      {quick === 'depense' ? (
-        <QuickAmount
-          title="Dépense"
-          confirmLabel="Ajouter"
-          onConfirm={(amount) => quickAddPersonal('depense', amount)}
-          onClose={() => setQuick(null)}
+      {subSheet ? (
+        <SubscriptionSheet onSave={addSubscription} onClose={() => setSubSheet(false)} />
+      ) : null}
+      {subToDelete ? (
+        <ConfirmDialog
+          title="Supprimer cet abonnement ?"
+          detail={`${subToDelete.name} · ${formatMoneyExact(subToDelete.amount)} par mois`}
+          onConfirm={() => removeSubscription(subToDelete.id)}
+          onClose={() => setSubToDelete(null)}
+        />
+      ) : null}
+      {goalToDelete ? (
+        <ConfirmDialog
+          title="Supprimer cet objectif ?"
+          detail={goalToDelete.label}
+          onConfirm={() => removeGoal(goalToDelete.id)}
+          onClose={() => setGoalToDelete(null)}
         />
       ) : null}
       {quick === 'epargne' ? (

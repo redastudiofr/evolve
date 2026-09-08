@@ -55,7 +55,12 @@ export const DIFFICULTIES: { id: Difficulty; label: string; xp: number }[] = [
   { id: 'facile', label: 'Facile', xp: 10 },
   { id: 'moyen', label: 'Moyen', xp: 25 },
   { id: 'difficile', label: 'Difficile', xp: 50 },
+  { id: 'epique', label: 'Épique', xp: 100 },
 ];
+
+export function difficultyLabel(id: Difficulty): string {
+  return DIFFICULTIES.find((d) => d.id === id)?.label ?? 'Moyen';
+}
 
 export function defaultXp(difficulty: Difficulty): number {
   return DIFFICULTIES.find((d) => d.id === difficulty)?.xp ?? 25;
@@ -128,12 +133,13 @@ export function streakOf(data: AppData, tz: string, taskXp: (e?: DailyEntry) => 
 
 /* ---------- série temporelle pour la courbe ---------- */
 
-export type RangeId = '7j' | '30j' | '3m' | '1an' | 'tout';
+export type RangeId = '7j' | '30j' | '3m' | '6m' | '1an' | 'tout';
 
 export const RANGES: { id: RangeId; label: string; days: number }[] = [
   { id: '7j', label: '7 j', days: 7 },
   { id: '30j', label: '30 j', days: 30 },
   { id: '3m', label: '3 mois', days: 90 },
+  { id: '6m', label: '6 mois', days: 180 },
   { id: '1an', label: '1 an', days: 365 },
   { id: 'tout', label: 'Tout', days: 0 },
 ];
@@ -212,4 +218,68 @@ function daysBetween(a: string, b: string): number {
 
 export function sortedRewards(rewards: Reward[]): Reward[] {
   return [...rewards].sort((a, b) => a.level - b.level || a.label.localeCompare(b.label));
+}
+
+/**
+ * The first date each level was reached, replayed from the very first recorded
+ * day. Nothing extra is stored: the dates come out of the XP history itself, so
+ * a reward added today still shows when its level was actually passed.
+ */
+export function levelTimeline(
+  data: AppData,
+  taskXp: (e?: DailyEntry) => number,
+): Map<number, string> {
+  const reachedOn = new Map<number, string>();
+  let running = 0;
+  let level = 1;
+  for (const date of activityDates(data).sort()) {
+    running += xpOnDate(data, date, taskXp);
+    const reached = levelFromXp(running).level;
+    while (level < reached) {
+      level += 1;
+      reachedOn.set(level, date);
+    }
+  }
+  return reachedOn;
+}
+
+export type RewardState = {
+  reward: Reward;
+  unlocked: boolean;
+  /** The day the level was reached, when it happened on a recorded day. */
+  unlockedAt?: string;
+  levelsLeft: number;
+  /** 0 → 1 towards the level that unlocks it, from the previous reward tier. */
+  progress: number;
+};
+
+/**
+ * Rewards in level order, each with whether it is unlocked, when, and how far
+ * the user is from it. Progress is measured between the previous tier and this
+ * one, so the bar fills steadily rather than jumping.
+ */
+export function rewardStates(
+  data: AppData,
+  taskXp: (e?: DailyEntry) => number,
+): RewardState[] {
+  const total = totalXpOf(data, taskXp);
+  const current = levelFromXp(total);
+  const timeline = levelTimeline(data, taskXp);
+  const ordered = sortedRewards(data.rewards);
+
+  let previousTier = 1;
+  return ordered.map((reward) => {
+    const unlocked = current.level >= reward.level;
+    const from = Math.min(previousTier, reward.level);
+    const span = Math.max(1, reward.level - from);
+    const progress = unlocked ? 1 : Math.max(0, Math.min(1, (current.level - from) / span));
+    previousTier = reward.level;
+    return {
+      reward,
+      unlocked,
+      unlockedAt: unlocked ? timeline.get(reward.level) : undefined,
+      levelsLeft: Math.max(0, reward.level - current.level),
+      progress,
+    };
+  });
 }
