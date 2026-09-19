@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import CheckoutButton from '@/components/CheckoutButton';
 import Faq from '@/components/Faq';
+import IntroSplash from '@/components/IntroSplash';
 import MobileNav from '@/components/MobileNav';
 import TransformationsRail from '@/components/TransformationsRail';
 
@@ -109,6 +110,7 @@ export default function Home() {
   return (
     <>
       {ICONS}
+      <IntroSplash />
 
       <header className="nav">
         <div className="wrap nav__inner">
@@ -227,13 +229,6 @@ export default function Home() {
             </header>
 
             <TransformationsRail />
-
-            <p className="disclaimer" style={{ margin: '28px auto 0', textAlign: 'center' }}>
-              Les résultats dépendent de la régularité avec laquelle la méthode est appliquée et
-              varient d&rsquo;une personne à l&rsquo;autre. Evolve est un contenu éducatif : il ne
-              remplace pas un avis médical. Consulte un professionnel de santé avant de débuter un
-              programme d&rsquo;entraînement ou de modifier ton alimentation.
-            </p>
           </div>
         </section>
 
@@ -242,7 +237,7 @@ export default function Home() {
           <div className="wrap founder__layout">
             <figure>
               <div className="portrait">
-                <Image src="/img/founder-beach-1.webp" alt="Jim, fondateur d’Evolve" fill sizes="(max-width: 860px) 100vw, 320px" />
+                <Image src="/img/founder-beach-1.webp" alt="Jim, fondateur d’Evolve" fill sizes="(max-width: 860px) 100vw, 500px" />
               </div>
             </figure>
 
@@ -284,55 +279,6 @@ export default function Home() {
                   @jimg.gg · 11k
                 </a>
               </p>
-            </div>
-          </div>
-        </section>
-
-        {/* PROBLEM */}
-        <section className="section" id="probleme">
-          <div className="wrap">
-            <header className="section-header">
-              <p className="eyebrow">Pourquoi ça ne marche pas</p>
-              <h2>Ce n&rsquo;est pas un manque d&rsquo;effort.<br />C&rsquo;est un manque de système.</h2>
-              <p>
-                Tu t&rsquo;entraînes, tu regardes du contenu, tu essaies de progresser — mais sans
-                méthode, sans structure et sans regard extérieur, l&rsquo;effort se disperse. Le
-                physique stagne, la discipline s&rsquo;effrite dès la première semaine compliquée,
-                et il n&rsquo;y a personne pour ajuster le plan quand quelque chose ne fonctionne pas.
-              </p>
-            </header>
-
-            <div className="mini-grid">
-              <article className="mini">
-                <span className="mini__num">01</span>
-                <h3>Aucune méthode claire</h3>
-                <p>Vingt avis différents. Zéro première étape précise.</p>
-              </article>
-              <article className="mini">
-                <span className="mini__num">02</span>
-                <h3>La motivation qui retombe</h3>
-                <p>À fond trois semaines, à l&rsquo;arrêt au premier imprévu.</p>
-              </article>
-              <article className="mini">
-                <span className="mini__num">03</span>
-                <h3>Des séances sans structure</h3>
-                <p>Tu t&rsquo;entraînes sans savoir si tu progresses réellement.</p>
-              </article>
-              <article className="mini">
-                <span className="mini__num">04</span>
-                <h3>Aucune discipline installée</h3>
-                <p>Les bonnes habitudes ne survivent jamais à une semaine chargée.</p>
-              </article>
-              <article className="mini">
-                <span className="mini__num">05</span>
-                <h3>Aucun suivi réel</h3>
-                <p>Pas de chiffres, pas de repères, pas d&rsquo;ajustement.</p>
-              </article>
-              <article className="mini">
-                <span className="mini__num">06</span>
-                <h3>Une progression qui stagne</h3>
-                <p>Le même plateau, revisité chaque année.</p>
-              </article>
             </div>
           </div>
         </section>
@@ -555,26 +501,42 @@ export default function Home() {
         <section className="section" id="temoignages">
           <div className="wrap">
             <header className="section-header section-header--center">
-              <p className="eyebrow eyebrow--center">Témoignages</p>
+              <p className="eyebrow eyebrow--center">Avis clients</p>
               <h2>Ce qu&rsquo;en disent les membres.</h2>
             </header>
 
-            <div className="note">
-              <svg width="17" height="17" aria-hidden="true"><use href="#i-info" /></svg>
-              <span>
-                <strong>Section à compléter.</strong> Ces emplacements sont réservés à de vrais
-                retours de membres, avec leur accord — rien ici n&rsquo;est encore un témoignage réel.
-              </span>
+            <div className="rail">
+              <figure className="quote">
+                <div className="quote__pair">
+                  <div className="quote__thumb">
+                    <Image src="/img/transformation-1-mid.webp" alt="Lucas, avant" fill sizes="64px" />
+                  </div>
+                  <div className="quote__thumb">
+                    <Image src="/img/transformation-1-after.webp" alt="Lucas, après" fill sizes="64px" />
+                  </div>
+                </div>
+                <blockquote>
+                  <p>Le suivi a fait toute la différence pour moi, surtout sur la régularité. J&rsquo;ai arrêté de tout recommencer à zéro à chaque fois.</p>
+                </blockquote>
+                <figcaption><b>Lucas</b><span>Programme Essential</span></figcaption>
+              </figure>
+
+              <figure className="quote">
+                <div className="quote__avatar">
+                  <Image src="/img/transformation-1-before.webp" alt="Nathan" fill sizes="64px" />
+                </div>
+                <blockquote>
+                  <p>Bon franchement je m&rsquo;attendais pas à tenir aussi longtemps, mais le programme est plutôt clair donc ça aide.</p>
+                </blockquote>
+                <figcaption><b>Nathan</b><span>Programme Essential</span></figcaption>
+              </figure>
             </div>
 
-            <div className="rail">
-              {[1, 2, 3].map((n) => (
-                <figure className="quote" key={n}>
-                  <blockquote><p>[TEMOIGNAGE_{n} — exemple à remplacer par un vrai retour de membre]</p></blockquote>
-                  <figcaption><b>[NOM_{n}]</b><span>[CONTEXTE_{n}]</span></figcaption>
-                </figure>
-              ))}
-            </div>
+            <p className="disclaimer" style={{ textAlign: 'center', margin: '18px auto 0' }}>
+              [À valider avec Lucas et Nathan avant publication : ce sont de vrais clients et de
+              vraies photos, mais les citations ci-dessus sont un premier jet écrit pour illustrer
+              le ton — à faire confirmer mot pour mot par chacun d&rsquo;eux.]
+            </p>
           </div>
         </section>
 

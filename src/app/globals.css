@@ -567,8 +567,14 @@ p {
 
 @media (min-width: 860px) {
   .founder__layout {
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 440px 1fr;
     align-items: center;
+  }
+}
+
+@media (min-width: 1100px) {
+  .founder__layout {
+    grid-template-columns: 500px 1fr;
   }
 }
 
@@ -771,12 +777,45 @@ p {
   .rail {
     overflow: visible;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
   .result-card,
   .quote {
     flex: none;
   }
+}
+
+.quote__avatar {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+}
+
+.quote__avatar img {
+  object-fit: cover;
+}
+
+.quote__pair {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.quote__pair .quote__thumb {
+  position: relative;
+  width: 44px;
+  height: 52px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.quote__pair .quote__thumb img {
+  object-fit: cover;
 }
 
 /* ---------- get list ---------- */
@@ -1490,6 +1529,58 @@ p {
 
 .transform-nav button:hover {
   border-color: var(--accent);
+}
+
+/* ---------- intro splash ---------- */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: opacity 0.45s ease;
+}
+
+.intro[data-phase='out'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro__mark {
+  width: 40px;
+  height: 40px;
+  color: var(--accent);
+  animation: intro-reveal 0.55s ease-out both;
+}
+
+.intro__word {
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  animation: intro-reveal 0.55s ease-out 0.08s both;
+}
+
+@keyframes intro-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro__mark,
+  .intro__word {
+    animation: none;
+  }
 }
 
 .tier-badge {
