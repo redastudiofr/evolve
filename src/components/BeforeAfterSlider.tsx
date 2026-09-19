@@ -6,8 +6,8 @@ import Image from 'next/image';
 export default function BeforeAfterSlider({
   before,
   after,
-  beforeLabel = 'Avant',
-  afterLabel = 'Après',
+  beforeLabel = 'Before',
+  afterLabel = 'After',
 }: {
   before: string;
   after: string;
@@ -44,53 +44,56 @@ export default function BeforeAfterSlider({
   }
 
   return (
-    <div className="ba-card">
-      <div
-        className="ba-frame"
-        ref={frameRef}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-        data-hinted={hinted}
-      >
-        <div className="ba-layer">
-          <Image src={after} alt={afterLabel} fill sizes="(max-width: 700px) 100vw, 560px" style={{ objectFit: 'cover' }} />
-          <span className="ba-tag ba-tag--after">{afterLabel}</span>
-        </div>
-
-        <div className="ba-layer ba-layer--clip" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}>
-          <Image src={before} alt={beforeLabel} fill sizes="(max-width: 700px) 100vw, 560px" style={{ objectFit: 'cover' }} />
-          <span className="ba-tag ba-tag--before">{beforeLabel}</span>
-        </div>
-
-        <div
-          className="ba-handle"
-          style={{ left: `${position}%` }}
-          role="slider"
-          aria-label={`Comparer ${beforeLabel} et ${afterLabel}`}
-          aria-valuenow={Math.round(position)}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'ArrowLeft') setPosition((p) => Math.max(0, p - 5));
-            if (e.key === 'ArrowRight') setPosition((p) => Math.min(100, p + 5));
-          }}
-        >
-          <span className="ba-handle__grip">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M8 6 3 12l5 6M16 6l5 6-5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-        </div>
-
-        {!hinted ? (
-          <div className="ba-hint">
-            <span>Glisse pour comparer</span>
-          </div>
-        ) : null}
+    <div
+      className="ba-frame"
+      ref={frameRef}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      data-hinted={hinted}
+    >
+      <div className="ba-layer">
+        <Image src={after} alt={afterLabel} fill sizes="(max-width: 700px) 90vw, 480px" style={{ objectFit: 'cover' }} />
+        <span className="ba-tag ba-tag--after">{afterLabel}</span>
       </div>
+
+      <div className="ba-layer ba-layer--clip" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}>
+        <Image src={before} alt={beforeLabel} fill sizes="(max-width: 700px) 90vw, 480px" style={{ objectFit: 'cover' }} />
+        <span className="ba-tag ba-tag--before">{beforeLabel}</span>
+      </div>
+
+      <div className="ba-seam" style={{ left: `${position}%` }} aria-hidden="true" />
+
+      <div
+        className="ba-handle"
+        style={{ left: `${position}%` }}
+        role="slider"
+        aria-label={`Comparer ${beforeLabel} et ${afterLabel}`}
+        aria-valuenow={Math.round(position)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') setPosition((p) => Math.max(0, p - 5));
+          if (e.key === 'ArrowRight') setPosition((p) => Math.min(100, p + 5));
+        }}
+      >
+        <span className="ba-handle__grip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M8 6 3 12l5 6M16 6l5 6-5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </div>
+
+      {!hinted ? (
+        <div className="ba-hint">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8 6 3 12l5 6M16 6l5 6-5 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span>Glisse pour comparer</span>
+        </div>
+      ) : null}
     </div>
   );
 }

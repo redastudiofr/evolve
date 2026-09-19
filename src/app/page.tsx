@@ -4,7 +4,16 @@ import CheckoutButton from '@/components/CheckoutButton';
 import Faq from '@/components/Faq';
 import IntroSplash from '@/components/IntroSplash';
 import MobileNav from '@/components/MobileNav';
-import TransformationsRail from '@/components/TransformationsRail';
+import TransformationsCarousel, { type Transformation } from '@/components/TransformationsCarousel';
+
+const TRANSFORMATIONS: Transformation[] = [
+  {
+    before: '/img/transformation-1-mid.webp',
+    after: '/img/transformation-1-after.webp',
+    name: 'Lucas',
+    context: 'Programme Essential',
+  },
+];
 
 const ICONS = (
   <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute' }}>
@@ -238,12 +247,12 @@ export default function Home() {
         <section className="section" id="transformations">
           <div className="wrap">
             <header className="section-header section-header--center">
-              <p className="eyebrow eyebrow--center">Résultats réels</p>
-              <h2>De vrais clients.<br />De vrais résultats.</h2>
-              <p>Glisse pour comparer. De vraies transformations de clients accompagnés par Jim — à venir dans l&rsquo;ordre, ici même.</p>
+              <p className="eyebrow eyebrow--center">Results</p>
+              <h2>Real Before &amp; After Transformations</h2>
+              <p>Drag to compare. Every transformation shown here belongs to a real Evolve client.</p>
             </header>
 
-            <TransformationsRail />
+            <TransformationsCarousel items={TRANSFORMATIONS} />
           </div>
         </section>
 
