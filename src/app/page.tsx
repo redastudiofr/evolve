@@ -302,20 +302,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* GALLERY (neutral — no claims, no labels, no relation implied) */}
-        <section className="section" id="galerie">
-          <div className="wrap">
-            <div className="gallery-grid">
-              <div className="gallery-frame">
-                <Image src="/img/gallery-1.webp" alt="" fill sizes="(max-width: 700px) 100vw, 50vw" />
-              </div>
-              <div className="gallery-frame">
-                <Image src="/img/gallery-2.webp" alt="" fill sizes="(max-width: 700px) 100vw, 50vw" />
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* METHOD */}
         <section className="section" id="methode">
           <div className="wrap">
