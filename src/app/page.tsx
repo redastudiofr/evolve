@@ -78,7 +78,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Comment fonctionne le coaching ?',
-    a: '[À confirmer précisément] : suivi périodique et ajustements du programme pour Essential ; suivi individuel plus rapproché avec accès direct et points réguliers pour Elite.',
+    a: 'Start te donne la méthode et l’application en autonomie, sans coaching individuel. [À confirmer précisément] : suivi périodique et ajustements du programme pour Essential ; suivi individuel plus rapproché avec accès direct et points réguliers pour Elite.',
   },
   {
     q: 'Combien de temps dure le programme ?',
@@ -89,8 +89,8 @@ const FAQ_ITEMS = [
     a: 'L’application centralise tes séances, ta progression, tes objectifs et tes habitudes. Elle te donne accès en continu à ton plan et à ton suivi, en complément du coaching.',
   },
   {
-    q: 'Quelle est la différence entre Essential et Elite ?',
-    a: 'Elite inclut tout Essential, avec un coaching individuel plus poussé, un accompagnement en développement personnel, et un volet entrepreneuriat/réseaux sociaux pour apprendre à construire une activité en ligne. Elite n’est pas une promesse de revenu : c’est un accompagnement pour apprendre les compétences et la méthode.',
+    q: 'Quelle est la différence entre Start, Essential et Elite ?',
+    a: 'Start te donne la méthode complète en autonomie. Essential ajoute un vrai coaching et un suivi personnalisé — c’est l’offre la plus choisie. Elite inclut tout Essential, avec un accompagnement individuel plus poussé, le développement personnel, et un volet entrepreneuriat/réseaux sociaux. Elite n’est pas une promesse de revenu : c’est un accompagnement pour apprendre les compétences et la méthode.',
   },
   {
     q: 'Comment j’accède au programme après l’achat ?',
@@ -334,37 +334,56 @@ export default function Home() {
         <section className="section" id="programmes">
           <div className="wrap">
             <header className="section-header section-header--center">
-              <p className="eyebrow eyebrow--center">Les deux voies d&rsquo;accès</p>
-              <h2>Choisis ton niveau d&rsquo;accompagnement.</h2>
-              <p>Elite inclut tout Essential, avec un accompagnement individuel plus poussé et un volet business.</p>
+              <p className="eyebrow eyebrow--center">Les trois niveaux d&rsquo;accompagnement</p>
+              <h2>Choisis ton niveau d&rsquo;engagement.</h2>
+              <p>Chaque niveau inclut tout le précédent, avec un accompagnement de plus en plus personnalisé.</p>
             </header>
 
             <div className="tiers">
               <article className="card tier">
                 <header className="tier__head">
+                  <h3 className="tier__name">Start</h3>
+                  <p className="tier__for">Les bases essentielles pour commencer ta transformation avec une méthode claire et structurée.</p>
+                </header>
+                <div className="price"><span className="price__value">249,99&nbsp;€</span></div>
+                <p className="tier__terms">Paiement unique</p>
+                <ul className="checklist tier__features">
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Formation Evolve complète</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Accès à l&rsquo;application Evolve</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Programme d&rsquo;entraînement</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Méthode nutrition &amp; habitudes</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Objectifs et suivi de progression</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Accès aux ressources Evolve</li>
+                </ul>
+                <CheckoutButton tier="start" label="Rejoindre Start" variant="ghost" />
+              </article>
+
+              <article className="card tier tier--featured">
+                <span className="tier__ribbon">Le plus choisi</span>
+                <header className="tier__head">
                   <h3 className="tier__name">Essential</h3>
-                  <p className="tier__for">Le système complet pour transformer ton physique et ta discipline.</p>
+                  <p className="tier__for">Le système complet pour transformer ton physique, ta discipline et ta progression avec un accompagnement personnalisé.</p>
                 </header>
                 <div className="price"><span className="price__value">399,99&nbsp;€</span></div>
                 <p className="tier__terms">Paiement unique</p>
                 <ul className="checklist tier__features">
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Formation structurée complète</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Coaching et accompagnement</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Programme de musculation personnalisé</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Conseils entraînement et progression</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Suivi de ton évolution</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Application Evolve — séances, objectifs, progression</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><b>Tout le contenu de Start</b></li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Coaching &amp; accompagnement</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Programme d&rsquo;entraînement personnalisé</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Suivi de progression</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Ajustements réguliers</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Conseils entraînement &amp; progression</li>
                   <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Accompagnement habitudes &amp; discipline</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Méthode claire, étapes précises</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Échanges avec le coach</li>
                 </ul>
-                <CheckoutButton tier="essential" label="Rejoindre Essential" variant="ghost" />
+                <CheckoutButton tier="essential" label="Rejoindre Essential" />
               </article>
 
               <article className="card tier tier--elite">
                 <span className="tier__ribbon">Accompagnement complet</span>
                 <header className="tier__head">
                   <h3 className="tier__name">Elite</h3>
-                  <p className="tier__for">Tout Essential, avec un accompagnement individuel et un volet business.</p>
+                  <p className="tier__for">L&rsquo;accompagnement le plus complet pour progresser physiquement, personnellement et construire ton activité en ligne.</p>
                 </header>
                 <div className="price"><span className="price__value">799,99&nbsp;€</span></div>
                 <p className="tier__terms">Paiement unique</p>
@@ -372,13 +391,15 @@ export default function Home() {
                   <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><b>Tout Essential</b></li>
                   <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Coaching plus personnalisé</li>
                   <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Suivi individuel plus approfondi</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Ajustements prioritaires</li>
                   <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Accompagnement développement personnel</li>
                   <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Coaching entrepreneuriat</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Stratégie réseaux sociaux &amp; création de contenu</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Construire une activité en ligne, à ton rythme</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Stratégie réseaux sociaux</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Création de contenu</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Construction d&rsquo;une activité en ligne, à ton rythme</li>
                 </ul>
                 <CheckoutButton tier="elite" label="Rejoindre Elite" />
-                <p className="tier__note">Le volet business enseigne des compétences et une méthode — ce n&rsquo;est pas une promesse de revenu.</p>
+                <p className="tier__note">Le volet business développe des compétences et une méthode de travail. Il ne constitue pas une promesse de revenu.</p>
               </article>
             </div>
           </div>
@@ -386,44 +407,56 @@ export default function Home() {
 
         {/* VALUE STACK */}
         <section className="section" id="valeur">
-          <div className="wrap wrap--narrow">
+          <div className="wrap">
             <header className="section-header section-header--center">
               <p className="eyebrow eyebrow--center">Ce que tu obtiens réellement</p>
-              <h2>Chaque élément a une valeur.<br />Ensemble, c&rsquo;est un système.</h2>
+              <h2>Chaque élément a une valeur.<br />Ensemble, c&rsquo;est un système complet.</h2>
             </header>
 
-            <div className="value-list">
-              <div className="value-row">
-                <span className="value-row__name">Formation complète<span className="value-row__desc">Méthode structurée, étape par étape</span></span>
-                <span className="value-row__amount">[VALEUR_FORMATION]&nbsp;€</span>
+            <div className="value-tiers">
+              <div>
+                <p className="value-tier-name">Start</p>
+                <div className="value-list">
+                  <div className="value-row"><span className="value-row__name">Formation</span><span className="value-row__amount">149&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Application</span><span className="value-row__amount">99&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Programme d&rsquo;entraînement</span><span className="value-row__amount">99&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Méthode nutrition &amp; habitudes</span><span className="value-row__amount">79&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Ressources Evolve</span><span className="value-row__amount">49&nbsp;€</span></div>
+                  <div className="value-total"><b>Valeur indicative</b><span className="value-total__amount">475&nbsp;€</span></div>
+                </div>
               </div>
-              <div className="value-row">
-                <span className="value-row__name">Coaching &amp; accompagnement<span className="value-row__desc">Suivi et ajustements réguliers</span></span>
-                <span className="value-row__amount">[VALEUR_COACHING]&nbsp;€</span>
+
+              <div>
+                <p className="value-tier-name value-tier-name--essential">Essential</p>
+                <div className="value-list value-list--essential">
+                  <div className="value-row"><span className="value-row__name">Formation</span><span className="value-row__amount">149&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Application</span><span className="value-row__amount">99&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Programme personnalisé</span><span className="value-row__amount">149&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Coaching &amp; accompagnement</span><span className="value-row__amount">249&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Suivi &amp; ajustements</span><span className="value-row__amount">149&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Méthode nutrition &amp; habitudes</span><span className="value-row__amount">79&nbsp;€</span></div>
+                  <div className="value-total"><b>Valeur indicative</b><span className="value-total__amount">874&nbsp;€</span></div>
+                </div>
               </div>
-              <div className="value-row">
-                <span className="value-row__name">Application Evolve<span className="value-row__desc">Séances, objectifs, progression, habitudes</span></span>
-                <span className="value-row__amount">[VALEUR_APP]&nbsp;€</span>
-              </div>
-              <div className="value-row">
-                <span className="value-row__name">Programme d&rsquo;entraînement sur mesure<span className="value-row__desc">Adapté à ton niveau et ton matériel</span></span>
-                <span className="value-row__amount">[VALEUR_PROGRAMME]&nbsp;€</span>
-              </div>
-              <div className="value-row">
-                <span className="value-row__name">Suivi &amp; ajustements<span className="value-row__desc">Le plan évolue avec toi</span></span>
-                <span className="value-row__amount">[VALEUR_SUIVI]&nbsp;€</span>
-              </div>
-              <div className="value-row">
-                <span className="value-row__name">Coaching business &amp; réseaux sociaux <span className="tier-badge">Elite</span><span className="value-row__desc">Stratégie de contenu, image, audience</span></span>
-                <span className="value-row__amount">[VALEUR_BUSINESS]&nbsp;€</span>
-              </div>
-              <div className="value-total">
-                <b>Valeur totale estimée</b>
-                <span className="value-total__amount">[VALEUR_TOTALE]&nbsp;€</span>
+
+              <div>
+                <p className="value-tier-name value-tier-name--elite">Elite</p>
+                <div className="value-list value-list--elite">
+                  <div className="value-row"><span className="value-row__name">Formation</span><span className="value-row__amount">149&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Application</span><span className="value-row__amount">99&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Programme personnalisé</span><span className="value-row__amount">149&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Coaching personnalisé</span><span className="value-row__amount">299&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Suivi approfondi</span><span className="value-row__amount">249&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Développement personnel</span><span className="value-row__amount">149&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Coaching entrepreneuriat</span><span className="value-row__amount">249&nbsp;€</span></div>
+                  <div className="value-row"><span className="value-row__name">Stratégie réseaux &amp; contenu</span><span className="value-row__amount">299&nbsp;€</span></div>
+                  <div className="value-total"><b>Valeur indicative</b><span className="value-total__amount">1&nbsp;642&nbsp;€</span></div>
+                </div>
               </div>
             </div>
-            <p className="disclaimer" style={{ textAlign: 'center', margin: '18px auto 0' }}>
-              Ces montants sont des repères de valeur, à définir précisément avant publication — aucun chiffre ci-dessus n&rsquo;est encore validé.
+
+            <p className="disclaimer" style={{ textAlign: 'center', margin: '22px auto 0' }}>
+              Valeur indicative des différents éléments inclus dans les offres.
             </p>
           </div>
         </section>
@@ -485,9 +518,10 @@ export default function Home() {
             </header>
             <p>
               La méthode et l&rsquo;application structurent ton parcours ; le coaching l&rsquo;ajuste à
-              ta réalité. Avec Essential, ton suivi est périodique : ton programme est revu et ajusté
-              régulièrement selon ta progression. Avec Elite, le suivi est individuel et plus
-              rapproché, avec un accès direct pour poser tes questions et corriger le plan rapidement.
+              ta réalité. Avec Start, tu avances en autonomie avec la méthode et l&rsquo;application.
+              Avec Essential, ton suivi est périodique : ton programme est revu et ajusté régulièrement
+              selon ta progression. Avec Elite, le suivi est individuel et plus rapproché, avec un accès
+              direct pour poser tes questions et corriger le plan rapidement.
             </p>
             <p className="disclaimer" style={{ marginTop: 16 }}>
               [À préciser avant publication : fréquence exacte des points de suivi, format des appels
@@ -557,7 +591,8 @@ export default function Home() {
           <div className="wrap">
             <h2>Le système existe.<br />Reste à choisir jusqu&rsquo;où tu vas.</h2>
             <div style={{ display: 'grid', gap: 14, maxWidth: 420, margin: '28px auto 0' }}>
-              <CheckoutButton tier="essential" label="Rejoindre Essential — 399,99 €" variant="ghost" />
+              <CheckoutButton tier="start" label="Rejoindre Start — 249,99 €" variant="ghost" />
+              <CheckoutButton tier="essential" label="Rejoindre Essential — 399,99 €" />
               <CheckoutButton tier="elite" label="Rejoindre Elite — 799,99 €" />
             </div>
             <p className="final__micro">Pas de raccourci · Pas de promesse irréaliste · Juste un système</p>

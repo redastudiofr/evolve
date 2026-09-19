@@ -970,13 +970,20 @@ p {
 @media (min-width: 900px) {
   .tiers {
     grid-template-columns: repeat(3, 1fr);
-    align-items: start;
+    align-items: stretch;
   }
 }
 
 .tier {
   padding: 28px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tier__features {
+  flex: 1 1 auto;
 }
 
 .tier--featured {
@@ -1323,6 +1330,45 @@ p {
 }
 
 /* ---------- value stack ---------- */
+.value-tiers {
+  display: grid;
+  gap: 20px;
+  margin-top: 8px;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .value-tiers {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.value-tier-name {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.value-tier-name--essential {
+  color: var(--accent-strong);
+}
+
+.value-tier-name--elite {
+  color: var(--gold);
+}
+
+.value-list--essential {
+  border-color: var(--accent);
+}
+
+.value-list--elite {
+  border-color: var(--gold);
+}
+
 .value-list {
   border: 1px solid var(--border);
   border-radius: var(--radius);

@@ -5,11 +5,11 @@ sur le site — pas de lien de paiement externe.
 
 ## Ce qui est déjà fait
 
-- Page de vente complète en français : Hero avec photo, problème, méthode en 6
-  dimensions, section transformations (slider avant/après réel, glisser pour
-  comparer), les deux offres (Essential 399,99 € / Elite 799,99 €), stack de
-  valeur, application Evolve, coaching, fondateur (Jim — @jimg.gg), témoignages,
-  FAQ, CTA final.
+- Page de vente complète en français : Hero avec photo, pitch vidéo, méthode en 6
+  dimensions, section transformations (carrousel avant/après), les trois offres
+  (Start 249,99 € / Essential 399,99 € / Elite 799,99 €), stack de valeur détaillée
+  par offre, application Evolve, coaching, fondateur (Jim — @jimg.gg), avis
+  clients, FAQ, CTA final.
 - Bouton de paiement qui crée une vraie session Stripe Checkout côté serveur
   (`src/app/api/checkout/route.ts`) et redirige vers le paiement sécurisé Stripe.
 - Pages `/success` et `/cancel` après paiement.
@@ -24,12 +24,9 @@ Tout ce qui est écrit entre crochets `[...]` dans le code est un **placeholder*
 remplacer :
 
 - **Histoire de Jim** (`src/app/page.tsx`, section `#fondateur`).
-- **Nom et durée du client** affiché sous le slider avant/après (`#transformations`).
-- **Témoignages écrits** (`#temoignages`) — actuellement des exemples clairement
-  marqués comme tels, à remplacer uniquement par de vrais retours de membres
-  ayant donné leur accord.
-- **Valeurs en euros** de la stack de valeur (`#valeur`) — aucun chiffre n'est
-  encore validé, ne rien publier sans les vrais montants.
+- **Citations des avis clients** (`#temoignages`) — Lucas et Nathan sont de vrais
+  clients avec de vraies photos, mais les citations sont un premier jet à faire
+  valider mot pour mot avec chacun avant publication.
 - **Détails du coaching** (`#coaching`, et la FAQ) : fréquence exacte des
   suivis, format des appels Elite, durée du programme — engagent une vraie
   promesse de service.
@@ -37,20 +34,21 @@ remplacer :
 - **Mentions légales, CGV, confidentialité** — squelettes juridiques à compléter
   et faire relire par un professionnel.
 - **Email de contact**.
-- Un deuxième (ou troisième) couple avant/après si tu veux enrichir la section
-  transformations — voir `public/img/transformation-2-before.webp`, il manque
-  la photo "après" correspondante.
+- Un deuxième couple avant/après si tu veux enrichir le carrousel transformations
+  — voir `public/img/transformation-2-before.webp`, il manque la photo "après"
+  correspondante.
 
 ## Configurer Stripe
 
-1. Crée deux **produits** dans le [dashboard Stripe](https://dashboard.stripe.com/products),
-   un par offre (Essential, Elite), chacun avec un prix associé.
+1. Crée trois **produits** dans le [dashboard Stripe](https://dashboard.stripe.com/products),
+   un par offre (Start, Essential, Elite), chacun avec un prix associé.
 2. Récupère l'ID de chaque prix (`price_...`).
 3. Dans les paramètres du projet Vercel → **Environment Variables**, ajoute :
 
    | Variable | Valeur |
    | --- | --- |
    | `STRIPE_SECRET_KEY` | ta clé secrète Stripe (`sk_live_...` ou `sk_test_...`) |
+   | `STRIPE_PRICE_START` | `price_...` de l'offre Start |
    | `STRIPE_PRICE_ESSENTIAL` | `price_...` de l'offre Essential |
    | `STRIPE_PRICE_ELITE` | `price_...` de l'offre Elite |
 
