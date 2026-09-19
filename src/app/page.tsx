@@ -1,4 +1,6 @@
+import Image from 'next/image';
 import Link from 'next/link';
+import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import CheckoutButton from '@/components/CheckoutButton';
 import Faq from '@/components/Faq';
 import MobileNav from '@/components/MobileNav';
@@ -12,9 +14,6 @@ const ICONS = (
     <symbol id="i-check" viewBox="0 0 24 24">
       <path d="M4.5 12.5 9.5 17.5 19.5 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
     </symbol>
-    <symbol id="i-cross" viewBox="0 0 24 24">
-      <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    </symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24">
       <path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
     </symbol>
@@ -25,61 +24,81 @@ const ICONS = (
     <symbol id="i-fitness" viewBox="0 0 24 24">
       <path d="M4 9v6m16-6v6M7 6.5v11m10-11v11M7 12h10" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
     </symbol>
-    <symbol id="i-nutrition" viewBox="0 0 24 24">
-      <path d="M19.5 5C13 4.5 7.5 7 6 12.5 5 16.3 6.6 19 8.5 20c3-4.8 5.8-7.3 9-9.2M6.8 20c-.8-4 1-8 5-10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </symbol>
-    <symbol id="i-sleep" viewBox="0 0 24 24">
-      <path d="M20 14.5A8 8 0 1 1 9.5 4a6.3 6.3 0 0 0 10.5 10.5Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-    </symbol>
-    <symbol id="i-chart" viewBox="0 0 24 24">
-      <path d="M4 20V10m6.5 10V4M17 20v-6.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    <symbol id="i-body" viewBox="0 0 24 24">
+      <circle cx="12" cy="5" r="2.3" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 7.5V15m0 0-3.5 5.5M12 15l3.5 5.5M7.5 10.5h9" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </symbol>
     <symbol id="i-mind" viewBox="0 0 24 24">
       <path d="M12 4a4 4 0 0 0-4 4v1a3 3 0 0 0 0 6v1a4 4 0 0 0 8 0v-1a3 3 0 0 0 0-6V8a4 4 0 0 0-4-4Zm0 0v16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </symbol>
-    <symbol id="i-community" viewBox="0 0 24 24">
-      <circle cx="9" cy="8.5" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M3.5 19c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2M16 9a2.6 2.6 0 1 0 0-5.2M18.5 19c0-2.4-1.7-4.4-4-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </symbol>
     <symbol id="i-habits" viewBox="0 0 24 24">
       <rect x="3.5" y="5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
       <path d="M8 3.5v3m8-3v3M3.5 10h17M8.5 14.5l2 2 4.5-4.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </symbol>
-    <symbol id="i-mobility" viewBox="0 0 24 24">
-      <circle cx="12" cy="5" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M12 7.5V15m0 0-3 5.5M12 15l3 5.5M8 10.5h8" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <symbol id="i-social" viewBox="0 0 24 24">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="17" cy="7" r="1.1" fill="currentColor" />
+    </symbol>
+    <symbol id="i-business" viewBox="0 0 24 24">
+      <path d="M4 20V10m6.5 10V4M17 20v-6.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <path d="M4 19h16M6 19V9m6 10V5m6 14v-7" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </symbol>
+    <symbol id="i-target" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="0.8" fill="currentColor" />
+    </symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24">
+      <path d="M4 12a8 8 0 0 1 13.7-5.7M20 12a8 8 0 0 1-13.7 5.7" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M17 4v3.5h-3.5M7 20v-3.5h3.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </symbol>
+    <symbol id="i-ig" viewBox="0 0 24 24">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="17" cy="7" r="1.1" fill="currentColor" />
     </symbol>
   </svg>
 );
 
 const FAQ_ITEMS = [
   {
-    q: "Qu'est-ce qu'Evolve ?",
-    a: 'Un programme structuré de musculation et de remise en forme : un plan d’entraînement progressif, une méthode nutrition simple à tenir, et un suivi pour ajuster au fil des semaines. L’objectif est de te donner une méthode claire, pas une liste de conseils épars.',
+    q: 'À qui s’adresse Evolve ?',
+    a: 'À toute personne qui veut transformer son physique et installer une vraie discipline, avec une méthode plutôt que des conseils épars. Elite s’adresse en plus à ceux qui veulent apprendre à construire une activité en ligne sur des bases solides.',
   },
   {
-    q: 'Je pars de zéro, est-ce que c’est pour moi ?',
-    a: 'Oui. La phase 1 (Bilan & fondations) part du principe que tu n’as aucune base : elle couvre la technique, la posture et les repères avant d’augmenter la charge de travail.',
+    q: 'Je pars de zéro, c’est adapté aux débutants ?',
+    a: 'Oui. Le système part de ton point de départ réel — aucune base n’est supposée acquise, que ce soit à l’entraînement ou sur le volet discipline.',
   },
   {
-    q: 'Combien de temps avant de voir des résultats ?',
-    a: 'Les premiers repères (force, énergie, régularité) apparaissent en 2 à 4 semaines. Les changements visibles prennent généralement 8 à 12 semaines, selon ton point de départ et ta régularité — il n’y a pas de raccourci honnête à annoncer ici.',
+    q: 'Comment fonctionne le coaching ?',
+    a: '[À confirmer précisément] : suivi périodique et ajustements du programme pour Essential ; suivi individuel plus rapproché avec accès direct et points réguliers pour Elite.',
   },
   {
-    q: 'Faut-il une salle de sport ?',
-    a: "Le programme est conçu pour une salle classique, mais chaque séance indique une alternative à charge réduite (élastiques, poids du corps, matériel limité). [ACCESS_DESCRIPTION — précise ici si une version 100% maison est proposée.]",
+    q: 'Combien de temps dure le programme ?',
+    a: '[DUREE_PROGRAMME — à préciser : nombre de semaines/mois de la méthode, et si l’accès reste ouvert au-delà].',
   },
   {
-    q: 'Comment se passe le paiement ?',
-    a: 'Le paiement est sécurisé par Stripe, directement sur ce site. Aucune donnée bancaire ne transite ailleurs. Tu reçois ta confirmation d’accès par email juste après.',
+    q: 'Comment fonctionne l’application ?',
+    a: 'L’application centralise tes séances, ta progression, tes objectifs et tes habitudes. Elle te donne accès en continu à ton plan et à ton suivi, en complément du coaching.',
   },
   {
-    q: "Je peux me faire rembourser si ça ne me convient pas ?",
-    a: '[GUARANTEE_TERMS — à confirmer avant mise en ligne : par exemple “Garantie satisfait ou remboursé sous 14 jours si tu as suivi le programme sans résultat”. Ne pas publier sans avoir validé la politique réelle.]',
+    q: 'Quelle est la différence entre Essential et Elite ?',
+    a: 'Elite inclut tout Essential, avec un coaching individuel plus poussé, un accompagnement en développement personnel, et un volet entrepreneuriat/réseaux sociaux pour apprendre à construire une activité en ligne. Elite n’est pas une promesse de revenu : c’est un accompagnement pour apprendre les compétences et la méthode.',
   },
   {
-    q: 'Quelle offre choisir ?',
-    a: 'Essentiel si tu es autonome et que tu veux juste la méthode. Evolve si tu veux le système complet avec suivi et ajustements — c’est l’offre que la majorité des membres choisissent. Privé uniquement si tu veux un accompagnement individuel avec accès direct.',
+    q: 'Comment j’accède au programme après l’achat ?',
+    a: '[ACCESS_DESCRIPTION — décrire précisément : lien de connexion à l’application, email de confirmation, délai d’accès.]',
+  },
+  {
+    q: 'Que se passe-t-il après l’achat ?',
+    a: 'Tu reçois un email de confirmation avec les instructions d’accès à l’application et à la formation. Le coaching démarre selon le rythme propre à ton offre.',
+  },
+  {
+    q: 'Puis-je me faire rembourser ?',
+    a: '[GUARANTEE_TERMS — politique de garantie à confirmer avant mise en ligne. Ne pas publier sans avoir validé la politique réelle.]',
   },
 ];
 
@@ -99,12 +118,12 @@ export default function Home() {
 
           <nav className="nav__links" aria-label="Navigation principale">
             <a className="nav__link" href="#methode">Méthode</a>
-            <a className="nav__link" href="#programme">Programme</a>
-            <a className="nav__link" href="#resultats">Résultats</a>
+            <a className="nav__link" href="#transformations">Résultats</a>
+            <a className="nav__link" href="#programmes">Programmes</a>
             <a className="nav__link" href="#faq">FAQ</a>
           </nav>
 
-          <a className="btn btn--primary btn--sm nav__cta" href="#tarifs">Rejoindre Evolve</a>
+          <a className="btn btn--primary btn--sm nav__cta" href="#programmes">Rejoindre Evolve</a>
 
           <MobileNav />
         </div>
@@ -115,103 +134,95 @@ export default function Home() {
 
         {/* HERO */}
         <section className="hero">
-          <div className="wrap">
+          <div className="hero__media" aria-hidden="true">
+            <Image src="/img/hero-gym.webp" alt="" fill priority sizes="100vw" />
+            <div className="hero__scrim" />
+          </div>
+
+          <div className="wrap hero__content">
             <p className="hero__badge">
               <span className="dot" aria-hidden="true" />
-              La méthode Evolve
+              Le système Evolve
             </p>
 
             <h1>
-              Transforme ton corps.<br />
-              Arrête de <em>recommencer</em> chaque lundi.
+              Ton physique n&rsquo;est<br />que le point de départ.
             </h1>
 
             <p className="hero__sub">
-              Entraînement, nutrition et suivi réunis dans une méthode en 5 étapes,
-              pensée pour tenir sur des mois — pas sur trois semaines de motivation.
+              Entraînement, discipline, coaching et suivi réunis dans un seul système —
+              pour construire un physique et une rigueur qui tiennent, pas un feu de paille
+              de trois semaines.
             </p>
 
             <div className="hero__actions">
-              <a className="btn btn--primary btn--tap" href="#tarifs">
-                Commencer ma transformation
+              <a className="btn btn--primary btn--tap" href="#programmes">
+                Découvrir le système
                 <svg className="btn__arrow" width="17" height="17" aria-hidden="true"><use href="#i-arrow" /></svg>
               </a>
-              <a className="hero__link" href="#methode">Voir la méthode en 5 étapes</a>
-            </div>
-
-            <div className="hero__stats">
-              <div className="hero__stat">
-                <b>5</b>
-                <span>étapes structurées</span>
-              </div>
-              <div className="hero__stat">
-                <b>10</b>
-                <span>domaines couverts</span>
-              </div>
-              <div className="hero__stat">
-                <b>100%</b>
-                <span>en ligne, à ton rythme</span>
-              </div>
+              <a className="hero__link" href="#methode">Voir comment ça fonctionne</a>
             </div>
           </div>
         </section>
-
-        <div className="marquee" aria-hidden="true">
-          <div className="marquee__track">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <span key={i} style={{ display: 'contents' }}>
-                <span className="marquee__item">Discipline</span>
-                <span className="marquee__item">Force</span>
-                <span className="marquee__item">Nutrition</span>
-                <span className="marquee__item">Régularité</span>
-                <span className="marquee__item">Récupération</span>
-                <span className="marquee__item">Progression</span>
-                <span className="marquee__item">Méthode</span>
-              </span>
-            ))}
-          </div>
-        </div>
 
         {/* PROBLEM */}
         <section className="section" id="probleme">
           <div className="wrap">
             <header className="section-header">
-              <p className="eyebrow">Le point de départ</p>
-              <h2>Ce n’est pas ta volonté.<br />C’est l’absence de méthode.</h2>
+              <p className="eyebrow">Pourquoi ça ne marche pas</p>
+              <h2>Ce n&rsquo;est pas un manque d&rsquo;effort.<br />C&rsquo;est un manque de système.</h2>
+              <p>
+                Tu t&rsquo;entraînes, tu regardes du contenu, tu essaies de progresser — mais sans
+                méthode, sans structure et sans regard extérieur, l&rsquo;effort se disperse. Le
+                physique stagne, la discipline s&rsquo;effrite dès la première semaine compliquée,
+                et il n&rsquo;y a personne pour ajuster le plan quand quelque chose ne fonctionne pas.
+              </p>
             </header>
 
             <div className="mini-grid">
               <article className="mini">
                 <span className="mini__num">01</span>
-                <h3>Tu ne sais pas par où commencer</h3>
-                <p>Vingt avis différents. Zéro première étape claire.</p>
+                <h3>Aucune méthode claire</h3>
+                <p>Vingt avis différents. Zéro première étape précise.</p>
               </article>
               <article className="mini">
                 <span className="mini__num">02</span>
-                <h3>Motivé trois semaines, puis plus rien</h3>
-                <p>À fond au début, à l’arrêt dès le premier imprévu.</p>
+                <h3>La motivation qui retombe</h3>
+                <p>À fond trois semaines, à l&rsquo;arrêt au premier imprévu.</p>
               </article>
               <article className="mini">
                 <span className="mini__num">03</span>
                 <h3>Des séances sans structure</h3>
-                <p>Tu t’entraînes, mais sans savoir si tu progresses vraiment.</p>
+                <p>Tu t&rsquo;entraînes sans savoir si tu progresses réellement.</p>
               </article>
               <article className="mini">
                 <span className="mini__num">04</span>
-                <h3>Une alimentation ingérable</h3>
-                <p>Trop stricte pour durer, ou trop floue pour avoir un effet.</p>
+                <h3>Aucune discipline installée</h3>
+                <p>Les bonnes habitudes ne survivent jamais à une semaine chargée.</p>
               </article>
               <article className="mini">
                 <span className="mini__num">05</span>
                 <h3>Aucun suivi réel</h3>
-                <p>Pas de chiffres, pas de repères : impossible de savoir ce qui marche.</p>
+                <p>Pas de chiffres, pas de repères, pas d&rsquo;ajustement.</p>
               </article>
               <article className="mini">
                 <span className="mini__num">06</span>
-                <h3>Le yo-yo permanent</h3>
-                <p>Des résultats gagnés, puis reperdus, faute de routine stable.</p>
+                <h3>Une progression qui stagne</h3>
+                <p>Le même plateau, revisité chaque année.</p>
               </article>
             </div>
+          </div>
+        </section>
+
+        {/* BLEED BREAK */}
+        <section className="bleed" aria-label="Discipline">
+          <div className="bleed__media" aria-hidden="true">
+            <Image src="/img/founder-beach-2.webp" alt="" fill sizes="100vw" />
+          </div>
+          <div className="bleed__scrim" />
+          <div className="wrap bleed__content">
+            <p className="bleed__line">L&rsquo;effort seul ne suffit pas.</p>
+            <p className="bleed__sub">Il lui manquait un système.</p>
           </div>
         </section>
 
@@ -219,100 +230,240 @@ export default function Home() {
         <section className="section" id="methode">
           <div className="wrap">
             <header className="section-header">
-              <p className="eyebrow">La méthode</p>
-              <h2>5 étapes.<br />Dans cet ordre, pas un autre.</h2>
+              <p className="eyebrow">Le système</p>
+              <h2>Un seul système.<br />Six dimensions.</h2>
+              <p>
+                Evolve ne traite pas le physique comme un sujet isolé. Le système travaille en
+                parallèle sur les dimensions qui, ensemble, créent une transformation qui dure.
+              </p>
             </header>
 
-            <ol className="method__list">
-              <li className="step">
-                <span className="step__num">01</span>
-                <div className="step__body">
-                  <h3>Bilan &amp; objectifs</h3>
-                  <p>Point de départ réel, contraintes de temps et de matériel, objectif chiffré et réaliste.</p>
-                </div>
-              </li>
-              <li className="step">
-                <span className="step__num">02</span>
-                <div className="step__body">
-                  <h3>Fondations techniques</h3>
-                  <p>Les mouvements de base, la bonne exécution, la mobilité — avant d’ajouter de la charge.</p>
-                </div>
-              </li>
-              <li className="step">
-                <span className="step__num">03</span>
-                <div className="step__body">
-                  <h3>Entraînement progressif</h3>
-                  <p>Un programme qui monte en charge semaine après semaine, adapté à ton niveau et ton matériel.</p>
-                </div>
-              </li>
-              <li className="step">
-                <span className="step__num">04</span>
-                <div className="step__body">
-                  <h3>Nutrition tenable</h3>
-                  <p>Des repères simples, pas un régime strict — une alimentation que tu peux suivre toute l’année.</p>
-                </div>
-              </li>
-              <li className="step">
-                <span className="step__num">05</span>
-                <div className="step__body">
-                  <h3>Suivi &amp; ajustements</h3>
-                  <p>Mesures, photos, performances : on ajuste le plan selon ce qui se passe réellement, pas sur une hypothèse figée.</p>
-                </div>
-              </li>
-            </ol>
+            <div className="mod-grid">
+              <article className="mod">
+                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-body" /></svg></span>
+                <h3>Physique</h3>
+                <p>Le résultat visible de tout le reste.</p>
+              </article>
+              <article className="mod">
+                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-fitness" /></svg></span>
+                <h3>Entraînement</h3>
+                <p>Une méthode progressive, pas des séances au hasard.</p>
+              </article>
+              <article className="mod">
+                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-habits" /></svg></span>
+                <h3>Discipline</h3>
+                <p>Des habitudes qui tiennent, même les semaines difficiles.</p>
+              </article>
+              <article className="mod">
+                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-mind" /></svg></span>
+                <h3>Développement personnel</h3>
+                <p>La rigueur mentale qui soutient le physique.</p>
+              </article>
+              <article className="mod">
+                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-social" /></svg></span>
+                <h3>Réseaux sociaux <span className="tier-badge">Elite</span></h3>
+                <p>Ton image, ta présence, ta façon de te montrer.</p>
+              </article>
+              <article className="mod">
+                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-business" /></svg></span>
+                <h3>Business <span className="tier-badge">Elite</span></h3>
+                <p>Apprendre à construire une activité, pas à en rêver.</p>
+              </article>
+            </div>
           </div>
         </section>
 
-        {/* PROGRAM */}
-        <section className="section" id="programme">
+        {/* TRANSFORMATIONS */}
+        <section className="section" id="transformations">
+          <div className="wrap">
+            <header className="section-header section-header--center">
+              <p className="eyebrow eyebrow--center">Résultats réels</p>
+              <h2>De vrais clients.<br />De vrais résultats.</h2>
+              <p>Glisse pour comparer. Ce sont de vraies transformations de clients accompagnés — pas des exemples fabriqués.</p>
+            </header>
+
+            <BeforeAfterSlider
+              before="/img/transformation-1-before.webp"
+              after="/img/transformation-1-after.webp"
+            />
+            <p className="ba-caption" style={{ maxWidth: 460, margin: '16px auto 0' }}>
+              <b>[NOM_CLIENT]</b>
+              <span>[DURÉE_TRANSFORMATION]</span>
+            </p>
+
+            <p className="disclaimer" style={{ margin: '28px auto 0', textAlign: 'center' }}>
+              Les résultats dépendent de la régularité avec laquelle la méthode est appliquée et
+              varient d&rsquo;une personne à l&rsquo;autre. Evolve est un contenu éducatif : il ne
+              remplace pas un avis médical. Consulte un professionnel de santé avant de débuter un
+              programme d&rsquo;entraînement ou de modifier ton alimentation.
+            </p>
+          </div>
+        </section>
+
+        {/* PROGRAMS */}
+        <section className="section" id="programmes">
+          <div className="wrap">
+            <header className="section-header section-header--center">
+              <p className="eyebrow eyebrow--center">Les deux voies d&rsquo;accès</p>
+              <h2>Choisis ton niveau d&rsquo;accompagnement.</h2>
+              <p>Elite inclut tout Essential, avec un accompagnement individuel plus poussé et un volet business.</p>
+            </header>
+
+            <div className="tiers">
+              <article className="card tier">
+                <header className="tier__head">
+                  <h3 className="tier__name">Essential</h3>
+                  <p className="tier__for">Le système complet pour transformer ton physique et ta discipline.</p>
+                </header>
+                <div className="price"><span className="price__value">399,99&nbsp;€</span></div>
+                <p className="tier__terms">Paiement unique</p>
+                <ul className="checklist tier__features">
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Formation structurée complète</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Coaching et accompagnement</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Programme de musculation personnalisé</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Conseils entraînement et progression</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Suivi de ton évolution</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Application Evolve — séances, objectifs, progression</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Accompagnement habitudes &amp; discipline</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Méthode claire, étapes précises</li>
+                </ul>
+                <CheckoutButton tier="essential" label="Rejoindre Essential" variant="ghost" />
+              </article>
+
+              <article className="card tier tier--elite">
+                <span className="tier__ribbon">Accompagnement complet</span>
+                <header className="tier__head">
+                  <h3 className="tier__name">Elite</h3>
+                  <p className="tier__for">Tout Essential, avec un accompagnement individuel et un volet business.</p>
+                </header>
+                <div className="price"><span className="price__value">799,99&nbsp;€</span></div>
+                <p className="tier__terms">Paiement unique</p>
+                <ul className="checklist tier__features">
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><b>Tout Essential</b></li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Coaching plus personnalisé</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Suivi individuel plus approfondi</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Accompagnement développement personnel</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Coaching entrepreneuriat</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Stratégie réseaux sociaux &amp; création de contenu</li>
+                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Construire une activité en ligne, à ton rythme</li>
+                </ul>
+                <CheckoutButton tier="elite" label="Rejoindre Elite" />
+                <p className="tier__note">Le volet business enseigne des compétences et une méthode — ce n&rsquo;est pas une promesse de revenu.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        {/* VALUE STACK */}
+        <section className="section" id="valeur">
+          <div className="wrap wrap--narrow">
+            <header className="section-header section-header--center">
+              <p className="eyebrow eyebrow--center">Ce que tu obtiens réellement</p>
+              <h2>Chaque élément a une valeur.<br />Ensemble, c&rsquo;est un système.</h2>
+            </header>
+
+            <div className="value-list">
+              <div className="value-row">
+                <span className="value-row__name">Formation complète<span className="value-row__desc">Méthode structurée, étape par étape</span></span>
+                <span className="value-row__amount">[VALEUR_FORMATION]&nbsp;€</span>
+              </div>
+              <div className="value-row">
+                <span className="value-row__name">Coaching &amp; accompagnement<span className="value-row__desc">Suivi et ajustements réguliers</span></span>
+                <span className="value-row__amount">[VALEUR_COACHING]&nbsp;€</span>
+              </div>
+              <div className="value-row">
+                <span className="value-row__name">Application Evolve<span className="value-row__desc">Séances, objectifs, progression, habitudes</span></span>
+                <span className="value-row__amount">[VALEUR_APP]&nbsp;€</span>
+              </div>
+              <div className="value-row">
+                <span className="value-row__name">Programme d&rsquo;entraînement sur mesure<span className="value-row__desc">Adapté à ton niveau et ton matériel</span></span>
+                <span className="value-row__amount">[VALEUR_PROGRAMME]&nbsp;€</span>
+              </div>
+              <div className="value-row">
+                <span className="value-row__name">Suivi &amp; ajustements<span className="value-row__desc">Le plan évolue avec toi</span></span>
+                <span className="value-row__amount">[VALEUR_SUIVI]&nbsp;€</span>
+              </div>
+              <div className="value-row">
+                <span className="value-row__name">Coaching business &amp; réseaux sociaux <span className="tier-badge">Elite</span><span className="value-row__desc">Stratégie de contenu, image, audience</span></span>
+                <span className="value-row__amount">[VALEUR_BUSINESS]&nbsp;€</span>
+              </div>
+              <div className="value-total">
+                <b>Valeur totale estimée</b>
+                <span className="value-total__amount">[VALEUR_TOTALE]&nbsp;€</span>
+              </div>
+            </div>
+            <p className="disclaimer" style={{ textAlign: 'center', margin: '18px auto 0' }}>
+              Ces montants sont des repères de valeur, à définir précisément avant publication — aucun chiffre ci-dessus n&rsquo;est encore validé.
+            </p>
+          </div>
+        </section>
+
+        {/* APP */}
+        <section className="section" id="application">
           <div className="wrap">
             <header className="section-header">
-              <p className="eyebrow">À l’intérieur</p>
-              <h2>10 domaines.<br />Un seul système.</h2>
+              <p className="eyebrow">L&rsquo;outil qui fait la différence</p>
+              <h2>Ce n&rsquo;est pas une formation.<br />C&rsquo;est un système que tu utilises chaque jour.</h2>
+              <p>
+                L&rsquo;application Evolve centralise tes séances, ta progression, tes objectifs et
+                tes habitudes. Elle transforme la méthode en routine concrète, au lieu de rester une
+                formation qu&rsquo;on regarde une fois et qu&rsquo;on oublie.
+              </p>
             </header>
 
             <div className="mod-grid">
               <article className="mod">
                 <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-fitness" /></svg></span>
-                <h3>Musculation</h3>
-                <p>Programme progressif, adapté salle ou maison.</p>
-              </article>
-              <article className="mod">
-                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-nutrition" /></svg></span>
-                <h3>Nutrition</h3>
-                <p>Des repères simples, pas un régime rigide.</p>
-              </article>
-              <article className="mod">
-                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-mobility" /></svg></span>
-                <h3>Mobilité</h3>
-                <p>Corriger les déséquilibres avant qu’ils ne bloquent.</p>
-              </article>
-              <article className="mod">
-                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-sleep" /></svg></span>
-                <h3>Récupération &amp; sommeil</h3>
-                <p>Ce qui fait progresser réellement entre les séances.</p>
+                <h3>Suivi des entraînements</h3>
+                <p>Charges, séries, répétitions — séance après séance.</p>
               </article>
               <article className="mod">
                 <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-chart" /></svg></span>
-                <h3>Suivi des performances</h3>
-                <p>Charges, mesures, photos — des chiffres, pas des impressions.</p>
+                <h3>Courbes de progression</h3>
+                <p>Des chiffres, pas des impressions.</p>
               </article>
               <article className="mod">
-                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-mind" /></svg></span>
-                <h3>Mental &amp; discipline</h3>
-                <p>Tenir sur la durée, y compris les semaines difficiles.</p>
+                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-target" /></svg></span>
+                <h3>Objectifs personnalisés</h3>
+                <p>Fixés avec toi, ajustés avec toi.</p>
               </article>
               <article className="mod">
                 <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-habits" /></svg></span>
-                <h3>Habitudes quotidiennes</h3>
-                <p>La routine qui fait tenir tout le reste ensemble.</p>
+                <h3>Suivi des habitudes</h3>
+                <p>La discipline devient visible, jour après jour.</p>
               </article>
               <article className="mod">
-                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-community" /></svg></span>
-                <h3>Communauté</h3>
-                <p>[COMMUNITY_DESCRIPTION — décrire le groupe privé si tu en proposes un.]</p>
+                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-sync" /></svg></span>
+                <h3>Statistiques de performance</h3>
+                <p>Une vue d&rsquo;ensemble de ta progression réelle.</p>
+              </article>
+              <article className="mod">
+                <span className="mod__icon"><svg width="17" height="17" aria-hidden="true"><use href="#i-target" /></svg></span>
+                <h3>Suivi personnalisé</h3>
+                <p>Reliée à ton coaching, pas un outil isolé.</p>
               </article>
             </div>
+          </div>
+        </section>
+
+        {/* COACHING */}
+        <section className="section" id="coaching">
+          <div className="wrap wrap--narrow">
+            <header className="section-header">
+              <p className="eyebrow">L&rsquo;accompagnement</p>
+              <h2>Un système, mais jamais seul.</h2>
+            </header>
+            <p>
+              La méthode et l&rsquo;application structurent ton parcours ; le coaching l&rsquo;ajuste à
+              ta réalité. Avec Essential, ton suivi est périodique : ton programme est revu et ajusté
+              régulièrement selon ta progression. Avec Elite, le suivi est individuel et plus
+              rapproché, avec un accès direct pour poser tes questions et corriger le plan rapidement.
+            </p>
+            <p className="disclaimer" style={{ marginTop: 16 }}>
+              [À préciser avant publication : fréquence exacte des points de suivi, format des appels
+              Elite, délai de réponse. Ces détails engagent une vraie promesse de service — ne pas
+              publier de chiffre non confirmé.]
+            </p>
           </div>
         </section>
 
@@ -321,23 +472,18 @@ export default function Home() {
           <div className="wrap founder__layout">
             <figure>
               <div className="portrait">
-                <div className="ph">
-                  <div>
-                    <span className="ph__label">Ajoute ta photo</span>
-                    <span className="ph__hint">[FOUNDER_PHOTO]</span>
-                  </div>
-                </div>
+                <Image src="/img/founder-portrait.webp" alt="Jim, fondateur d’Evolve" fill sizes="(max-width: 860px) 100vw, 320px" />
               </div>
             </figure>
 
             <div className="founder__body">
               <p className="eyebrow">Qui est derrière Evolve</p>
-              <h2>Je n’ai pas pris de raccourci.<br />Je n’en vends pas non plus.</h2>
+              <h2>Je n&rsquo;ai pas pris de raccourci.<br />Je n&rsquo;en vends pas non plus.</h2>
 
               <p>
-                [FOUNDER_STORY — deux ou trois phrases : d’où tu pars, ce qui a changé, combien de
-                temps ça t’a pris. Du concret plutôt que de l’impressionnant : c’est ce que les gens
-                lisent avant de faire confiance à la méthode.]
+                [FOUNDER_STORY — deux ou trois phrases : d&rsquo;où Jim est parti, ce qui a changé, en
+                combien de temps. Du concret plutôt que de l&rsquo;impressionnant : c&rsquo;est ce que
+                les gens lisent avant de faire confiance à la méthode.]
               </p>
 
               <ul className="founder__principles">
@@ -356,113 +502,39 @@ export default function Home() {
               </ul>
 
               <p className="founder__sign">
-                <b>[FOUNDER_NAME]</b>
+                <b>Jim</b>
+                <a href="https://www.instagram.com/jimg.gg/" target="_blank" rel="noopener">
+                  <svg width="15" height="15" aria-hidden="true" style={{ verticalAlign: '-3px', marginRight: 4 }}><use href="#i-ig" /></svg>
+                  @jimg.gg
+                </a>
               </p>
             </div>
           </div>
         </section>
 
-        {/* RESULTS */}
-        <section className="section" id="resultats">
+        {/* TESTIMONIALS */}
+        <section className="section" id="temoignages">
           <div className="wrap">
             <header className="section-header section-header--center">
-              <p className="eyebrow">Résultats</p>
-              <h2>Uniquement des vrais.</h2>
-              <p>Ces emplacements sont réservés à de vraies photos avant/après de membres ayant donné leur accord.</p>
+              <p className="eyebrow eyebrow--center">Témoignages</p>
+              <h2>Ce qu&rsquo;en disent les membres.</h2>
             </header>
 
             <div className="note">
               <svg width="17" height="17" aria-hidden="true"><use href="#i-info" /></svg>
               <span>
-                <strong>Section à compléter.</strong> Remplace chaque cadre par une vraie photo et
-                chaque citation par un vrai témoignage avant publication — rien ici n’est un retour réel.
+                <strong>Section à compléter.</strong> Ces emplacements sont réservés à de vrais
+                retours de membres, avec leur accord — rien ici n&rsquo;est encore un témoignage réel.
               </span>
             </div>
 
             <div className="rail">
-              {[1, 2, 3].map((n) => (
-                <article className="result-card" key={n}>
-                  <div className="result-card__pair">
-                    <div className="ph"><span className="tag">Avant</span><div><span className="ph__label">Photo</span><span className="ph__hint">[BEFORE_PHOTO_{n}]</span></div></div>
-                    <div className="ph"><span className="tag tag--after">Après</span><div><span className="ph__label">Photo</span><span className="ph__hint">[AFTER_PHOTO_{n}]</span></div></div>
-                  </div>
-                  <div className="result-card__caption"><b>[MEMBRE_{n}]</b><span>[DUREE_{n}]</span></div>
-                </article>
-              ))}
-            </div>
-
-            <div className="rail" style={{ marginTop: '.9rem' }}>
               {[1, 2, 3].map((n) => (
                 <figure className="quote" key={n}>
                   <blockquote><p>[TEMOIGNAGE_{n} — exemple à remplacer par un vrai retour de membre]</p></blockquote>
                   <figcaption><b>[NOM_{n}]</b><span>[CONTEXTE_{n}]</span></figcaption>
                 </figure>
               ))}
-            </div>
-
-            <p className="disclaimer">
-              Les résultats dépendent de la régularité avec laquelle la méthode est appliquée et
-              varient d’une personne à l’autre. Evolve est un contenu éducatif : il ne remplace pas
-              un avis médical. Consulte un professionnel de santé avant de débuter un programme
-              d’entraînement ou de modifier ton alimentation, en particulier en cas de blessure,
-              de pathologie ou de traitement en cours.
-            </p>
-          </div>
-        </section>
-
-        {/* WHAT YOU GET */}
-        <section className="section" id="inclus">
-          <div className="wrap">
-            <header className="section-header">
-              <p className="eyebrow">Ce que tu reçois</p>
-              <h2>Tu ouvres. Tu suis.</h2>
-            </header>
-
-            <ul className="get-list">
-              <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><div><b>La méthode Evolve</b><span>5 étapes, dans l’ordre.</span></div></li>
-              <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><div><b>Programme d’entraînement</b><span>Progressif, sur plusieurs semaines.</span></div></li>
-              <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><div><b>Guide nutrition</b><span>Des repères simples à tenir.</span></div></li>
-              <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><div><b>Checklists</b><span>Quotidiennes et hebdomadaires.</span></div></li>
-              <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><div><b>Outils de suivi</b><span>Charges, mesures, photos de progression.</span></div></li>
-              <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><div><b>Mises à jour</b><span>[UPDATES_DESCRIPTION]</span></div></li>
-            </ul>
-          </div>
-        </section>
-
-        {/* WHO FOR */}
-        <section className="section" id="pour-qui">
-          <div className="wrap">
-            <header className="section-header section-header--center">
-              <p className="eyebrow eyebrow--center">Est-ce pour toi</p>
-              <h2>Pas fait pour tout le monde.</h2>
-            </header>
-
-            <div className="audience">
-              <article className="card audience__card">
-                <div className="audience__head">
-                  <span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>
-                  <h3>C’est pour toi si…</h3>
-                </div>
-                <ul className="checklist">
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Tu veux un plan clair, pas vingt avis contradictoires.</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Tu es prêt à t’engager sur plusieurs mois.</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Tu veux progresser même les semaines chargées.</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Tu préfères des résultats durables à un effet rapide.</li>
-                </ul>
-              </article>
-
-              <article className="card audience__card">
-                <div className="audience__head">
-                  <span className="cross-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-cross" /></svg></span>
-                  <h3>Ce n’est pas pour toi si…</h3>
-                </div>
-                <ul className="checklist">
-                  <li><span className="cross-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-cross" /></svg></span>Tu cherches un résultat en une semaine.</li>
-                  <li><span className="cross-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-cross" /></svg></span>Tu ne veux changer aucune habitude.</li>
-                  <li><span className="cross-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-cross" /></svg></span>Tu vas lire le programme sans l’appliquer.</li>
-                  <li><span className="cross-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-cross" /></svg></span>Tu recherches un avis médical ou un suivi de pathologie.</li>
-                </ul>
-              </article>
             </div>
           </div>
         </section>
@@ -479,82 +551,15 @@ export default function Home() {
           </div>
         </section>
 
-        {/* PRICING */}
-        <section className="section pricing" id="tarifs">
-          <div className="wrap">
-            <header className="section-header section-header--center">
-              <p className="eyebrow eyebrow--center">Tarifs</p>
-              <h2>Commence ta transformation</h2>
-              <p>Paiement unique. Sans abonnement.</p>
-            </header>
-
-            <div className="tiers">
-              <article className="card tier">
-                <header className="tier__head">
-                  <h3 className="tier__name">Essentiel</h3>
-                  <p className="tier__for">La méthode, en autonomie.</p>
-                </header>
-                <div className="price"><span className="price__value">97&nbsp;€</span></div>
-                <p className="tier__terms">Paiement unique</p>
-                <ul className="checklist tier__features">
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>La méthode en 5 étapes</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Programme d’entraînement complet</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Guide nutrition</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Checklists quotidiennes</li>
-                </ul>
-                <CheckoutButton tier="essentiel" label="Choisir Essentiel" variant="ghost" />
-              </article>
-
-              <article className="card tier tier--featured">
-                <span className="tier__ribbon">Le plus choisi</span>
-                <header className="tier__head">
-                  <h3 className="tier__name">Evolve</h3>
-                  <p className="tier__for">Le système complet.</p>
-                </header>
-                <div className="price"><span className="price__value">297&nbsp;€</span></div>
-                <p className="tier__terms">Paiement unique</p>
-                <ul className="checklist tier__features">
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><b>Tout Essentiel</b></li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Suivi hebdomadaire de tes progrès</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Ajustements du programme</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Outils de suivi — J0 / J30 / J60 / J90</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Communauté privée</li>
-                </ul>
-                <CheckoutButton tier="evolve" label="Rejoindre Evolve" />
-              </article>
-
-              <article className="card tier">
-                <header className="tier__head">
-                  <h3 className="tier__name">Privé</h3>
-                  <p className="tier__for">Sur mesure, avec accès direct.</p>
-                </header>
-                <div className="price"><span className="price__value">890&nbsp;€</span></div>
-                <p className="tier__terms">Paiement unique</p>
-                <ul className="checklist tier__features">
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span><b>Tout Evolve</b></li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Bilan personnalisé de ton point de départ</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Appel d’onboarding ([CALL_DURATION])</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Accès direct pendant [SUPPORT_DURATION]</li>
-                  <li><span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>Point mensuel</li>
-                </ul>
-                <CheckoutButton tier="private" label="Postuler pour Privé" variant="ghost" />
-                <p className="tier__note">Places limitées à [SPOTS_PER_MONTH] par mois</p>
-              </article>
-            </div>
-
-            <p className="pricing__foot">Paiement sécurisé par Stripe · Sans abonnement</p>
-          </div>
-        </section>
-
         {/* FINAL CTA */}
         <section className="final">
           <div className="wrap">
-            <h2>Ta transformation<br />commence maintenant.</h2>
-            <a className="btn btn--primary btn--block btn--tap" href="#tarifs">
-              Rejoindre Evolve
-              <svg className="btn__arrow" width="17" height="17" aria-hidden="true"><use href="#i-arrow" /></svg>
-            </a>
-            <p className="final__micro">Pas de raccourci · Pas de recette miracle · Juste une méthode</p>
+            <h2>Le système existe.<br />Reste à choisir jusqu&rsquo;où tu vas.</h2>
+            <div style={{ display: 'grid', gap: 14, maxWidth: 420, margin: '28px auto 0' }}>
+              <CheckoutButton tier="essential" label="Rejoindre Essential — 399,99 €" variant="ghost" />
+              <CheckoutButton tier="elite" label="Rejoindre Elite — 799,99 €" />
+            </div>
+            <p className="final__micro">Pas de raccourci · Pas de promesse irréaliste · Juste un système</p>
           </div>
         </section>
       </main>
@@ -567,21 +572,21 @@ export default function Home() {
                 <svg className="logo__mark" aria-hidden="true"><use href="#i-logo" /></svg>
                 <span>Evolve</span>
               </a>
-              <p className="footer__tagline">Musculation, nutrition, suivi — une méthode pour tenir dans la durée.</p>
+              <p className="footer__tagline">La discipline, transformée en système.</p>
             </div>
 
             <nav className="footer__col" aria-label="Programme">
               <h4>Programme</h4>
               <a href="#top">Accueil</a>
               <a href="#methode">Méthode</a>
-              <a href="#programme">Programme</a>
-              <a href="#tarifs">Tarifs</a>
+              <a href="#programmes">Programmes</a>
+              <a href="#transformations">Résultats</a>
             </nav>
 
             <nav className="footer__col" aria-label="Support">
               <h4>Support</h4>
               <a href="#faq">FAQ</a>
-              <a href="#resultats">Résultats</a>
+              <a href="#temoignages">Témoignages</a>
               <a href="mailto:[CONTACT_EMAIL]">Contact</a>
             </nav>
 
@@ -595,7 +600,7 @@ export default function Home() {
 
           <div className="footer__bottom">
             <span>&copy; {new Date().getFullYear()} Evolve. Tous droits réservés.</span>
-            <span>Contenu éducatif. Ne remplace pas un avis médical.</span>
+            <span>Contenu éducatif. Ne remplace pas un avis médical. Le volet business n&rsquo;est pas une promesse de revenu.</span>
           </div>
         </div>
       </footer>

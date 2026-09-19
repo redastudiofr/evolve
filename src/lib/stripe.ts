@@ -1,16 +1,14 @@
 import Stripe from 'stripe';
 
-export const TIERS = ['essentiel', 'evolve', 'private'] as const;
+export const TIERS = ['essential', 'elite'] as const;
 export type Tier = (typeof TIERS)[number];
 
 export function priceIdFor(tier: Tier): string | undefined {
   switch (tier) {
-    case 'essentiel':
-      return process.env.STRIPE_PRICE_ESSENTIEL;
-    case 'evolve':
-      return process.env.STRIPE_PRICE_EVOLVE;
-    case 'private':
-      return process.env.STRIPE_PRICE_PRIVATE;
+    case 'essential':
+      return process.env.STRIPE_PRICE_ESSENTIAL;
+    case 'elite':
+      return process.env.STRIPE_PRICE_ELITE;
   }
 }
 
