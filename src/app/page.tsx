@@ -191,6 +191,21 @@ export default function Home() {
               </div>
             </div>
 
+            <div className="pitch__prices">
+              <a className="pitch__price" href="#programmes">
+                <span className="pitch__price-name">Start</span>
+                <span className="pitch__price-amount">249,99&nbsp;€</span>
+              </a>
+              <a className="pitch__price pitch__price--featured" href="#programmes">
+                <span className="pitch__price-name">Essential</span>
+                <span className="pitch__price-amount">399,99&nbsp;€</span>
+              </a>
+              <a className="pitch__price pitch__price--elite" href="#programmes">
+                <span className="pitch__price-name">Elite</span>
+                <span className="pitch__price-amount">799,99&nbsp;€</span>
+              </a>
+            </div>
+
             <div className="pitch__cta">
               <a className="btn btn--primary btn--block btn--tap btn--glow" href="#programmes">
                 Découvrir le système
@@ -250,11 +265,6 @@ export default function Home() {
                 d&rsquo;elles-mêmes, physiquement et mentalement. Il partage sa méthode avec les
                 11&nbsp;000 personnes qui le suivent, et Evolve est la version complète et
                 structurée de cet accompagnement.
-              </p>
-              <p>
-                [FOUNDER_STORY — à compléter : d&rsquo;où Jim est parti, ce qui a changé, en combien
-                de temps. Du concret plutôt que de l&rsquo;impressionnant, c&rsquo;est ce que les gens
-                lisent avant de faire confiance à la méthode.]
               </p>
 
               <ul className="founder__principles">

@@ -1465,6 +1465,66 @@ p {
   color: var(--text-faint);
 }
 
+.pitch__prices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.pitch__price {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 104px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.pitch__price:hover {
+  border-color: var(--text-dim);
+  transform: translateY(-1px);
+}
+
+.pitch__price-name {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+
+.pitch__price-amount {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.pitch__price--featured {
+  border-color: var(--accent);
+}
+
+.pitch__price--featured:hover {
+  border-color: var(--accent-strong);
+}
+
+.pitch__price--featured .pitch__price-amount {
+  color: var(--accent-strong);
+}
+
+.pitch__price--elite {
+  border-color: var(--gold);
+}
+
+.pitch__price--elite .pitch__price-amount {
+  color: var(--gold);
+}
+
 .pitch__cta {
   max-width: 340px;
   margin: 28px auto 0;
