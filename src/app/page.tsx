@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import BeforeAfterSlider from '@/components/BeforeAfterSlider';
 import CheckoutButton from '@/components/CheckoutButton';
 import Faq from '@/components/Faq';
 import MobileNav from '@/components/MobileNav';
+import TransformationsRail from '@/components/TransformationsRail';
 
 const ICONS = (
   <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: 'absolute' }}>
@@ -59,6 +59,9 @@ const ICONS = (
       <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
       <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1.6" />
       <circle cx="17" cy="7" r="1.1" fill="currentColor" />
+    </symbol>
+    <symbol id="i-play" viewBox="0 0 24 24">
+      <path d="M8 5.5v13l11-6.5-11-6.5Z" fill="currentColor" />
     </symbol>
   </svg>
 );
@@ -134,10 +137,13 @@ export default function Home() {
 
         {/* HERO */}
         <section className="hero">
-          <div className="hero__media" aria-hidden="true">
-            <Image src="/img/hero-gym.webp" alt="" fill priority sizes="100vw" />
-            <div className="hero__scrim" />
+          <div className="hero__media hero__media--mobile" aria-hidden="true">
+            <Image src="/img/hero-gym-mobile.webp" alt="" fill priority sizes="100vw" />
           </div>
+          <div className="hero__media hero__media--desktop" aria-hidden="true">
+            <Image src="/img/hero-gym.webp" alt="" fill priority sizes="100vw" />
+          </div>
+          <div className="hero__scrim" />
 
           <div className="wrap hero__content">
             <p className="hero__badge">
@@ -161,6 +167,123 @@ export default function Home() {
                 <svg className="btn__arrow" width="17" height="17" aria-hidden="true"><use href="#i-arrow" /></svg>
               </a>
               <a className="hero__link" href="#methode">Voir comment ça fonctionne</a>
+            </div>
+          </div>
+        </section>
+
+        {/* PITCH / VIDEO */}
+        <section className="section pitch" id="decouvrir">
+          <div className="wrap wrap--narrow">
+            <header className="section-header section-header--center">
+              <p className="eyebrow eyebrow--center">Deux minutes pour tout comprendre</p>
+              <h2>Voici exactement ce que tu obtiens.</h2>
+              <p>La méthode, l&rsquo;application, le coaching — expliqués simplement, sans blabla marketing.</p>
+            </header>
+
+            <div className="pitch__video">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span className="pitch__video-play">
+                  <svg width="20" height="20" aria-hidden="true"><use href="#i-play" /></svg>
+                </span>
+                <span style={{ fontSize: 13, color: 'var(--text-faint)' }}>Vidéo à venir</span>
+              </div>
+            </div>
+
+            <div className="pitch__cta">
+              <a className="btn btn--primary btn--block btn--tap btn--glow" href="#programmes">
+                Découvrir le système
+                <svg className="btn__arrow" width="17" height="17" aria-hidden="true"><use href="#i-arrow" /></svg>
+              </a>
+            </div>
+
+            <div className="pitch__badges">
+              <span className="pitch__badge">
+                <svg width="14" height="14" aria-hidden="true"><use href="#i-check" /></svg>
+                Application incluse
+              </span>
+              <span className="pitch__badge">
+                <svg width="14" height="14" aria-hidden="true"><use href="#i-check" /></svg>
+                Coaching personnalisé
+              </span>
+              <span className="pitch__badge">
+                <svg width="14" height="14" aria-hidden="true"><use href="#i-check" /></svg>
+                Aucune expérience requise
+              </span>
+              <span className="pitch__badge">
+                <svg width="14" height="14" aria-hidden="true"><use href="#i-check" /></svg>
+                Accès immédiat après achat
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* TRANSFORMATIONS */}
+        <section className="section" id="transformations">
+          <div className="wrap">
+            <header className="section-header section-header--center">
+              <p className="eyebrow eyebrow--center">Résultats réels</p>
+              <h2>De vrais clients.<br />De vrais résultats.</h2>
+              <p>Glisse pour comparer. De vraies transformations de clients accompagnés par Jim — à venir dans l&rsquo;ordre, ici même.</p>
+            </header>
+
+            <TransformationsRail />
+
+            <p className="disclaimer" style={{ margin: '28px auto 0', textAlign: 'center' }}>
+              Les résultats dépendent de la régularité avec laquelle la méthode est appliquée et
+              varient d&rsquo;une personne à l&rsquo;autre. Evolve est un contenu éducatif : il ne
+              remplace pas un avis médical. Consulte un professionnel de santé avant de débuter un
+              programme d&rsquo;entraînement ou de modifier ton alimentation.
+            </p>
+          </div>
+        </section>
+
+        {/* FOUNDER */}
+        <section className="section" id="fondateur">
+          <div className="wrap founder__layout">
+            <figure>
+              <div className="portrait">
+                <Image src="/img/founder-beach-1.webp" alt="Jim, fondateur d’Evolve" fill sizes="(max-width: 860px) 100vw, 320px" />
+              </div>
+            </figure>
+
+            <div className="founder__body">
+              <p className="eyebrow">Qui est derrière Evolve</p>
+              <h2>Je n&rsquo;ai pas pris de raccourci.<br />Je n&rsquo;en vends pas non plus.</h2>
+
+              <p>
+                Jim a déjà accompagné de nombreuses personnes vers une meilleure version
+                d&rsquo;elles-mêmes, physiquement et mentalement. Il partage sa méthode avec les
+                11&nbsp;000 personnes qui le suivent, et Evolve est la version complète et
+                structurée de cet accompagnement.
+              </p>
+              <p>
+                [FOUNDER_STORY — à compléter : d&rsquo;où Jim est parti, ce qui a changé, en combien
+                de temps. Du concret plutôt que de l&rsquo;impressionnant, c&rsquo;est ce que les gens
+                lisent avant de faire confiance à la méthode.]
+              </p>
+
+              <ul className="founder__principles">
+                <li>
+                  <span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>
+                  <span><b>La méthode avant la motivation.</b></span>
+                </li>
+                <li>
+                  <span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>
+                  <span><b>La régularité avant le volume.</b></span>
+                </li>
+                <li>
+                  <span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>
+                  <span><b>Des délais honnêtes.</b></span>
+                </li>
+              </ul>
+
+              <p className="founder__sign">
+                <b>Jim</b>
+                <a href="https://www.instagram.com/jimg.gg/" target="_blank" rel="noopener">
+                  <svg width="15" height="15" aria-hidden="true" style={{ verticalAlign: '-3px', marginRight: 4 }}><use href="#i-ig" /></svg>
+                  @jimg.gg · 11k
+                </a>
+              </p>
             </div>
           </div>
         </section>
@@ -214,18 +337,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* BLEED BREAK */}
-        <section className="bleed" aria-label="Discipline">
-          <div className="bleed__media" aria-hidden="true">
-            <Image src="/img/founder-beach-2.webp" alt="" fill sizes="100vw" />
-          </div>
-          <div className="bleed__scrim" />
-          <div className="wrap bleed__content">
-            <p className="bleed__line">L&rsquo;effort seul ne suffit pas.</p>
-            <p className="bleed__sub">Il lui manquait un système.</p>
-          </div>
-        </section>
-
         {/* METHOD */}
         <section className="section" id="methode">
           <div className="wrap">
@@ -270,33 +381,6 @@ export default function Home() {
                 <p>Apprendre à construire une activité, pas à en rêver.</p>
               </article>
             </div>
-          </div>
-        </section>
-
-        {/* TRANSFORMATIONS */}
-        <section className="section" id="transformations">
-          <div className="wrap">
-            <header className="section-header section-header--center">
-              <p className="eyebrow eyebrow--center">Résultats réels</p>
-              <h2>De vrais clients.<br />De vrais résultats.</h2>
-              <p>Glisse pour comparer. Ce sont de vraies transformations de clients accompagnés — pas des exemples fabriqués.</p>
-            </header>
-
-            <BeforeAfterSlider
-              before="/img/transformation-1-before.webp"
-              after="/img/transformation-1-after.webp"
-            />
-            <p className="ba-caption" style={{ maxWidth: 460, margin: '16px auto 0' }}>
-              <b>[NOM_CLIENT]</b>
-              <span>[DURÉE_TRANSFORMATION]</span>
-            </p>
-
-            <p className="disclaimer" style={{ margin: '28px auto 0', textAlign: 'center' }}>
-              Les résultats dépendent de la régularité avec laquelle la méthode est appliquée et
-              varient d&rsquo;une personne à l&rsquo;autre. Evolve est un contenu éducatif : il ne
-              remplace pas un avis médical. Consulte un professionnel de santé avant de débuter un
-              programme d&rsquo;entraînement ou de modifier ton alimentation.
-            </p>
           </div>
         </section>
 
@@ -464,51 +548,6 @@ export default function Home() {
               Elite, délai de réponse. Ces détails engagent une vraie promesse de service — ne pas
               publier de chiffre non confirmé.]
             </p>
-          </div>
-        </section>
-
-        {/* FOUNDER */}
-        <section className="section" id="fondateur">
-          <div className="wrap founder__layout">
-            <figure>
-              <div className="portrait">
-                <Image src="/img/founder-portrait.webp" alt="Jim, fondateur d’Evolve" fill sizes="(max-width: 860px) 100vw, 320px" />
-              </div>
-            </figure>
-
-            <div className="founder__body">
-              <p className="eyebrow">Qui est derrière Evolve</p>
-              <h2>Je n&rsquo;ai pas pris de raccourci.<br />Je n&rsquo;en vends pas non plus.</h2>
-
-              <p>
-                [FOUNDER_STORY — deux ou trois phrases : d&rsquo;où Jim est parti, ce qui a changé, en
-                combien de temps. Du concret plutôt que de l&rsquo;impressionnant : c&rsquo;est ce que
-                les gens lisent avant de faire confiance à la méthode.]
-              </p>
-
-              <ul className="founder__principles">
-                <li>
-                  <span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>
-                  <span><b>La méthode avant la motivation.</b></span>
-                </li>
-                <li>
-                  <span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>
-                  <span><b>La régularité avant le volume.</b></span>
-                </li>
-                <li>
-                  <span className="check-icon"><svg width="12" height="12" aria-hidden="true"><use href="#i-check" /></svg></span>
-                  <span><b>Des délais honnêtes.</b></span>
-                </li>
-              </ul>
-
-              <p className="founder__sign">
-                <b>Jim</b>
-                <a href="https://www.instagram.com/jimg.gg/" target="_blank" rel="noopener">
-                  <svg width="15" height="15" aria-hidden="true" style={{ verticalAlign: '-3px', marginRight: 4 }}><use href="#i-ig" /></svg>
-                  @jimg.gg
-                </a>
-              </p>
-            </div>
           </div>
         </section>
 
