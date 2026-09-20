@@ -3,7 +3,6 @@ import Link from 'next/link';
 import AppPreview from '@/components/AppPreview';
 import CheckoutButton from '@/components/CheckoutButton';
 import Faq from '@/components/Faq';
-import GrowthChart from '@/components/GrowthChart';
 import IntroSplash from '@/components/IntroSplash';
 import MobileNav from '@/components/MobileNav';
 import RevealInit from '@/components/RevealInit';
@@ -224,21 +223,6 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="pitch__prices">
-              <a className="pitch__price" href="#programmes">
-                <span className="pitch__price-name">Start</span>
-                <span className="pitch__price-amount">249,99&nbsp;€</span>
-              </a>
-              <a className="pitch__price pitch__price--featured" href="#programmes">
-                <span className="pitch__price-name">Essential</span>
-                <span className="pitch__price-amount">399,99&nbsp;€</span>
-              </a>
-              <a className="pitch__price pitch__price--elite" href="#programmes">
-                <span className="pitch__price-name">Elite</span>
-                <span className="pitch__price-amount">799,99&nbsp;€</span>
-              </a>
-            </div>
-
             <div className="pitch__cta">
               <a className="btn btn--primary btn--block btn--tap btn--aurora" href="#programmes">
                 Découvrir le système
@@ -277,19 +261,6 @@ export default function Home() {
             </header>
 
             <TransformationsCarousel items={TRANSFORMATIONS} />
-
-            <div className="growth-block" data-reveal>
-              <header className="section-header section-header--center">
-                <p className="eyebrow eyebrow--center">Illustration</p>
-                <h3>Building something never moves in a straight line.</h3>
-                <p>A hypothetical progression curve — not a real client&rsquo;s numbers, not a promise.</p>
-              </header>
-              <GrowthChart />
-              <p className="disclaimer" style={{ textAlign: 'center', margin: '18px auto 0' }}>
-                Illustration purement pédagogique, données fictives. Ne représente ni un revenu réel,
-                ni un résultat garanti.
-              </p>
-            </div>
           </div>
         </section>
 
@@ -624,7 +595,7 @@ export default function Home() {
         {/* FINAL CTA */}
         <section className="final">
           <div className="wrap">
-            <h2 data-reveal="title">Le système existe.<br />Reste à choisir jusqu&rsquo;où tu vas.</h2>
+            <h2 data-reveal="title-soft">Le système existe.<br />Reste à choisir jusqu&rsquo;où tu vas.</h2>
             <div className="final__ctas" data-reveal style={{ '--reveal-delay': '100ms' } as React.CSSProperties}>
               <CheckoutButton tier="start" label="Rejoindre Start — 249,99 €" variant="ghost" />
               <CheckoutButton tier="essential" label="Rejoindre Essential — 399,99 €" />

@@ -59,6 +59,19 @@
   transform: scale(1);
 }
 
+/* Same right-slide as 'title', without the blur pass (reads as a soft glow on large bold headings). */
+[data-reveal='title-soft'] {
+  filter: none;
+  transform: translateX(28px);
+  transition-property: opacity, transform;
+  transition-duration: 0.85s;
+}
+
+[data-reveal='title-soft'][data-visible='true'] {
+  filter: none;
+  transform: translateX(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] {
     transition: none !important;
@@ -168,11 +181,6 @@ p {
   line-height: 1.2;
 }
 
-.growth-block {
-  margin-top: 72px;
-  padding-top: 56px;
-  border-top: 1px solid var(--border);
-}
 
 .app-section-layout {
   display: grid;
@@ -1730,66 +1738,6 @@ p {
   color: var(--text-faint);
 }
 
-.pitch__prices {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 24px;
-}
-
-.pitch__price {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  min-width: 104px;
-  padding: 10px 18px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--bg-soft);
-  transition: border-color 0.15s ease, transform 0.15s ease;
-}
-
-.pitch__price:hover {
-  border-color: var(--text-dim);
-  transform: translateY(-1px);
-}
-
-.pitch__price-name {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-faint);
-}
-
-.pitch__price-amount {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.pitch__price--featured {
-  border-color: var(--accent);
-}
-
-.pitch__price--featured:hover {
-  border-color: var(--accent-strong);
-}
-
-.pitch__price--featured .pitch__price-amount {
-  color: var(--accent-strong);
-}
-
-.pitch__price--elite {
-  border-color: var(--gold);
-}
-
-.pitch__price--elite .pitch__price-amount {
-  color: var(--gold);
-}
-
 .pitch__cta {
   max-width: 340px;
   margin: 28px auto 0;
@@ -2029,90 +1977,6 @@ p {
   gap: 2px;
   color: var(--gold);
   margin-bottom: 10px;
-}
-
-/* ---------- growth chart (illustrative, not real data) ---------- */
-.growth-chart {
-  max-width: 640px;
-  margin: 32px auto 0;
-}
-
-.growth-chart__svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.growth-chart__zero {
-  stroke: var(--border);
-  stroke-width: 1.5;
-  stroke-dasharray: 4 4;
-}
-
-.growth-chart__path {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 2.1s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.growth-chart[data-visible='true'] .growth-chart__path {
-  stroke-dashoffset: 0;
-}
-
-.growth-chart__dot {
-  fill: var(--text);
-  stroke: var(--bg);
-  stroke-width: 2;
-  offset-distance: 0%;
-  opacity: 0;
-}
-
-.growth-chart[data-visible='true'] .growth-chart__dot {
-  animation: growth-dot 2.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes growth-dot {
-  0% {
-    offset-distance: 0%;
-    opacity: 1;
-  }
-  99% {
-    opacity: 1;
-  }
-  100% {
-    offset-distance: 100%;
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .growth-chart__path {
-    transition: none;
-    stroke-dashoffset: 0;
-  }
-  .growth-chart__dot {
-    animation: none !important;
-    offset-distance: 100%;
-    opacity: 1;
-  }
-}
-
-.growth-chart__axis {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
-  font-size: 13px;
-  color: var(--text-faint);
-  font-weight: 700;
-}
-
-.growth-chart__axis-zero {
-  color: var(--text-dim);
 }
 
 /* ---------- app preview mockup ---------- */
