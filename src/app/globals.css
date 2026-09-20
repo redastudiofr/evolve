@@ -74,6 +74,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -83,6 +84,7 @@ body {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
+  overflow-x: hidden;
 }
 
 img,
