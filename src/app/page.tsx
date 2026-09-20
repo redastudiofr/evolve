@@ -629,7 +629,7 @@ export default function Home() {
               <h4>Support</h4>
               <a href="#faq">FAQ</a>
               <a href="#temoignages">Témoignages</a>
-              <a href="mailto:[CONTACT_EMAIL]">Contact</a>
+              <Link href="/contact">Contact</Link>
             </nav>
 
             <nav className="footer__col" aria-label="Légal">
