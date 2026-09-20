@@ -41,7 +41,7 @@ export default function CheckoutButton({
     <div>
       <button
         type="button"
-        className={`btn btn--block btn--tap btn--${variant}`}
+        className={`btn btn--block btn--tap btn--${variant}${variant === 'primary' ? ' btn--aurora' : ''}`}
         onClick={handleClick}
         disabled={loading}
         data-checkout

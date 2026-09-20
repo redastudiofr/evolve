@@ -1,9 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import AppPreview from '@/components/AppPreview';
 import CheckoutButton from '@/components/CheckoutButton';
 import Faq from '@/components/Faq';
+import GrowthChart from '@/components/GrowthChart';
 import IntroSplash from '@/components/IntroSplash';
 import MobileNav from '@/components/MobileNav';
+import RevealInit from '@/components/RevealInit';
+import TestimonialsCarousel, { type TestimonialItem } from '@/components/TestimonialsCarousel';
 import TransformationsCarousel, { type Transformation } from '@/components/TransformationsCarousel';
 
 const TRANSFORMATIONS: Transformation[] = [
@@ -13,6 +17,31 @@ const TRANSFORMATIONS: Transformation[] = [
     name: 'Lucas',
     context: 'Programme Essential',
   },
+];
+
+const TESTIMONIALS: TestimonialItem[] = [
+  {
+    name: 'Lucas',
+    context: 'Programme Essential',
+    quote: 'Le suivi a fait toute la différence pour moi, surtout sur la régularité. J’ai arrêté de tout recommencer à zéro à chaque fois.',
+    rating: 5,
+  },
+  {
+    name: 'Nathan',
+    context: 'Programme Essential',
+    quote: 'Bon franchement je m’attendais pas à tenir aussi longtemps, mais le programme est plutôt clair donc ça aide.',
+    rating: 4,
+  },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 5, placeholder: true },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 5, placeholder: true },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 4, placeholder: true },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 5, placeholder: true },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 5, placeholder: true },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 4, placeholder: true },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 5, placeholder: true },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 5, placeholder: true },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 4, placeholder: true },
+  { name: '[Prénom]', context: '[Offre]', quote: '[Avis client à venir — remplace par un vrai retour.]', rating: 5, placeholder: true },
 ];
 
 const ICONS = (
@@ -120,6 +149,7 @@ export default function Home() {
     <>
       {ICONS}
       <IntroSplash />
+      <RevealInit />
 
       <header className="nav">
         <div className="wrap nav__inner">
@@ -157,27 +187,21 @@ export default function Home() {
           <div className="hero__scrim" />
 
           <div className="wrap hero__content">
-            <p className="hero__badge">
+            <p className="hero__badge" data-reveal>
               <span className="dot" aria-hidden="true" />
-              Le système Evolve
+              The Evolve System
             </p>
 
-            <h1>
-              Ton physique n&rsquo;est<br />que le point de départ.
+            <h1 data-reveal="title">
+              Evolve into the person<br />you were always meant to be.
             </h1>
 
-            <p className="hero__sub">
-              Entraînement, discipline, coaching et suivi réunis dans un seul système —
-              pour construire un physique et une rigueur qui tiennent, pas un feu de paille
-              de trois semaines.
-            </p>
-
-            <div className="hero__actions">
-              <a className="btn btn--primary btn--tap" href="#programmes">
-                Découvrir le système
+            <div className="hero__actions" data-reveal style={{ '--reveal-delay': '120ms' } as React.CSSProperties}>
+              <a className="btn btn--primary btn--tap btn--aurora" href="#programmes">
+                Discover the system
                 <svg className="btn__arrow" width="17" height="17" aria-hidden="true"><use href="#i-arrow" /></svg>
               </a>
-              <a className="hero__link" href="#methode">Voir comment ça fonctionne</a>
+              <a className="hero__link" href="#methode">See how it works</a>
             </div>
           </div>
         </section>
@@ -216,7 +240,7 @@ export default function Home() {
             </div>
 
             <div className="pitch__cta">
-              <a className="btn btn--primary btn--block btn--tap btn--glow" href="#programmes">
+              <a className="btn btn--primary btn--block btn--tap btn--aurora" href="#programmes">
                 Découvrir le système
                 <svg className="btn__arrow" width="17" height="17" aria-hidden="true"><use href="#i-arrow" /></svg>
               </a>
@@ -246,28 +270,40 @@ export default function Home() {
         {/* TRANSFORMATIONS */}
         <section className="section" id="transformations">
           <div className="wrap">
-            <header className="section-header section-header--center">
+            <header className="section-header section-header--center" data-reveal="title">
               <p className="eyebrow eyebrow--center">Results</p>
               <h2>Real Before &amp; After Transformations</h2>
               <p>Drag to compare. Every transformation shown here belongs to a real Evolve client.</p>
             </header>
 
             <TransformationsCarousel items={TRANSFORMATIONS} />
+
+            <div className="growth-block" data-reveal>
+              <header className="section-header section-header--center">
+                <p className="eyebrow eyebrow--center">Illustration</p>
+                <h3>Building something never moves in a straight line.</h3>
+                <p>A hypothetical progression curve — not a real client&rsquo;s numbers, not a promise.</p>
+              </header>
+              <GrowthChart />
+              <p className="disclaimer" style={{ textAlign: 'center', margin: '18px auto 0' }}>
+                Illustration purement pédagogique, données fictives. Ne représente ni un revenu réel,
+                ni un résultat garanti.
+              </p>
+            </div>
           </div>
         </section>
 
         {/* FOUNDER */}
         <section className="section" id="fondateur">
           <div className="wrap founder__layout">
-            <figure>
+            <figure data-reveal="img">
               <div className="portrait">
                 <Image src="/img/founder-beach-1.webp" alt="Jim, fondateur d’Evolve" fill sizes="(max-width: 860px) 100vw, 500px" />
               </div>
             </figure>
 
-            <div className="founder__body">
+            <div className="founder__body" data-reveal>
               <p className="eyebrow">Qui est derrière Evolve</p>
-              <h2>Je n&rsquo;ai pas pris de raccourci.<br />Je n&rsquo;en vends pas non plus.</h2>
 
               <p>
                 Jim a déjà accompagné de nombreuses personnes vers une meilleure version
@@ -483,15 +519,19 @@ export default function Home() {
         {/* APP */}
         <section className="section" id="application">
           <div className="wrap">
-            <header className="section-header">
-              <p className="eyebrow">L&rsquo;outil qui fait la différence</p>
-              <h2>Ce n&rsquo;est pas une formation.<br />C&rsquo;est un système que tu utilises chaque jour.</h2>
-              <p>
-                L&rsquo;application Evolve centralise tes séances, ta progression, tes objectifs et
-                tes habitudes. Elle transforme la méthode en routine concrète, au lieu de rester une
-                formation qu&rsquo;on regarde une fois et qu&rsquo;on oublie.
-              </p>
-            </header>
+            <div className="app-section-layout">
+              <header className="section-header" data-reveal="title">
+                <p className="eyebrow">L&rsquo;outil qui fait la différence</p>
+                <h2>Ce n&rsquo;est pas une formation.<br />C&rsquo;est un système que tu utilises chaque jour.</h2>
+                <p>
+                  L&rsquo;application Evolve centralise tes séances, ta progression, tes objectifs et
+                  tes habitudes. Elle transforme la méthode en routine concrète, au lieu de rester une
+                  formation qu&rsquo;on regarde une fois et qu&rsquo;on oublie.
+                </p>
+              </header>
+
+              <AppPreview />
+            </div>
 
             <div className="mod-grid">
               <article className="mod">
@@ -553,42 +593,18 @@ export default function Home() {
         {/* TESTIMONIALS */}
         <section className="section" id="temoignages">
           <div className="wrap">
-            <header className="section-header section-header--center">
+            <header className="section-header section-header--center" data-reveal="title">
               <p className="eyebrow eyebrow--center">Avis clients</p>
               <h2>Ce qu&rsquo;en disent les membres.</h2>
             </header>
 
-            <div className="rail">
-              <figure className="quote">
-                <div className="quote__pair">
-                  <div className="quote__thumb">
-                    <Image src="/img/transformation-1-mid.webp" alt="Lucas, avant" fill sizes="64px" />
-                  </div>
-                  <div className="quote__thumb">
-                    <Image src="/img/transformation-1-after.webp" alt="Lucas, après" fill sizes="64px" />
-                  </div>
-                </div>
-                <blockquote>
-                  <p>Le suivi a fait toute la différence pour moi, surtout sur la régularité. J&rsquo;ai arrêté de tout recommencer à zéro à chaque fois.</p>
-                </blockquote>
-                <figcaption><b>Lucas</b><span>Programme Essential</span></figcaption>
-              </figure>
-
-              <figure className="quote">
-                <div className="quote__avatar">
-                  <Image src="/img/transformation-1-before.webp" alt="Nathan" fill sizes="64px" />
-                </div>
-                <blockquote>
-                  <p>Bon franchement je m&rsquo;attendais pas à tenir aussi longtemps, mais le programme est plutôt clair donc ça aide.</p>
-                </blockquote>
-                <figcaption><b>Nathan</b><span>Programme Essential</span></figcaption>
-              </figure>
-            </div>
+            <TestimonialsCarousel items={TESTIMONIALS} />
 
             <p className="disclaimer" style={{ textAlign: 'center', margin: '18px auto 0' }}>
-              [À valider avec Lucas et Nathan avant publication : ce sont de vrais clients et de
-              vraies photos, mais les citations ci-dessus sont un premier jet écrit pour illustrer
-              le ton — à faire confirmer mot pour mot par chacun d&rsquo;eux.]
+              [À valider avec Lucas et Nathan avant publication : ce sont de vrais clients, mais
+              les citations ci-dessus sont un premier jet écrit pour illustrer le ton — à faire
+              confirmer mot pour mot par chacun d&rsquo;eux. Les autres emplacements sont des
+              exemples clairement marqués, à remplacer par de vrais avis.]
             </p>
           </div>
         </section>
@@ -608,8 +624,8 @@ export default function Home() {
         {/* FINAL CTA */}
         <section className="final">
           <div className="wrap">
-            <h2>Le système existe.<br />Reste à choisir jusqu&rsquo;où tu vas.</h2>
-            <div style={{ display: 'grid', gap: 14, maxWidth: 420, margin: '28px auto 0' }}>
+            <h2 data-reveal="title">Le système existe.<br />Reste à choisir jusqu&rsquo;où tu vas.</h2>
+            <div className="final__ctas" data-reveal style={{ '--reveal-delay': '100ms' } as React.CSSProperties}>
               <CheckoutButton tier="start" label="Rejoindre Start — 249,99 €" variant="ghost" />
               <CheckoutButton tier="essential" label="Rejoindre Essential — 399,99 €" />
               <CheckoutButton tier="elite" label="Rejoindre Elite — 799,99 €" />
