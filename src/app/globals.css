@@ -2053,16 +2053,17 @@ p {
   align-items: center;
 }
 
+/* Mobile: a single, fully legible phone — no overlap, nothing gets clipped. */
 .app-preview__phones {
   position: relative;
   width: 100%;
-  max-width: 300px;
-  height: 420px;
+  max-width: 240px;
+  height: 380px;
 }
 
 .phone {
-  position: absolute;
-  width: 240px;
+  width: 100%;
+  height: 100%;
   border-radius: 32px;
   background: var(--card);
   border: 1px solid var(--border);
@@ -2072,18 +2073,10 @@ p {
 }
 
 .phone--back {
-  top: 0;
-  left: 0;
-  height: 380px;
-  opacity: 0.55;
-  transform: rotate(-6deg);
-  animation-delay: -3s;
+  display: none;
 }
 
 .phone--front {
-  bottom: 0;
-  right: 0;
-  height: 400px;
   animation-delay: 0s;
 }
 
@@ -2092,13 +2085,43 @@ p {
   50% { transform: translateY(-8px) rotate(var(--phone-rot, 0deg)); }
 }
 
-.phone--back {
-  --phone-rot: -6deg;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .phone {
     animation: none;
+  }
+}
+
+/* Tablet and up: enough width for the layered two-phone composition. */
+@media (min-width: 640px) {
+  .app-preview__phones {
+    max-width: 340px;
+    height: 420px;
+  }
+
+  .phone {
+    position: absolute;
+    width: 240px;
+    height: auto;
+  }
+
+  .phone--back {
+    display: block;
+    top: 0;
+    left: 0;
+    height: 380px;
+    width: 260px;
+    opacity: 0.55;
+    --phone-rot: -6deg;
+    animation-delay: -3s;
+  }
+
+  .phone--front {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: auto;
+    height: 400px;
+    width: 260px;
   }
 }
 
@@ -2186,16 +2209,4 @@ p {
   font-size: 13px;
   color: var(--text-faint);
   text-align: center;
-}
-
-@media (min-width: 640px) {
-  .app-preview__phones {
-    max-width: 340px;
-  }
-  .phone--back {
-    width: 260px;
-  }
-  .phone--front {
-    width: 260px;
-  }
 }
