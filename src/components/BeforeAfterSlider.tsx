@@ -8,8 +8,8 @@ const DIRECTION_THRESHOLD = 6; // px of movement before we commit to a gesture d
 export default function BeforeAfterSlider({
   before,
   after,
-  beforeLabel = 'Before',
-  afterLabel = 'After',
+  beforeLabel = 'Avant',
+  afterLabel = 'Après',
 }: {
   before: string;
   after: string;

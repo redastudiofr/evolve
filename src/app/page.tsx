@@ -188,19 +188,19 @@ export default function Home() {
           <div className="wrap hero__content">
             <p className="hero__badge" data-reveal>
               <span className="dot" aria-hidden="true" />
-              The Evolve System
+              Le système Evolve
             </p>
 
             <h1 data-reveal="title">
-              Evolve into the person<br />you were always meant to be.
+              Deviens la personne<br />que tu es censé devenir.
             </h1>
 
             <div className="hero__actions" data-reveal style={{ '--reveal-delay': '120ms' } as React.CSSProperties}>
-              <a className="btn btn--primary btn--tap btn--aurora" href="#programmes">
-                Discover the system
+              <a className="btn btn--primary btn--tap" href="#programmes">
+                Découvrir le système
                 <svg className="btn__arrow" width="17" height="17" aria-hidden="true"><use href="#i-arrow" /></svg>
               </a>
-              <a className="hero__link" href="#methode">See how it works</a>
+              <a className="hero__link" href="#methode">Voir comment ça fonctionne</a>
             </div>
           </div>
         </section>
@@ -224,7 +224,7 @@ export default function Home() {
             </div>
 
             <div className="pitch__cta">
-              <a className="btn btn--primary btn--block btn--tap btn--aurora" href="#programmes">
+              <a className="btn btn--primary btn--block btn--tap" href="#programmes">
                 Découvrir le système
                 <svg className="btn__arrow" width="17" height="17" aria-hidden="true"><use href="#i-arrow" /></svg>
               </a>
@@ -255,9 +255,9 @@ export default function Home() {
         <section className="section" id="transformations">
           <div className="wrap">
             <header className="section-header section-header--center" data-reveal="title">
-              <p className="eyebrow eyebrow--center">Results</p>
-              <h2>Real Before &amp; After Transformations</h2>
-              <p>Drag to compare. Every transformation shown here belongs to a real Evolve client.</p>
+              <p className="eyebrow eyebrow--center">Résultats</p>
+              <h2>De vraies transformations, avant/après</h2>
+              <p>Glisse pour comparer. Chaque transformation présentée ici appartient à un vrai client Evolve.</p>
             </header>
 
             <TransformationsCarousel items={TRANSFORMATIONS} />
