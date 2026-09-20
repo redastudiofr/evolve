@@ -614,9 +614,11 @@ p {
   display: flex;
   gap: 12px;
   overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   padding-bottom: 4px;
-  touch-action: pan-y;
+  touch-action: pan-x;
 }
 
 .mod-grid::-webkit-scrollbar {
@@ -1114,9 +1116,11 @@ p {
   display: flex;
   gap: 18px;
   overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   padding: 4px 4px 10px;
-  touch-action: pan-y;
+  touch-action: pan-x;
 }
 
 .tiers::-webkit-scrollbar {
@@ -1543,10 +1547,12 @@ p {
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.ba-slide .ba-frame:hover {
-  border-color: var(--accent);
-  transform: translateY(-3px);
-  box-shadow: 0 24px 50px -24px var(--accent-soft);
+@media (hover: hover) and (pointer: fine) {
+  .ba-slide .ba-frame:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 24px 50px -24px var(--accent-soft);
+  }
 }
 
 .ba-slide__caption {
@@ -1584,9 +1590,11 @@ p {
   gap: 20px;
   margin-top: 8px;
   overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   padding-bottom: 6px;
-  touch-action: pan-y;
+  touch-action: pan-x;
 }
 
 .value-tiers::-webkit-scrollbar {
@@ -1791,10 +1799,12 @@ p {
   display: flex;
   gap: 20px;
   overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   padding-bottom: 6px;
   scroll-behavior: smooth;
-  touch-action: pan-y;
+  touch-action: pan-x;
 }
 
 .transform-carousel::-webkit-scrollbar {
@@ -1911,10 +1921,12 @@ p {
   display: flex;
   gap: 18px;
   overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   padding-bottom: 6px;
   scroll-behavior: smooth;
-  touch-action: pan-y;
+  touch-action: pan-x;
 }
 
 .testimonial-carousel::-webkit-scrollbar {
